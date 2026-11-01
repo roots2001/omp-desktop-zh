@@ -35,7 +35,7 @@
   const sessionUi = () => window.OMP_SESSION_UI;
   const opts = (values, labels = {}) => values.map(v => ({ value: v, label: labels[v] ?? String(v) }));
   const foldOptions = () => opts(collapse()?.MODES ?? ["auto", "open", "folded"]);
-  const screenOptions = () => (window.OMP_BACKDROPS?.SCREENS ?? [{ id: "matrix", label: "Matrix", blurb: "" }])
+  const screenOptions = () => (window.OMP_BACKDROPS?.SCREENS ?? [{ id: "matrix", label: "矩阵雨", blurb: "" }])
     .map(s => ({ value: s.id, label: s.label, blurb: s.blurb }));
 
   // Descriptors, not spread: spread would read the bound getters once, now.
@@ -44,39 +44,39 @@
   const custom = (type, label, desc, kw, extra) => withExtra({ kind: "custom", id: `custom:${type}`, type, label, desc, kw }, extra);
 
   const SECTIONS = [
-    { id: "appearance", icon: "sparkle", title: "Appearance", blurb: "Colour theme, accent, start screen, density and text size of the whole window.", groups: [
-      { name: "Theme", rows: [
-        tweak("theme", "themes", "Theme", "Picking a theme also resets the accent to the theme's own.", "dark light colour color aurora phosphor daylight"),
-        tweak("accent", "swatches", "Accent", "Focus rings, the active tab, links and the assistant's marks.", "color colour highlight"),
-        tweak("startScreen", "screens", "Start screen", "The animated screen behind the logo while no tab is open. It follows the theme and accent.", "welcome backdrop empty animation matrix latent embedding next token sampling agent loop orbit forward pass neural attention transformer self-attention",
+    { id: "appearance", icon: "sparkle", title: "外观", blurb: "整个窗口的配色主题、强调色、启动画面、密度和字号。", groups: [
+      { name: "主题", rows: [
+        tweak("theme", "themes", "主题", "切换主题会同时把强调色重置为该主题自带的颜色。", "dark light colour color aurora phosphor daylight theme"),
+        tweak("accent", "swatches", "强调色", "焦点框、当前标签页、链接和助手标记的颜色。", "color colour highlight accent"),
+        tweak("startScreen", "screens", "启动画面", "没有打开标签页时，标志背后的动画画面。跟随主题和强调色。", "welcome backdrop empty animation matrix latent embedding next token sampling agent loop orbit forward pass neural attention transformer self-attention start screen",
           { get options() { return screenOptions(); } }),
       ] },
-      { name: "Text", rows: [
-        tweak("density", "seg", "Density", "Row height, padding and the base text size.", "spacing compact",
+      { name: "文本", rows: [
+        tweak("density", "seg", "密度", "行高、内边距和基础字号。", "spacing compact density",
           { options: opts(["cozy", "compact", "dense"]) }),
-        tweak("fontSize", "slider", "Font size", "Scales all text and icons, the terminal's font included.", "zoom scale text",
+        tweak("fontSize", "slider", "字号", "缩放所有文字和图标，终端字体也在内。", "zoom scale text font size",
           { min: 75, max: 150, step: 5, unit: "%" }),
-        tweak("monoChat", "toggle", "Monospace chat", "Show messages in the monospace font instead of the UI font.", "font"),
+        tweak("monoChat", "toggle", "等宽字体对话", "消息使用等宽字体，而不是界面字体。", "font monospace chat"),
       ] },
     ] },
-    { id: "layout", icon: "grid", title: "Layout", blurb: "What sits beside the chat and how wide each column is.", groups: [
-      { name: "Columns", rows: [
-        tweak("layout", "seg", "Side column", "`rail` shows the widget rail, `split` opens a subagent beside the chat, `focus` shows the chat alone.", "layout rail split focus",
+    { id: "layout", icon: "grid", title: "布局", blurb: "对话旁边放什么，以及每一列有多宽。", groups: [
+      { name: "分栏", rows: [
+        tweak("layout", "seg", "侧栏", "`rail` 显示小部件侧栏，`split` 在对话旁展开子智能体，`focus` 只显示对话。", "layout rail split focus side column",
           { options: opts(["rail", "split", "focus"]) }),
-        tweak("defaultSide", "seg", "New tabs show", "What the side column of a newly opened tab starts with. The toolbar still switches it per tab.", "conversation tree default browser",
+        tweak("defaultSide", "seg", "新标签页默认显示", "新打开的标签页侧栏初始显示什么。工具栏仍可按标签页切换。", "conversation tree default browser new tabs show",
           { options: opts(["rail", "tree", "browser"]) }),
-        tweak("sidebar", "toggle", "Project sidebar", "The list of projects and their tabs on the left. `Ctrl+B` toggles it.", "projects"),
-        custom("widths", "Column widths", "Drag a column edge to resize it, double-click the edge to reset one.", "width resize pane sidebar rail tree split browser",
+        tweak("sidebar", "toggle", "项目侧边栏", "左侧的项目及其标签页列表。`Ctrl+B` 可切换显示。", "projects project sidebar"),
+        custom("widths", "列宽", "拖动列边缘调整宽度，双击边缘恢复该列默认宽度。", "width resize pane sidebar rail tree split browser",
           { keys: ["sidebarWidth", "railWidth", "treeWidth", "splitWidth", "browserWidth"] }),
       ] },
     ] },
-    { id: "chat", icon: "thinking", title: "Chat", blurb: "How tool calls and thinking show up in the transcript.", groups: [
-      { name: "Folding", rows: [
-        tweak("foldThinking", "seg", "Thinking", "`auto` folds it once newer turns arrive, `open` and `folded` fix it.", "collapse reasoning",
+    { id: "chat", icon: "thinking", title: "对话", blurb: "工具调用和思考过程在记录里的呈现方式。", groups: [
+      { name: "折叠", rows: [
+        tweak("foldThinking", "seg", "思考", "`auto` 在有更新的回合后折叠，`open` 和 `folded` 则固定状态。", "collapse reasoning thinking",
           { fold: "thinking", get options() { return foldOptions(); } }),
-        tweak("foldTools", "seg", "Tool output", "Same choice for tool cards. A card you toggle yourself stays that way.", "collapse cards",
+        tweak("foldTools", "seg", "工具输出", "工具卡片采用同样的设置。你手动展开或折叠过的卡片会保持该状态。", "collapse cards tool output",
           { fold: "tool", get options() { return foldOptions(); } }),
-        tweak("collapseAfter", "slider", "Collapse after", "With `auto`: how many newer turns before an entry folds.", "auto fold", {
+        tweak("collapseAfter", "slider", "折叠时机", "使用 `auto` 时，出现多少个更新的回合后折叠该条目。", "auto fold collapse after", {
           step: 1, unit: " newer",
           // Only matters while a fold mode is auto.
           visibleIf: (values) => {
@@ -87,115 +87,115 @@
           get max() { return collapse()?.MAX_AFTER ?? 30; },
         }),
       ] },
-      { name: "Scrolling", rows: [
-        tweak("followOutput", "toggle", "Follow new output", "Keep the transcript scrolled to the newest message while the agent works. Scrolling up always pauses it.", "auto scroll bottom pin"),
+      { name: "滚动", rows: [
+        tweak("followOutput", "toggle", "跟随新输出", "智能体工作时让记录始终停在最新消息。向上滚动会暂停跟随。", "auto scroll bottom pin follow new output"),
       ] },
     ] },
-    { id: "composer", icon: "edit", title: "Composer", blurb: "Sending, voice input, pasting and recalling prompts.", groups: [
-      { name: "Sending", rows: [
-        tweak("submitKey", "seg", "Send with", "In the composer, an ask's answer box and a subagent's steer box; the other chord inserts a newline. One-line fields always send with Enter.", "submit newline shift enter",
+    { id: "composer", icon: "edit", title: "输入框", blurb: "发送、语音输入、粘贴和历史提示词调取。", groups: [
+      { name: "发送", rows: [
+        tweak("submitKey", "seg", "发送键", "在输入框、提问的作答框和子智能体的指令框里生效；另一个组合键则插入换行。单行输入框始终用 Enter 发送。", "submit newline shift enter send with",
           { options: opts(["enter", "ctrl+enter"]) }),
       ] },
-      { name: "Voice", rows: [
-        tweak("dictationSend", "toggle", "Send voice to text on stop", "Stopping voice to text yourself (the microphone, the panel's stop or a pause below) sends the draft with the dictated text, as Enter would. Off, the text only goes into the draft. A stop caused by switching tabs or opening Settings never sends.", "dictation speech microphone voice auto send submit"),
-        tweak("dictationAutoStop", "seg", "Stop voice to text after a pause", "Stop recording once no new words have come in for this long; until your first words it keeps waiting. Background noise that omp hears as words keeps it going.", "dictation speech microphone voice silence auto stop hands-free",
-          { options: opts([0, 1.5, 2, 3, 5], { 0: "off", 1.5: "1.5 s", 2: "2 s", 3: "3 s", 5: "5 s" }) }),
-        tweak("voiceSpectrumBands", "seg", "Spectrum bars", "How many frequency bars the microphone equalizer above the input draws while voice to text or a live conversation records.", "voice microphone equalizer spectrum fft bands bars",
+      { name: "语音", rows: [
+        tweak("dictationSend", "toggle", "停止时发送语音转写", "由你主动停止语音转写（点麦克风、面板上的停止或下方停顿触发）会像按 Enter 一样把转写文字随草稿发出。关闭后只写入草稿。因切换标签页或打开设置而停止的从不发送。", "dictation speech microphone voice auto send submit send voice to text on stop"),
+        tweak("dictationAutoStop", "seg", "停顿后停止语音转写", "多久没有新词就停止录音；在你开口之前会一直等待。被 omp 识别成词的背景噪声会让它继续录。", "dictation speech microphone voice silence auto stop hands-free stop voice to text after a pause",
+          { options: opts([0, 1.5, 2, 3, 5], { 0: "关闭", 1.5: "1.5 s", 2: "2 s", 3: "3 s", 5: "5 s" }) }),
+        tweak("voiceSpectrumBands", "seg", "频谱条数", "语音转写或实时对话录音时，输入框上方的麦克风频谱显示多少根柱子。", "voice microphone equalizer spectrum fft bands bars spectrum bars",
           { options: opts([16, 32, 48, 64, 96, 128]) }),
       ] },
-      { name: "Pasting", rows: [
-        tweak("pasteCollapseLines", "slider", "Collapse pastes longer than", "A longer paste shows as a `[paste #1 +40 lines]` chip; the agent still gets the full text.", "paste chip",
+      { name: "粘贴", rows: [
+        tweak("pasteCollapseLines", "slider", "折叠超长粘贴", "较长的粘贴会显示成 `[paste #1 +40 lines]` 小标签；智能体收到的仍是完整文本。", "paste chip collapse pastes longer than",
           { step: 1, unit: " lines",
             get min() { return sessionUi()?.PASTE_LINES_MIN ?? 2; },
             get max() { return sessionUi()?.PASTE_LINES_MAX ?? 50; } }),
       ] },
-      { name: "History", rows: [
-        tweak("promptHistoryLimit", "slider", "Prompt history", "How many of your prompts `↑` in the composer can recall, per tab.", "recall up arrow", {
+      { name: "历史", rows: [
+        tweak("promptHistoryLimit", "slider", "提示词历史", "输入框里按 `↑` 能调回多少条历史提示词，按标签页各自计算。", "recall up arrow prompt history", {
           step: 10, unit: " prompts",
           get min() { return history()?.MIN_LIMIT ?? 10; },
           get max() { return history()?.MAX_LIMIT ?? 1000; },
         }),
       ] },
     ] },
-    { id: "rail", icon: "radar", title: "Rail", blurb: "The cards in the rail beside the chat, including widget plugins and extension widgets.", groups: [
-      { name: "Built-in cards", rows: [
-        tweak("showContext", "toggle", "Context gauge", "How full the model's context window is.", "tokens"),
-        tweak("showRadar", "toggle", "Agent radar", "What the agent is doing right now.", "activity"),
-        tweak("showSubagents", "toggle", "Subagents", "Running and finished subagents of this tab.", "tasks"),
-        tweak("showChanges", "toggle", "Changes", "Show the PR for this project's current branch. Needs the GitHub CLI (`gh`), signed in with `gh auth login`; the card stays hidden until `gh` is installed. Off also stops PR monitoring and turns off Auto-fix; enabling this card does not enable Auto-fix.", "github pull request pr auto fix ci checks review gh cli"),
-        tweak("showMinimap", "toggle", "Minimap", "An overview of the transcript to jump around in.", "overview"),
+    { id: "rail", icon: "radar", title: "侧栏卡片", blurb: "对话旁边侧栏里的卡片，包括插件小部件和扩展小部件。", groups: [
+      { name: "内置卡片", rows: [
+        tweak("showContext", "toggle", "上下文指示", "模型上下文窗口的占用程度。", "tokens context gauge"),
+        tweak("showRadar", "toggle", "智能体雷达", "智能体此刻在做什么。", "activity agent radar"),
+        tweak("showSubagents", "toggle", "子智能体", "本标签页正在运行和已完成的子智能体。", "tasks subagents"),
+        tweak("showChanges", "toggle", "改动", "显示本项目当前分支的 PR。需要 GitHub CLI（`gh`），并用 `gh auth login` 登录；未安装 `gh` 时卡片保持隐藏。关闭它也会停止 PR 监控并关掉自动修复；开启本卡片不会同时开启自动修复。", "github pull request pr auto fix ci checks review gh cli changes"),
+        tweak("showMinimap", "toggle", "缩略图", "对话记录的全局概览，可用来快速跳转。", "overview minimap"),
       ] },
-      { name: "Widgets", src: "widgets.json", rows: [
-        custom("widgets", "Plugin config", "Plugins and their triggers. A changed script asks for approval again before it runs.", "widget plugins plugin widgets.json extension status reload",
+      { name: "小部件", src: "widgets.json", rows: [
+        custom("widgets", "插件配置", "插件及其触发方式。脚本改动后，再次运行前会重新请求审批。", "widget plugins plugin widgets.json extension status reload",
           { keyPrefix: "widget:", prefixDefault: true }),
       ] },
     ] },
-    { id: "terminal", icon: "terminal", title: "Terminal", blurb: "The shell panel under the chat. Each tab has its own shell, started in the tab's project folder.", groups: [
-      { name: "Shell", src: "terminal.json", rows: [
-        custom("shell", "Shell", "What new terminals run. Running ones keep their shell. `default` runs your default shell.", "powershell pwsh bash cmd"),
+    { id: "terminal", icon: "terminal", title: "终端", blurb: "对话下方的命令行面板。每个标签页都有自己的 shell，在标签页所属项目目录里启动。", groups: [
+      { name: "命令行", src: "terminal.json", rows: [
+        custom("shell", "命令行", "新终端启动什么。已在运行的保持原 shell。“默认”使用你的默认 shell。", "powershell pwsh bash cmd"),
       ] },
-      { name: "Panel", rows: [
-        tweak("terminalAutoOpen", "toggle", "Open with new tab", "Show the terminal panel when a tab opens.", "auto"),
-        tweak("terminalScrollback", "seg", "Scrollback", "Lines you can scroll back in each terminal. More costs memory per open shell.", "history lines buffer",
+      { name: "面板", rows: [
+        tweak("terminalAutoOpen", "toggle", "新标签页打开", "打开标签页时显示终端面板。", "auto open with new tab"),
+        tweak("terminalScrollback", "seg", "回滚行数", "每个终端可回滚的行数。数值越大，每个已打开 shell 占用的内存越多。", "history lines buffer scrollback",
           { options: opts([1000, 5000, 10000, 50000]) }),
-        custom("terminalHeight", "Height", "Shared by all tabs. Drag the panel's top edge to change it.", "size", { keys: ["terminalHeight"] }),
+        custom("terminalHeight", "高度", "所有标签页共用。拖动面板上边缘可改变高度。", "size", { keys: ["terminalHeight"] }),
       ] },
     ] },
-    { id: "browser", icon: "web", title: "Browser", blurb: "The Chromium panel the agent and you share in each tab.", groups: [
+    { id: "browser", icon: "web", title: "浏览器", blurb: "每个标签页里你和智能体共用的 Chromium 面板。", groups: [
       { name: "Chromium", src: "browser.json", rows: [
-        custom("chromium", "Browser", "Which Chromium the panel runs; panels started afterwards use it. `automatic` finds one installed on this PC.", "chrome edge chromium"),
+        custom("chromium", "浏览器", "面板使用哪个 Chromium；之后启动的面板才会采用。“自动”会查找本机已安装的。", "chrome edge chromium"),
       ] },
-      { name: "Links", rows: [
-        tweak("browserLocalhostInPanel", "toggle", "Open localhost links in the panel", "A click on a `localhost` link in the chat opens it here instead of your system browser.", "dev server url"),
-      ] },
-    ] },
-    { id: "agent", icon: "agent", title: "Agent", blurb: "Which omp profile new tabs use and how omp behaves in them.", groups: [
-      { name: "Profiles", src: "profiles.json", rows: [
-        custom("startupProfile", "Startup profile", "The profile of the tab opened at launch and of new tabs. Profiles are created and renamed from the profile menu.", "profile account"),
-      ] },
-      { name: "Goals", src: "omp config", rows: [
-        custom("goalContinue", "Keep working on a goal", "omp continues an active goal on its own after each turn instead of waiting for you. Costs tokens while unattended.", "goal auto continue"),
-      ] },
-      { name: "omp behaviour", rows: [
-        tweak("autoCompaction", "toggle", "Auto-compact context", "omp summarises older turns when the context fills up. Off: you run `/compact` yourself.", "compaction context window"),
-        tweak("autoRetry", "toggle", "Retry failed requests", "omp retries a request the provider refused or dropped, with a retry row you can stop.", "retry error rate limit"),
+      { name: "链接", rows: [
+        tweak("browserLocalhostInPanel", "toggle", "在面板里打开 localhost 链接", "在对话里点击 `localhost` 链接时，改在面板里打开，而不是系统浏览器。", "dev server url open localhost links in the panel"),
       ] },
     ] },
-    { id: "session", icon: "clock", title: "Session", blurb: "Tabs across restarts, closing, naming and app updates.", groups: [
-      { name: "Tabs", rows: [
-        tweak("restoreTabs", "toggle", "Reopen tabs on launch", "Start with the tabs and conversations that were open when you quit.", "restore session startup"),
-        tweak("confirmBusyClose", "toggle", "Ask before closing a working tab", "Closing a tab whose agent is mid-turn stops it. Ask first, also when quitting.", "confirm quit close"),
-        tweak("autoName", "toggle", "Name tabs automatically", "omp titles a new conversation from its first turns (one small model call). `/rename` always wins.", "rename title"),
+    { id: "agent", icon: "agent", title: "智能体", blurb: "新标签页使用哪个 omp 配置档，以及 omp 在其中如何运作。", groups: [
+      { name: "配置档", src: "profiles.json", rows: [
+        custom("startupProfile", "启动配置档", "启动时打开的标签页和新标签页使用的配置档。配置档在配置档菜单里创建和重命名。", "profile account"),
       ] },
-      { name: "Updates", rows: [
-        tweak("updateCheck", "toggle", "Check for updates", "Look for a new release shortly after launch and every 6 hours. You choose when to install; “Check now” works either way.", "version release"),
-        custom("version", "Version", "The installed OMP Desktop and the newest release.", "version update check skipped"),
+      { name: "目标", src: "omp config", rows: [
+        custom("goalContinue", "持续执行目标", "omp 在每回合结束后自行继续当前目标，而不是等你发话。无人看管时会持续消耗 token。", "goal auto continue"),
       ] },
-    ] },
-    { id: "remote", icon: "live", title: "Remote access", blurb: "Read your sessions, answer questions and steer the agent from a phone on your network. Off by default; nothing listens until you enable it.", groups: [
-      { name: "Server", src: "remote.json", rows: [
-        custom("remoteServer", "Server", "The interface, port and name the phone connects to. The server only listens on the chosen interface.", "remote phone mobile server interface port host name https lan vpn"),
-        custom("remoteCert", "Certificate", "A generated certificate is self-signed; your own files (for example for `omp.home.lan`) let the phone trust the page.", "tls https certificate fingerprint pem key"),
-      ] },
-      { name: "Phones", rows: [
-        custom("remotePair", "Pair a phone", "Shows a one-time QR code; scanning it links that phone.", "qr code pairing link"),
-        custom("remoteDevices", "Paired phones", "Rename a phone or revoke its access.", "devices revoke rename"),
-      ] },
-      { name: "Notifications", rows: [
-        custom("remotePush", "Push notifications", "Tell the phone when a question waits or a turn finished, even with the page closed.", "web push vapid notification contact locked lock away screen"),
+      { name: "omp 行为", rows: [
+        tweak("autoCompaction", "toggle", "自动压缩上下文", "上下文将满时，omp 会自动摘要较早的回合。关闭后需自己运行 `/compact`。", "compaction context window auto-compact context"),
+        tweak("autoRetry", "toggle", "重试失败的请求", "提供商拒绝或中断请求时 omp 会自动重试，并显示一行可随时中止的重试记录。", "retry error rate limit retry failed requests"),
       ] },
     ] },
-    { id: "approvals", icon: "check", title: "Approvals", sep: true, blurb: "When the agent asks before it runs a tool.", groups: [
-      { name: "Approval mode", src: "approval-mode.json", rows: [
-        custom("approvalMode", "Tool approval mode", "When the agent asks before it runs a tool: a default for every project, and projects that override it. A change restarts omp in the affected open tabs; conversations continue.", "yolo write always ask permission project override default"),
+    { id: "session", icon: "clock", title: "会话", blurb: "重启、关闭、命名标签页，以及查看版本和升级信息。", groups: [
+      { name: "标签页", rows: [
+        tweak("restoreTabs", "toggle", "启动时恢复标签页", "启动时打开退出前的标签页和对话。", "restore session startup reopen tabs on launch"),
+        tweak("confirmBusyClose", "toggle", "关闭工作中的标签页前询问", "关闭智能体正在执行的标签页会中断它。关闭前先询问，退出应用时也一样。", "confirm quit close ask before closing a working tab"),
+        tweak("autoName", "toggle", "自动命名标签页", "omp 会依据开头几回合给新对话起标题（一次小模型调用）。`/rename` 指定的名字始终优先。", "rename title name tabs automatically"),
       ] },
-      { name: "Standing rules", rows: [
-        custom("approvalRules", "Always-allow rules", "Rules are only granted from a prompt; here you review and revoke them.", "rules always allow revoke saved answers"),
+      { name: "更新", rows: [
+        custom("version", "版本", "安装包升级请从发行页面下载。中文分支尚未配置独立的应用内更新源。", "version release download update"),
+
       ] },
     ] },
-    { id: "shortcuts", icon: "command", title: "Shortcuts", blurb: "Every app action and its chords. A change to one of omp's own bindings is saved as a desktop override.", groups: [
-      { name: "Keyboard shortcuts", src: "keybindings.json", rows: [
-        custom("shortcuts", "Key bindings", "Rebind an action, add a second chord or reset it to its default.", "keys hotkeys keybindings chord rebind shortcut",
+    { id: "remote", icon: "live", title: "远程访问", blurb: "在局域网里用手机查看会话、回答问题、指挥智能体。默认关闭；开启前不会有任何监听。", groups: [
+      { name: "服务器", src: "remote.json", rows: [
+        custom("remoteServer", "服务器", "手机连接用的网卡、端口和名称。服务器只监听选定的网卡。", "remote phone mobile server interface port host name https lan vpn"),
+        custom("remoteCert", "证书", "自动生成的证书是自签名的；用自己的证书文件（例如为 `omp.home.lan` 签发的）才能让手机信任该页面。", "tls https certificate fingerprint pem key"),
+      ] },
+      { name: "手机", rows: [
+        custom("remotePair", "配对手机", "显示一次性二维码，扫码即可绑定该手机。", "qr code pairing link"),
+        custom("remoteDevices", "已配对手机", "重命名手机或吊销其访问权限。", "devices revoke rename"),
+      ] },
+      { name: "通知", rows: [
+        custom("remotePush", "推送通知", "有提问等待或回合结束时通知手机，即使页面已关闭。", "web push vapid notification contact locked lock away screen"),
+      ] },
+    ] },
+    { id: "approvals", icon: "check", title: "审批", sep: true, blurb: "智能体运行工具前是否先征求同意。", groups: [
+      { name: "审批模式", src: "approval-mode.json", rows: [
+        custom("approvalMode", "工具审批模式", "智能体运行工具前是否征求同意：为所有项目设默认值，也可按项目覆盖。修改后会在受影响的标签页里重启 omp，对话继续。", "yolo write always ask permission project override default"),
+      ] },
+      { name: "常驻规则", rows: [
+        custom("approvalRules", "始终允许规则", "规则只能从审批提示中授予；在这里查看和吊销。", "rules always allow revoke saved answers"),
+      ] },
+    ] },
+    { id: "shortcuts", icon: "command", title: "快捷键", blurb: "所有应用操作及其组合键。改动 omp 自带的绑定会存为桌面端覆盖项。", groups: [
+      { name: "键盘快捷键", src: "keybindings.json", rows: [
+        custom("shortcuts", "按键绑定", "重新绑定某个操作、添加第二个组合键，或恢复默认。", "keys hotkeys keybindings chord rebind shortcut",
           { moreKw: () => (window.OMP_KEYMAP?.KEYMAP_ACTIONS ?? []).map(a => `${a.label} ${a.id}`).join(" ") }),
       ] },
     ] },

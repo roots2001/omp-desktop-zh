@@ -56,10 +56,10 @@ const SA_STATUS_LABEL = { pending: "queued", running: "running", completed: "don
 const SA_STATUS_CHIP  = { running: "accent", failed: "danger", aborted: "warn" };
 
 function SaStatusChip({ agent }) {
-  const label = agent.unknownOutcome ? "ended" : SA_STATUS_LABEL[agent.status] ?? agent.status;
+  const label = agent.unknownOutcome ? "已结束" : SA_STATUS_LABEL[agent.status] ?? agent.status;
   const tone = agent.unknownOutcome ? "muted" : SA_STATUS_CHIP[agent.status] ?? "muted";
   return (
-    <span className={`chip ${tone}`} title={agent.unknownOutcome ? "finished while this tab was in the background" : undefined}>
+    <span className={`chip ${tone}`} title={agent.unknownOutcome ? "在标签页处于后台时完成" : undefined}>
       <SaDot status={agent.status} /> {label}
     </span>
   );

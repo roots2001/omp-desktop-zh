@@ -77,9 +77,9 @@ const ActivityRadar = ({ activity, tps }) => {
         ))}
       </div>
       <div className="radar-foot">
-        <span className="mono" style={{ color: "var(--fg-3)" }}>−60s</span>
+        <span className="mono" style={{ color: "var(--fg-3)" }}>−60 秒</span>
         <span className="mono" style={{ color: "var(--accent)" }}>{tps} t/s</span>
-        <span className="mono" style={{ color: "var(--fg-3)" }}>now</span>
+        <span className="mono" style={{ color: "var(--fg-3)" }}>现在</span>
       </div>
     </div>
   );

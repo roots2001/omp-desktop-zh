@@ -100,9 +100,9 @@
       g.textBaseline = "top";
       g.globalAlpha = 0.7;
       const capY = rowY + 13;
-      g.fillText("cached k, v", (slots[0] + slots[n - 2]) / 2, capY);
-      g.fillText("query", slots[n - 1], capY);
-      g.fillText("next", slots[n], capY);
+      g.fillText("缓存的 k, v", (slots[0] + slots[n - 2]) / 2, capY);
+      g.fillText("查询", slots[n - 1], capY);
+      g.fillText("下一个", slots[n], capY);
       g.globalAlpha = 0.35;
       g.beginPath();
       g.moveTo(slots[0] - 6, capY - 3); g.lineTo(slots[n - 2] + 6, capY - 3);

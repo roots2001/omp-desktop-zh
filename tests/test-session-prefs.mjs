@@ -67,8 +67,8 @@ check("busyTabs: running, retrying, waiting and background count; idle and faile
 });
 check("busyTabs: carries a readable state and a name fallback", () => {
   const [t] = P.busyTabs([{ id: "x", name: "", runState: "waiting-user" }]);
-  assert.equal(t.name, "untitled tab");
-  assert.equal(t.state, "waiting for your answer");
+  assert.equal(t.name, "未命名标签页");
+  assert.equal(t.state, "等待你的回答");
 });
 check("busyTabs: a missing list is no tabs", () => {
   assert.deepEqual(P.busyTabs(undefined), []);
@@ -102,9 +102,9 @@ check("quitConfirm: lists every busy tab, singular and plural wording", () => {
   const one = P.quitConfirm(ON, [tab("a", "running"), tab("b", "idle")]);
   assert.equal(one.kind, "quit");
   assert.deepEqual(one.tabs.map(t => t.id), ["a"]);
-  assert.match(one.title, /a busy tab/);
+  assert.match(one.title, /有标签页正忙/);
   const two = P.quitConfirm(ON, [tab("a", "running"), tab("b", "background")]);
-  assert.match(two.title, /2 busy tabs/);
+  assert.match(two.title, /有 2 个标签页正忙/);
   assert.equal(two.tabs.length, 2);
 });
 check("quitConfirm: nothing busy or setting off quits at once", () => {

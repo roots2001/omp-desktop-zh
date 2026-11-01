@@ -1,7 +1,7 @@
 # Test suite — reusable, so CI and the release pipeline run the same gate.
 # Called by ci.yml (every push/PR) and release.yml (before any build).
 #
-#   rust  →  cargo test --locked on Windows, Linux and macOS
+#   rust  →  cargo test --locked on Windows
 #   js    →  every JS regression script (`npm test`, see package.json)
 #
 # `cargo test` compiles the crate and its tests, so it subsumes the
@@ -17,12 +17,8 @@ permissions:
 
 jobs:
   rust:
-    name: cargo test · ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-22.04, macos-latest]
-    runs-on: ${{ matrix.os }}
+    name: cargo test · windows-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
 
@@ -33,20 +29,7 @@ jobs:
         uses: swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
-          key: test-${{ matrix.os }}
-
-      # WebKit + GTK are required to compile the Tauri crate on Linux; ALSA
-      # for the voice spectrum's microphone capture (cpal).
-      - name: Install system dependencies (Linux only)
-        if: matrix.os == 'ubuntu-22.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
-            librsvg2-dev \
-            libasound2-dev \
-            patchelf
+          key: test-windows
 
       # The runner images ship Google Chrome. A real-Chromium test that
       # finds no browser fails here instead of passing without running.

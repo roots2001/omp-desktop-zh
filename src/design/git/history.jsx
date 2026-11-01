@@ -57,20 +57,20 @@ function GitHistory({ log, changedCount, selected, onSelect }) {
   const commits = rows.length - (rows[0]?.id === _GH_WORKTREE ? 1 : 0);
   const now = Date.now() / 1000;
   const worktreeLabel = changedCount
-    ? `${changedCount} uncommitted change${changedCount === 1 ? "" : "s"}`
-    : "working tree clean";
+    ? `${changedCount} 处未提交的改动`
+    : "工作区干净";
 
   return (
     <div className="gitb-pane gitb-history">
       <div className="gitb-pane-head">
-        <span className="gitb-pane-title">history</span>
-        {log && <span className="gitb-pane-sub" title={log.truncated ? "only the newest commits are listed" : undefined}>
-          all branches · {commits}{log.truncated ? "+" : ""}
+        <span className="gitb-pane-title">历史</span>
+        {log && <span className="gitb-pane-sub" title={log.truncated ? "只列出最新的提交" : undefined}>
+          所有分支 · {commits}{log.truncated ? "+" : ""}
         </span>}
       </div>
       <div className="gitb-log">
-        {!log && <div className="gitb-empty">loading…</div>}
-        {log && rows.length === 0 && <div className="gitb-empty">no commits yet</div>}
+        {!log && <div className="gitb-empty">加载中…</div>}
+        {log && rows.length === 0 && <div className="gitb-empty">还没有提交</div>}
         <div className="gitb-log-inner" style={{ height: rows.length * _GH_ROW }}>
           {rows.length > 0 && <_GH_Graph rows={rows} w={graphW} />}
           {rows.map((c, i) => {

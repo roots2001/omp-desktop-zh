@@ -38,28 +38,28 @@ function _SKE_Row({ action, chords, src, recording, rowError, conflict, disabled
       <Row label={action.label} desc={`\`${action.id}\``} query={query} className="st-kb-row">
         <div className="st-kb-ctl">
           {recording
-            ? <span className="st-kb-recording mono" data-st-esc="">press a chord · esc cancels</span>
+            ? <span className="st-kb-recording mono" data-st-esc="">按下组合键 · Esc 取消</span>
             : (
               <div className="st-chords">
                 {chords.length
                   ? chords.map(c => <span className="st-kbd" key={c}>{_SKE_fmt(c)}</span>)
-                  : <span className="st-kb-unbound mono">unbound</span>}
+                  : <span className="st-kb-unbound mono">未绑定</span>}
               </div>
             )}
           <span className={`st-srcchip ${src}`}>{src}</span>
           <div className="st-kb-actions">
-            <button type="button" className="st-ghost" disabled={disabled} onClick={onRebind}>rebind</button>
-            <button type="button" className="st-ghost" disabled={disabled} onClick={onAddChord}>+ chord</button>
-            <button type="button" className="st-ghost" disabled={disabled} onClick={onClear}>clear</button>
+            <button type="button" className="st-ghost" disabled={disabled} onClick={onRebind}>重新绑定</button>
+            <button type="button" className="st-ghost" disabled={disabled} onClick={onAddChord}>+ 组合键</button>
+            <button type="button" className="st-ghost" disabled={disabled} onClick={onClear}>清除</button>
             {src === "desktop" && (
-              <button type="button" className="st-ghost" disabled={disabled} onClick={onReset}>reset</button>
+              <button type="button" className="st-ghost" disabled={disabled} onClick={onReset}>重置</button>
             )}
           </div>
         </div>
       </Row>
       {(rowError || conflict) && (
         <div className="st-kb-warn">
-          {rowError || <>also bound to &ldquo;{_SKE_labelFor(conflict.actions[0])}&rdquo; — that binding wins</>}
+          {rowError || <>同时也绑定到“{_SKE_labelFor(conflict.actions[0])}”——该绑定优先</>}
         </div>
       )}
     </>
@@ -160,23 +160,22 @@ function ShortcutsEditor({ ctx, query }) {
 
   const disabled = !!keymap.error;
   const overlayPath = keymap.overlayPath ?? "—";
-  const ompPath     = keymap.payload?.ompPath ?? "no keybindings file";
+  const ompPath     = keymap.payload?.ompPath ?? "没有快捷键文件";
   const inherited   = keymap.payload?.inheritedPath;
 
   return (
     <div className="st-kb">
       <div className="st-kb-top">
-        <input className="st-kb-filter mono" placeholder="filter actions or chords…" value={filter}
-          aria-label="filter shortcuts" onChange={e => setFilter(e.target.value)} />
+        <input className="st-kb-filter mono" placeholder="筛选操作或组合键…" value={filter}
+          aria-label="筛选快捷键" onChange={e => setFilter(e.target.value)} />
       </div>
       {keymap.error && (
         <div className="st-kb-banner">
-          Shortcuts are running on omp config + defaults. Rebinding is disabled until the overlay file is
-          fixed or deleted: <span className="mono st-kb-path">{overlayPath}</span>
+          快捷键正在使用 omp 配置加默认值。覆盖文件修好或删除之前无法重新绑定： <span className="mono st-kb-path">{overlayPath}</span>
         </div>
       )}
       {grouped.length === 0
-        ? <div className="st-kb-empty">no matching action</div>
+        ? <div className="st-kb-empty">没有匹配的操作</div>
         : grouped.map(group => (
           <div className="st-kb-group" key={group.name}>
             <div className="st-kb-group-name">{group.name}</div>
@@ -200,9 +199,9 @@ function ShortcutsEditor({ ctx, query }) {
           </div>
         ))}
       <div className="st-kb-foot mono">
-        <span>desktop overrides → <span className="st-kb-path">{overlayPath}</span></span>
+        <span>桌面端覆盖项 → <span className="st-kb-path">{overlayPath}</span></span>
         <span>omp → <span className="st-kb-path">{ompPath}</span>
-          {inherited && <span className="st-kb-dim"> + inherits {inherited}</span>}
+          {inherited && <span className="st-kb-dim"> + 继承 {inherited}</span>}
         </span>
       </div>
     </div>

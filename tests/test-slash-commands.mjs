@@ -54,19 +54,19 @@ check("leading slash on name/aliases is stripped; case is preserved", () => {
 
 check("skill source groups under Skills", () => {
   const [c] = S.adaptAvailableCommands([rpc({ name: "skill:diagnose-crash", source: "skill" })]);
-  assert.equal(c.group, "Skills");
+  assert.equal(c.group, "技能");
   assert.equal(c.source, "skill");
 });
 
 check("builtin source groups under Commands", () => {
   const [c] = S.adaptAvailableCommands([rpc({ name: "model" })]);
-  assert.equal(c.group, "Commands");
+  assert.equal(c.group, "命令");
 });
 
 check("unknown source (extension/custom/file) falls back to Custom group", () => {
   for (const source of ["extension", "custom", "file", "something-new"]) {
     const [c] = S.adaptAvailableCommands([rpc({ name: "x", source })]);
-    assert.equal(c.group, "Custom", `source=${source}`);
+    assert.equal(c.group, "自定义", `source=${source}`);
   }
 });
 

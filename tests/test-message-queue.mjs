@@ -125,13 +125,13 @@ check("✎ into an empty or blank draft is just the queued text", () => {
 
 check("a refused follow-up's note keeps the text in a fence it cannot close", () => {
   const note = Q.failureNote("followUp", "bad input", "see ```js\nx\n``` here");
-  assert.ok(note.startsWith("**Follow-up not sent:** bad input\n\n````\n"));
+  assert.ok(note.startsWith("**后续消息未发送：** bad input\n\n````\n"));
   assert.ok(note.endsWith("\n````"));
   assert.ok(note.includes("see ```js\nx\n``` here"));
 });
 
 check("a refused image-only steer's note has no empty code block", () => {
-  assert.equal(Q.failureNote("steering", "too large", ""), "**Steer not sent:** too large");
+  assert.equal(Q.failureNote("steering", "too large", ""), "**插话未发送：** too large");
 });
 
 console.log(`message-queue: ${passed} checks passed`);

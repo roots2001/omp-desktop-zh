@@ -3,6 +3,10 @@
 (function () {
   const C = window.OMP_REMOTE_CLIENT;
 
+  function text(text) {
+    return window.OMP_I18N?.translate(text) ?? text;
+  }
+
   function node(tag, text, className) {
     const element = document.createElement(tag);
     if (text !== undefined) element.textContent = text;
@@ -23,14 +27,14 @@
     const kind = tab?.hasAsk ? "waiting-user question" : tab?.busy ? "running" : "idle";
     dot.className = `tab-run-dot ${kind}`;
     dot.textContent = tab?.hasAsk ? "?" : "";
-    dot.title = tab?.hasAsk ? "waiting for you" : tab?.busy ? "running" : "";
+    dot.title = tab?.hasAsk ? "等待你的回复" : tab?.busy ? "运行中" : "";
   }
 
   function createSessions({ onSelectTab, onEnableNotifications }) {
     // Fixed header: the active tab, a count of other tabs with questions and the
     // connection. Tapping it opens the session sheet.
     const topDot = node("span", "", "tab-run-dot");
-    const topTitle = node("span", "OMP Remote", "top-title");
+    const topTitle = node("span", text("OMP Remote"), "top-title");
     const topProject = node("span", "", "top-project");
     topProject.hidden = true;
     const topText = node("span", undefined, "top-text");
@@ -55,19 +59,19 @@
     sheet.hidden = true;
     sheet.setAttribute("role", "dialog");
     sheet.setAttribute("aria-modal", "true");
-    sheet.setAttribute("aria-label", "Sessions");
+    sheet.setAttribute("aria-label", "会话列表");
     sheet.setAttribute("tabindex", "-1");
     const handle = node("button", undefined, "sheet-handle");
     handle.type = "button";
-    handle.setAttribute("aria-label", "Close sessions");
+    handle.setAttribute("aria-label", "关闭会话列表");
     handle.append(node("span", "", "sheet-grip"));
     const sheetList = node("div", undefined, "sheet-list");
-    const notifications = button("Enable notifications", onEnableNotifications);
+    const notifications = button("开启通知", onEnableNotifications);
     const sheetConn = node("span", "", "sheet-conn");
     sheetConn.setAttribute("role", "status");
     const sheetFoot = node("footer", undefined, "sheet-foot");
     const sheetInfo = node("div", undefined, "sheet-info");
-    sheetInfo.append(node("strong", "OMP Remote"), sheetConn);
+    sheetInfo.append(node("strong", text("OMP Remote")), sheetConn);
     sheetFoot.append(sheetInfo, notifications);
     sheet.append(handle, sheetList, sheetFoot);
 
@@ -127,7 +131,7 @@
 
     function render(tabs, activeId) {
       const active = tabs.find(tab => tab.id === activeId);
-      const title = active ? active.title || "Untitled" : tabs.length ? "Select a session" : "OMP Remote";
+      const title = active ? active.title || "未命名" : tabs.length ? "选择一个会话" : text("OMP Remote");
       const project = C.projectName(active?.project);
       const others = C.otherQuestionCount(tabs, activeId);
       topTitle.textContent = title;
@@ -136,14 +140,15 @@
       topCount.textContent = String(others);
       topCount.hidden = others === 0;
       setDot(topDot, active);
-      header.setAttribute("aria-label", `${title}${project ? `, ${project}` : ""}${others ? `, ${others} other ${others === 1 ? "session has a question" : "sessions have questions"}` : ""}. Switch session`);
+      const label = text("Switch session");
+      header.setAttribute("aria-label", `${title}${project ? `，${project}` : ""}${others ? `，另有 ${others} 个会话有提问` : ""}。${label}`);
       // The sheet list is rebuilt only when it changed, so focus survives updates.
       const signature = JSON.stringify([activeId, tabs]);
       if (signature === sheetSignature) return;
       sheetSignature = signature;
       const focusedTabId = sheetOpen ? (document.activeElement?.getAttribute?.("data-tab-id") ?? document.activeElement?.["data-tab-id"] ?? null) : null;
       sheetList.replaceChildren();
-      if (!tabs.length) sheetList.append(node("p", "No sessions open on the desktop.", "status"));
+      if (!tabs.length) sheetList.append(node("p", "桌面端没有打开的会话。", "status"));
       let restoreFocus = null;
       for (const tab of tabs) {
         const item = button("", () => onSelectTab(tab.id, closeSheet));
@@ -154,7 +159,7 @@
         const dot = node("span", "", "tab-run-dot");
         setDot(dot, tab);
         const text = node("span", undefined, "sheet-tab-text");
-        text.append(node("span", tab.title || "Untitled", "sheet-tab-title"));
+        text.append(node("span", tab.title || "未命名", "sheet-tab-title"));
         const folder = C.projectName(tab.project);
         if (folder) text.append(node("span", folder, "project"));
         item.append(dot, text);
@@ -166,8 +171,8 @@
     function syncControls({ connected, connectionText, canPush, pushKey, notificationsEnabled, notificationsPending }) {
       sheetConn.textContent = connectionText;
       connDot.className = `conn-dot ${connected ? "ok" : "off"}`;
-      connDot.title = connected ? "Connected" : "Reconnecting";
-      notifications.textContent = notificationsEnabled ? "Notifications enabled" : "Enable notifications";
+      connDot.title = connected ? "已连接" : "正在重连";
+      notifications.textContent = notificationsEnabled ? "通知已开启" : "开启通知";
       notifications.hidden = !canPush;
       notifications.disabled = !connected || !pushKey || notificationsEnabled || notificationsPending;
     }

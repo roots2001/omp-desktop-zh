@@ -84,7 +84,7 @@ function _SP_Group({ name, src, rows, ctx, query }) {
     <>
       <div className="st-grp-name">
         {name}
-        {src && <span className="st-src" title="Saved by the app in this file, not in the window's local storage">{src}</span>}
+        {src && <span className="st-src" title="由应用保存在此文件中，而非窗口的本地存储">{src}</span>}
       </div>
       <div className="st-grp">
         {rows.map(r => <_SP_AnyRow key={r.id} row={r} ctx={ctx} query={query} />)}
@@ -174,10 +174,10 @@ function SettingsPage({ ctx }) {
     body = (
       <>
         <div className="st-head">
-          <div className="st-kicker">search · {hits.total} setting{hits.total === 1 ? "" : "s"}</div>
+          <div className="st-kicker">搜索 · {hits.total} 项设置{hits.total === 1 ? "" : "s"}</div>
           <div className="st-h1">“{q}”</div>
         </div>
-        {hits.groups.length === 0 && <div className="st-empty">No setting matches “{q}”.</div>}
+        {hits.groups.length === 0 && <div className="st-empty">没有匹配的设置“{q}”.</div>}
         {hits.groups.map(g => (
           <_SP_Group key={`${g.sectionId}/${g.groupName}`} name={`${g.sectionTitle} › ${g.groupName}`}
             src={g.src} rows={g.rows} ctx={ctx} query={q} />
@@ -201,13 +201,13 @@ function SettingsPage({ ctx }) {
   }
 
   return (
-    <div className="settings" role="region" aria-label="Settings" ref={rootRef}>
+    <div className="settings" role="region" aria-label="设置" ref={rootRef}>
       <div className="st-top">
         <div className="st-inner">
           <label className="st-search">
             <_SP_Icon name="search" size={14} />
-            <input ref={searchRef} type="text" placeholder="Search settings" value={query} autoComplete="off"
-              spellCheck={false} aria-label="Search settings" onChange={e => setQuery(e.target.value)} />
+            <input ref={searchRef} type="text" placeholder="搜索设置" value={query} autoComplete="off"
+              spellCheck={false} aria-label="搜索设置" onChange={e => setQuery(e.target.value)} />
             <span className="st-kbd">{_SP_IS_MAC ? "⌘F" : "Ctrl+F"}</span>
           </label>
           <_SP_Strip sections={sections} active={section.id} counts={counts} searching={!!q} onSelect={select} />
@@ -218,13 +218,13 @@ function SettingsPage({ ctx }) {
       </div>
       <div className="st-foot">
         <div className="st-inner">
-          <span>changes apply at once</span>
+          <span>改动立即生效</span>
           <span className="st-sp" />
           <button type="button" disabled={!canReset} onClick={() => ctx.setTweak(resetEdits)}>
-            reset {q ? "matches" : section.title.toLowerCase()} to defaults
+            重置 {q ? "matches" : section.title.toLowerCase()} 恢复默认值
           </button>
-          <span><span className="st-kbd">←</span> <span className="st-kbd">→</span> sections</span>
-          {closeHint && <span><span className="st-kbd">{closeHint}</span> close tab</span>}
+          <span><span className="st-kbd">←</span> <span className="st-kbd">→</span> 个分区</span>
+          {closeHint && <span><span className="st-kbd">{closeHint}</span> 关闭标签页</span>}
         </div>
       </div>
     </div>

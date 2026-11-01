@@ -12,10 +12,10 @@ function formatRelativeTime(ts) {
   if (isNaN(date.getTime())) return ts;
   const now = new Date();
   const diffSec = Math.floor((now - date) / 1000);
-  if (diffSec < 60) return "just now";
-  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
-  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
-  if (diffSec < 604800) return `${Math.floor(diffSec / 86400)}d ago`;
+  if (diffSec < 60) return "刚刚";
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)} 分钟前`;
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} 小时前`;
+  if (diffSec < 604800) return `${Math.floor(diffSec / 86400)} 天前`;
   return date.toLocaleDateString();
 }
 
@@ -95,16 +95,16 @@ function HistoryModal({ open, onClose, onResume, activeCwd }) {
           <input
             ref={inputRef}
             className="bridge-input mono"
-            placeholder="Search saved conversations by title, query, project…"
+            placeholder="按标题、查询词、项目搜索已保存的对话…"
             value={query}
             onChange={e => { setQuery(e.target.value); setActiveIdx(0); }}
           />
           {query && (
-            <button className="btn icon ghost" title="Clear search" onClick={() => setQuery("")}>
+            <button className="btn icon ghost" title="清除搜索" onClick={() => setQuery("")}>
               <Icon name="close" size={10} color="var(--fg-4)" />
             </button>
           )}
-          <button className="btn icon ghost" title="Refresh from disk" onClick={fetchSessions}>
+          <button className="btn icon ghost" title="从磁盘刷新" onClick={fetchSessions}>
             <Icon name="refresh" size={11} color={loading ? "var(--accent)" : "var(--fg-3)"} />
           </button>
           <span className="kbd">esc</span>
@@ -118,10 +118,10 @@ function HistoryModal({ open, onClose, onResume, activeCwd }) {
           background: "var(--bg-surface)",
           fontSize: "var(--d-text-xs)",
         }}>
-          <span className="mono" style={{ color: "var(--fg-4)", marginRight: 4, lineHeight: "22px" }}>filter:</span>
+          <span className="mono" style={{ color: "var(--fg-4)", marginRight: 4, lineHeight: "22px" }}>筛选：</span>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, flex: 1, minWidth: 0, maxHeight: 74, overflowY: "auto" }}>
             {/* key null = "all"; "*" cannot be the normPath of a cwd */}
-            {[{ key: null, path: "", name: "All Projects", parent: "", sessions }, ...projects].map(p => (
+            {[{ key: null, path: "", name: "所有项目", parent: "", sessions }, ...projects].map(p => (
               <button
                 key={p.key ?? "*"}
                 className={`btn ${activeKey === p.key ? "accent outlined" : "ghost"}`}
@@ -140,14 +140,14 @@ function HistoryModal({ open, onClose, onResume, activeCwd }) {
         {/* List Body */}
         <div ref={listRef} className="bridge-body" style={{ maxHeight: "56vh", padding: "6px 8px" }}>
           {loading && sessions.length === 0 && (
-            <div className="bridge-empty">Scanning disk for saved sessions…</div>
+            <div className="bridge-empty">正在扫描磁盘上的已保存会话…</div>
           )}
 
           {!loading && filtered.length === 0 && (
             <div className="bridge-empty">
               {query
                 ? `No sessions found matching "${query}"`
-                : "No saved sessions found on disk"}
+                : "磁盘上没有找到已保存的会话"}
             </div>
           )}
 
@@ -224,7 +224,7 @@ function HistoryModal({ open, onClose, onResume, activeCwd }) {
                       onResume?.(s);
                       onClose();
                     }}>
-                    Resume ↵
+                    恢复 ↵
                   </button>
                 </div>
 
@@ -246,9 +246,9 @@ function HistoryModal({ open, onClose, onResume, activeCwd }) {
 
         {/* Footer */}
         <div className="bridge-foot mono" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span className="kbd">↑↓</span> navigate
-          <span className="kbd">↵</span> resume
-          <span className="kbd">esc</span> close
+          <span className="kbd">↑↓</span> 移动
+          <span className="kbd">↵</span> 恢复
+          <span className="kbd">esc</span> 关闭
           <div style={{ flex: 1 }} />
           <span style={{ color: "var(--fg-4)" }}>~/.omp/agent/sessions</span>
         </div>

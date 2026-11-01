@@ -14,10 +14,10 @@ function _SRR_parsePort(text) {
 }
 
 function _SRR_statusText(status) {
-  if (!status) return "reading status…";
+  if (!status) return "正在读取状态…";
   if (status.error) return status.error;
   if (status.listening) return `listening on ${status.url ?? status.ip ?? ""}`;
-  return status.enabled ? "starting…" : "off";
+  return status.enabled ? "正在启动…" : "关闭";
 }
 
 function _SRR_Server({ row, ctx, query }) {
@@ -29,27 +29,27 @@ function _SRR_Server({ row, ctx, query }) {
   return (
     <Row label={row.label} desc={row.desc} query={query} stack>
       <div className="st-rem">
-        <_SRR_Line label="Enable">
-          <Toggle value={!!s?.enabled} label="Enable remote access" onChange={v => apply({ enabled: v })} />
+        <_SRR_Line label="启用">
+          <Toggle value={!!s?.enabled} label="启用远程访问" onChange={v => apply({ enabled: v })} />
         </_SRR_Line>
-        <_SRR_Line label="Interface">
-          <select className="st-rem-input" value={s?.interface ?? ""} disabled={!s} aria-label="Network interface"
+        <_SRR_Line label="接口">
+          <select className="st-rem-input" value={s?.interface ?? ""} disabled={!s} aria-label="网络接口"
             onChange={e => apply({ interface: e.target.value || null })}>
-            <option value="">choose…</option>
-            {s?.interface && !known && <option value={s.interface}>{s.interface} (not found)</option>}
+            <option value="">选择…</option>
+            {s?.interface && !known && <option value={s.interface}>{s.interface} （未找到）</option>}
             {ifaces.map(i => <option key={i.name} value={i.name}>{i.name} · {i.ip}</option>)}
           </select>
         </_SRR_Line>
-        <_SRR_Line label="Port">
-          <_SRR_Field value={String(s?.port ?? "")} label="Port" width={90} disabled={!s}
+        <_SRR_Line label="端口">
+          <_SRR_Field value={String(s?.port ?? "")} label="端口" width={90} disabled={!s}
             onCommit={text => {
               const port = _SRR_parsePort(text);
               if (port === null) return false;
               apply({ port });
             }} />
         </_SRR_Line>
-        <_SRR_Line label="Host name">
-          <_SRR_Field value={s?.hostName ?? ""} label="Host name" placeholder="e.g. omp.home.lan" width={240} disabled={!s}
+        <_SRR_Line label="主机名">
+          <_SRR_Field value={s?.hostName ?? ""} label="主机名" placeholder="例如 omp.home.lan" width={240} disabled={!s}
             onCommit={text => apply({ hostName: text.trim() || null })} />
         </_SRR_Line>
         <div className={`st-rem-status${status?.error ? " err" : ""}`}>{_SRR_statusText(status)}</div>
@@ -73,27 +73,27 @@ function _SRR_Cert({ row, ctx, query }) {
   return (
     <Row label={row.label} desc={row.desc} query={query} stack>
       <div className="st-rem">
-        <_SRR_Line label="Source">
-          <Seg label="Certificate source" value={own ? "files" : "generated"}
-            options={[{ value: "generated", label: "generated" }, { value: "files", label: "own files" }]}
+        <_SRR_Line label="来源">
+          <Seg label="证书来源" value={own ? "files" : "generated"}
+            options={[{ value: "generated", label: "自动生成" }, { value: "files", label: "自有文件" }]}
             onChange={v => { if (v === "generated") { setDraftOwn(false); apply({ cert: { kind: "generated" } }); } else setDraftOwn(true); }} />
         </_SRR_Line>
         {own && (
           <>
-            <_SRR_Line label="Certificate (PEM)">
-              <input className="st-rem-input" type="text" value={files.cert} aria-label="Certificate file path" spellCheck={false}
+            <_SRR_Line label="证书（PEM）">
+              <input className="st-rem-input" type="text" value={files.cert} aria-label="证书文件路径" spellCheck={false}
                 style={{ width: 320 }} onChange={e => setFiles(f => ({ ...f, cert: e.target.value }))} />
             </_SRR_Line>
-            <_SRR_Line label="Private key (PEM)">
-              <input className="st-rem-input" type="text" value={files.key} aria-label="Private key file path" spellCheck={false}
+            <_SRR_Line label="私钥（PEM）">
+              <input className="st-rem-input" type="text" value={files.key} aria-label="私钥文件路径" spellCheck={false}
                 style={{ width: 320 }} onChange={e => setFiles(f => ({ ...f, key: e.target.value }))} />
             </_SRR_Line>
-            <div className="st-btns"><Btn onClick={saveFiles} disabled={!files.cert.trim() || !files.key.trim()}>Use these files</Btn></div>
+            <div className="st-btns"><Btn onClick={saveFiles} disabled={!files.cert.trim() || !files.key.trim()}>使用这些文件</Btn></div>
           </>
         )}
         {!own && (
           <div className="st-btns">
-            <Btn onClick={() => run(() => ctx.bridge.remoteRegenerateCert())} disabled={!s}>Regenerate</Btn>
+            <Btn onClick={() => run(() => ctx.bridge.remoteRegenerateCert())} disabled={!s}>重新生成</Btn>
           </div>
         )}
         {status?.fingerprint && <_SRR_Line label="SHA-256"><span className="st-path">{status.fingerprint}</span></_SRR_Line>}

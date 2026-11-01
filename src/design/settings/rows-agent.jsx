@@ -29,12 +29,12 @@ function _SRA_StartupProfile({ row, ctx, query }) {
   const save = async (id) => {
     setError(null);
     const res = await ctx.onSetStartupProfile(id);
-    if (!res?.ok) setError(res?.error ?? "the profile could not be saved");
+    if (!res?.ok) setError(res?.error ?? "配置未能保存");
   };
   return (
     <Row label={row.label} desc={row.desc} query={query}
       resettable={current !== DEFAULT_PROFILE_ID} onReset={() => save(DEFAULT_PROFILE_ID)}>
-      <PathPicker name="startup profile" label={_SRA_profileName(ctx, current)} title={current}
+      <PathPicker name="启动配置档" label={_SRA_profileName(ctx, current)} title={current}
         rows={rows} disabled={rows.length === 0} error={error} save={save} />
     </Row>
   );
@@ -50,7 +50,7 @@ function _SRA_GoalContinue({ row, ctx, query }) {
   if (cont.value !== null) {
     control = <Toggle value={cont.value} label={row.label} onChange={v => { if (!cont.busy) cont.set(v); }} />;
   } else {
-    control = <span className="st-ro">{cont.error ? "unavailable" : "reading…"}</span>;
+    control = <span className="st-ro">{cont.error ? "不可用" : "正在读取…"}</span>;
   }
   return (
     <>

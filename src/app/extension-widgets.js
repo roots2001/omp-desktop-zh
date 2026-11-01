@@ -120,7 +120,7 @@
     if (ext.statuses.length > 0) {
       out.push({
         // The colon keeps both ids apart from plugin card ids ([a-z0-9-]).
-        id: "ext-status:", title: "status", tweak: STATUS_TWEAK,
+        id: "ext-status:", title: "状态", tweak: STATUS_TWEAK,
         run: pushed([{ type: "kv", rows: ext.statuses.map(s => ({ k: s.key, v: s.text })) }]),
       });
     }
@@ -137,7 +137,7 @@
 
   /** Settings → Rail rows for what the active tab has published. */
   function toggles(ext) {
-    const rows = ext.statuses.length > 0 ? [{ tweak: STATUS_TWEAK, label: "extension: status lines" }] : [];
+    const rows = ext.statuses.length > 0 ? [{ tweak: STATUS_TWEAK, label: "扩展：状态行" }] : [];
     for (const w of ext.widgets) rows.push({ tweak: widgetTweak(w.key), label: `extension: ${w.key}` });
     return rows;
   }

@@ -10,11 +10,11 @@ const { Icon: _GT_Icon } = window;
 const { flatten: _GT_flatten, filterFiles: _GT_filterFiles } = window.OMP_GIT_BROWSER;
 
 const GIT_STATUS_META = {
-  Modified:  { label: "M", color: "var(--amber)",  title: "modified" },
-  Added:     { label: "A", color: "var(--accent)", title: "added" },
-  Deleted:   { label: "D", color: "var(--rose)",   title: "deleted" },
-  Renamed:   { label: "R", color: "var(--cyan)",   title: "renamed" },
-  Untracked: { label: "U", color: "var(--fg-3)",   title: "untracked" },
+  Modified:  { label: "M", color: "var(--amber)",  title: "已修改" },
+  Added:     { label: "A", color: "var(--accent)", title: "新增" },
+  Deleted:   { label: "D", color: "var(--rose)",   title: "删除" },
+  Renamed:   { label: "R", color: "var(--cyan)",   title: "重命名" },
+  Untracked: { label: "U", color: "var(--fg-3)",   title: "未跟踪" },
 };
 
 function GitFileTree({
@@ -32,30 +32,30 @@ function GitFileTree({
   if (error) empty = error;
   // A failed status replaces the whole browser, so no root and no error
   // means still loading.
-  else if (!root) empty = "loading…";
-  else if (rows.length === 0) empty = filter.trim() ? "no match" : changedOnly && !commit ? "no changes" : "no files";
+  else if (!root) empty = "加载中…";
+  else if (rows.length === 0) empty = filter.trim() ? "没有匹配项" : changedOnly && !commit ? "没有改动" : "没有文件";
 
   return (
     <div className="gitb-pane gitb-files">
       <div className="gitb-pane-head">
-        <span className="gitb-pane-title">files</span>
+        <span className="gitb-pane-title">文件</span>
         {commit && (
-          <span className="gitb-pane-sub mono" title={commit.id}>{commit.short} · {commit.files} file{commit.files === 1 ? "" : "s"}</span>
+          <span className="gitb-pane-sub mono" title={commit.id}>{commit.short} · {commit.files} 文件{commit.files === 1 ? "" : "s"}</span>
         )}
         {onChangedOnly && (
           <button type="button" className={`btn ghost gitb-toggle ${changedOnly ? "on" : ""}`}
-            onClick={() => onChangedOnly(!changedOnly)} title={changedOnly ? "show every file" : "show changed files only"}
+            onClick={() => onChangedOnly(!changedOnly)} title={changedOnly ? "显示所有文件" : "只显示改动的文件"}
             aria-pressed={changedOnly}>
             <_GT_Icon name="diff2" size={11} />
-            <span>{changedCount} changed</span>
+            <span>{changedCount} 修改</span>
           </button>
         )}
       </div>
       <div className="gitb-filter">
         <_GT_Icon name="search" size={11} color="var(--fg-4)" />
         <input className="gitb-filter-input mono" value={filter} onChange={e => onFilter(e.target.value)}
-          placeholder="filter files" spellCheck={false} />
-        {filter && <button type="button" className="btn ghost icon" onClick={() => onFilter("")} aria-label="clear filter"><_GT_Icon name="close" size={10} /></button>}
+          placeholder="筛选文件" spellCheck={false} />
+        {filter && <button type="button" className="btn ghost icon" onClick={() => onFilter("")} aria-label="清除筛选"><_GT_Icon name="close" size={10} /></button>}
       </div>
       <div className="gitb-tree" role="tree">
         {empty && <div className={`gitb-empty ${error ? "gitb-error" : ""}`}>{empty}</div>}
@@ -83,7 +83,7 @@ function GitFileTree({
             </div>
           );
         })}
-        {!error && root && truncated && <div className="gitb-empty">list truncated — too many files to show them all</div>}
+        {!error && root && truncated && <div className="gitb-empty">列表已截断——文件太多无法全部显示</div>}
       </div>
     </div>
   );

@@ -12,7 +12,7 @@
 
 // What a column-width tweak of 0 shows; 0 = the column's default, for the
 // browser half the stage (OMP_BROWSER.clampWidth).
-const _SRL_WIDTH_DEFAULT = { browserWidth: "½ stage" };
+const _SRL_WIDTH_DEFAULT = { browserWidth: "½ 舞台" };
 
 // The schema row's `keys` are the width tweaks, in display order;
 // `modified` / `onReset` come from the page.
@@ -21,7 +21,7 @@ function _SRL_Widths({ row, ctx, query, modified, onReset }) {
   const { t } = ctx;
   return (
     <Row stack label={row.label} desc={row.desc} query={query} modified={modified} onReset={onReset}
-      aside={<Button onClick={ctx.panes.reset} disabled={!modified}>Reset all widths</Button>}>
+      aside={<Button onClick={ctx.panes.reset} disabled={!modified}>重置所有宽度</Button>}>
       <div className="st-widths">
         {row.keys.map(key => {
           const px = t[key] ?? 0;
@@ -30,7 +30,7 @@ function _SRL_Widths({ row, ctx, query, modified, onReset }) {
               <small>{key.replace(/Width$/, "")}</small>
               <b>
                 {px > 0 ? <>{Math.round(px)}<i> px</i></> : <span className="st-width-def">{_SRL_WIDTH_DEFAULT[key] ?? "default"}</span>}
-                {px > 0 && <span className="st-moddot" title="Changed from default" />}
+                {px > 0 && <span className="st-moddot" title="已偏离默认值" />}
               </b>
             </div>
           );
@@ -58,16 +58,16 @@ function _SRL_Widgets({ row, ctx, query }) {
     <>
       {widgets.togglePlugins.map(p => (
         <_SRL_Switch key={p.id} tweak={ctx.widgetTweakKey(p.id)} label={p.title} ctx={ctx} query={query}
-          desc={`Plugin \`${(p.command ?? []).join(" ")}\` · ${p.scope === "global" ? "one card for all tabs" : "per tab"}.`} />
+          desc={`Plugin \`${(p.command ?? []).join(" ")}\` · ${p.scope === "global" ? "所有标签页共用一张卡片" : "每个标签页一张"}.`} />
       ))}
       {ctx.extToggles.map(r => (
         <_SRL_Switch key={r.tweak} tweak={r.tweak} label={r.label} ctx={ctx} query={query}
-          desc="A widget an omp extension shows in this rail." />
+          desc="omp 扩展在此侧栏里显示的小部件。" />
       ))}
       <Row stack label={row.label} desc={row.desc} query={query}
         aside={(
           <Button onClick={widgets.reload}>
-            <Icon name="refresh" size={11} />Reload widgets
+            <Icon name="refresh" size={11} />重新加载小部件
           </Button>
         )}>
         <div className="st-path">

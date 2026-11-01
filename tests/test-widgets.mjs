@@ -35,13 +35,13 @@ check("valid v1 output renders its blocks and default status", () => {
 check("non-JSON stdout is an error that echoes none of it", () => {
   const r = W.parseOutput("not json token=secret");
   assert.equal(r.ok, false);
-  assert.equal(r.error, "stdout is not JSON");
+  assert.equal(r.error, "标准输出不是 JSON");
 });
 check("top-level null, array, string and number are not a widget", () => {
   for (const src of ["null", "[]", "[1]", '"str"', "5", "true"]) {
     const r = W.parseOutput(src);
     assert.equal(r.ok, false, src);
-    assert.match(r.error, /not a JSON object/, src);
+    assert.match(r.error, /不是 JSON 对象/, src);
   }
 });
 check("version 2 is rejected with the supported version named", () => {
@@ -388,26 +388,26 @@ check("item time: impossible dates and clock values are dropped", () => {
 const NOW = Date.parse("2026-06-15T12:00:00Z");
 const MIN = 60_000, HOUR = 3_600_000, DAY = 86_400_000;
 check("relativeTime: past minutes, hours, days (floored)", () => {
-  assert.equal(W.relativeTime(NOW - 5 * MIN, NOW), "5m");
-  assert.equal(W.relativeTime(NOW - 3 * HOUR, NOW), "3h");
-  assert.equal(W.relativeTime(NOW - 2 * DAY, NOW), "2d");
-  assert.equal(W.relativeTime(NOW - (HOUR - 1), NOW), "59m", "floors, never rounds up to 60m");
-  assert.equal(W.relativeTime(NOW - (DAY - 1), NOW), "23h");
+  assert.equal(W.relativeTime(NOW - 5 * MIN, NOW), "5 分钟前");
+  assert.equal(W.relativeTime(NOW - 3 * HOUR, NOW), "3 小时前");
+  assert.equal(W.relativeTime(NOW - 2 * DAY, NOW), "2 天前");
+  assert.equal(W.relativeTime(NOW - (HOUR - 1), NOW), "59 分钟前", "floors, never rounds up to 60 分钟");
+  assert.equal(W.relativeTime(NOW - (DAY - 1), NOW), "23 小时前");
 });
 check("relativeTime: future gets an in prefix", () => {
-  assert.equal(W.relativeTime(NOW + 12 * MIN, NOW), "in 12m");
-  assert.equal(W.relativeTime(NOW + 3 * HOUR, NOW), "in 3h");
-  assert.equal(W.relativeTime(NOW + 2 * DAY, NOW), "in 2d");
+  assert.equal(W.relativeTime(NOW + 12 * MIN, NOW), "12 分钟后");
+  assert.equal(W.relativeTime(NOW + 3 * HOUR, NOW), "3 小时后");
+  assert.equal(W.relativeTime(NOW + 2 * DAY, NOW), "2 天后");
 });
 check("relativeTime: under a minute is now, unit boundaries are exact", () => {
-  assert.equal(W.relativeTime(NOW - (MIN - 1), NOW), "now");
-  assert.equal(W.relativeTime(NOW + 30_000, NOW), "now");
-  assert.equal(W.relativeTime(NOW - MIN, NOW), "1m");
-  assert.equal(W.relativeTime(NOW - HOUR, NOW), "1h");
-  assert.equal(W.relativeTime(NOW - DAY, NOW), "1d");
+  assert.equal(W.relativeTime(NOW - (MIN - 1), NOW), "刚刚");
+  assert.equal(W.relativeTime(NOW + 30_000, NOW), "刚刚");
+  assert.equal(W.relativeTime(NOW - MIN, NOW), "1 分钟前");
+  assert.equal(W.relativeTime(NOW - HOUR, NOW), "1 小时前");
+  assert.equal(W.relativeTime(NOW - DAY, NOW), "1 天前");
 });
 check("relativeTime: 30 days is still days, beyond is the UTC date (past and future)", () => {
-  assert.equal(W.relativeTime(NOW - 30 * DAY, NOW), "30d");
+  assert.equal(W.relativeTime(NOW - 30 * DAY, NOW), "30 天前");
   assert.equal(W.relativeTime(NOW - 30 * DAY - 1, NOW), "2026-05-16");
   assert.equal(W.relativeTime(NOW + 31 * DAY, NOW), "2026-07-16");
 });
@@ -612,12 +612,12 @@ check("insertAction: derives the target only from its cfg argument", () => {
   assert.deepEqual(W.insertAction(NEW_TAB, false, item), { target: "new-tab", project: NEW_TAB.project });
 });
 check("insertTitle: plain tooltip for draft, folder name and ⌥ hint for new-tab", () => {
-  assert.equal(W.insertTitle(undefined), "insert into prompt");
-  assert.equal(W.insertTitle({ target: "draft" }), "insert into prompt");
-  assert.equal(W.insertTitle(NEW_TAB), "Click: new tab in inbox · ⌥-click: insert here");
-  assert.equal(W.insertTitle({ target: "new-tab", project: "/a/b/" }), "Click: new tab in b · ⌥-click: insert here");
-  assert.equal(W.insertTitle({ target: "new-tab", project: "C:\\a\\proj" }), "Click: new tab in proj · ⌥-click: insert here");
-  assert.equal(W.insertTitle({ target: "new-tab", project: "/" }), "Click: new tab in / · ⌥-click: insert here");
+  assert.equal(W.insertTitle(undefined), "插入到输入框");
+  assert.equal(W.insertTitle({ target: "draft" }), "插入到输入框");
+  assert.equal(W.insertTitle(NEW_TAB), "点击：在 inbox 中新标签页打开 · ⌥-点击：插入到这里");
+  assert.equal(W.insertTitle({ target: "new-tab", project: "/a/b/" }), "点击：在 b 中新标签页打开 · ⌥-点击：插入到这里");
+  assert.equal(W.insertTitle({ target: "new-tab", project: "C:\\a\\proj" }), "点击：在 proj 中新标签页打开 · ⌥-点击：插入到这里");
+  assert.equal(W.insertTitle({ target: "new-tab", project: "/" }), "点击：在 / 中新标签页打开 · ⌥-点击：插入到这里");
 });
 check("consumePromptInsert: waits for target sessionId to join sessionIds before consuming nonce", () => {
   const targeted = { text: "fix #1", append: true, sessionId: "session-2", nonce: 100 };

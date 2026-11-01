@@ -543,7 +543,7 @@ check("pathMenu: automatic is checked when nothing is stored and names what it f
   const m = B.pathMenu(settings(""));
   assert.equal(m.label, "chrome");
   assert.deepEqual(m.rows.map((r) => [r.name, r.hint, r.value, r.checked]), [
-    ["automatic", "chrome", "", true], ["chrome", "", CHROME, false], ["msedge", "", EDGE, false],
+    ["自动", "chrome", "", true], ["chrome", "", CHROME, false], ["msedge", "", EDGE, false],
   ]);
   assert.equal(m.rows[0].path, CHROME);
 });
@@ -563,21 +563,21 @@ check("pathMenu: a stored path outside the list is appended once, marked other",
   const m = B.pathMenu(settings(custom, { error: "not an executable file" }));
   assert.equal(m.label, "chromium-dev");
   assert.deepEqual(m.rows.map((r) => [r.name, r.hint, r.checked]), [
-    ["automatic", "chrome", false], ["chrome", "", false], ["msedge", "", false], ["chromium-dev", "other", true],
+    ["自动", "chrome", false], ["chrome", "", false], ["msedge", "", false], ["chromium-dev", "其他", true],
   ]);
 });
 
 check("pathMenu: nothing found, or settings not loaded yet", () => {
   const none = B.pathMenu({ path: "", automatic: null, installed: [], error: null });
-  assert.equal(none.label, "automatic");
-  assert.deepEqual(none.rows, [{ name: "automatic", hint: "none found", path: "", value: "", checked: true }]);
+  assert.equal(none.label, "自动");
+  assert.deepEqual(none.rows, [{ name: "自动", hint: "未找到", path: "", value: "", checked: true }]);
   assert.deepEqual(B.pathMenu(null), none);
 });
 
 check("pathMenu: browsers sharing a name are told apart by their folder", () => {
   const m = B.pathMenu({ path: "/usr/bin/chromium", automatic: "/usr/lib/chromium/chromium", installed: ["/usr/lib/chromium/chromium", "/usr/bin/chromium", "/opt/google/chrome/chrome"], error: null });
   assert.deepEqual(m.rows.map((r) => [r.name, r.hint, r.checked]), [
-    ["automatic", "chromium", false], ["chromium", "/usr/lib/chromium", false], ["chromium", "/usr/bin", true], ["chrome", "", false],
+    ["自动", "chromium", false], ["chromium", "/usr/lib/chromium", false], ["chromium", "/usr/bin", true], ["chrome", "", false],
   ]);
 });
 

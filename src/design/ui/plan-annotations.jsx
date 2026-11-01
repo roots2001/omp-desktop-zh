@@ -9,7 +9,7 @@ const { Icon: _PA_Icon, useMarkdownClick: _PA_useClick } = window;
 function segmentPlan(text) {
   if (!text) return [];
   try {
-    if (!window.marked) throw new Error("no marked");
+    if (!window.marked) throw new Error("缺少 marked");
     const tokens = window.marked.lexer(text);
     return tokens
       // `def` (link reference definition, emitted since marked 16.2) renders
@@ -29,7 +29,7 @@ const CommentForm = ({ block, initial, onSave, onCancel }) => {
     <div className="plan-comment-form">
       <div className="plan-comment-form-quote mono">{block.raw.split("\n")[0].trim().slice(0, 80)}{block.raw.length > 80 ? "…" : ""}</div>
       <textarea ref={ref} className="plan-comment-form-area"
-        value={text} placeholder="your comment…"
+        value={text} placeholder="你的评论…"
         onChange={e => setText(e.target.value)}
         onKeyDown={e => {
           if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); onSave(text.trim()); }
@@ -39,13 +39,13 @@ const CommentForm = ({ block, initial, onSave, onCancel }) => {
       <div className="plan-comment-form-foot">
         {initial && (
           <button className="btn ghost" style={{ color: "var(--rose)" }} onClick={() => onSave(null)}>
-            <_PA_Icon name="trash" size={9} /> remove
+            <_PA_Icon name="trash" size={9} /> 移除
           </button>
         )}
         <div style={{ flex: 1 }} />
-        <button className="btn ghost" onClick={onCancel}>cancel</button>
+        <button className="btn ghost" onClick={onCancel}>取消</button>
         <button className="btn outlined" onClick={() => onSave(text.trim())} disabled={!text.trim() && !initial}>
-          save <span className="kbd" style={{ marginLeft: 2 }}>⌘↵</span>
+          保存 <span className="kbd" style={{ marginLeft: 2 }}>⌘↵</span>
         </button>
       </div>
     </div>
@@ -59,7 +59,7 @@ const AnnotablePlan = ({ text, annotations, onAnnotate }) => {
 
   if (blocks.length === 0) return (
     <div className="md-content selectable" style={{ color: "var(--fg-4)", fontFamily: "var(--font-mono)", fontSize: "var(--d-text-sm)" }}>
-      (no plan content yet)
+      （计划内容为空）
     </div>
   );
 
@@ -76,7 +76,7 @@ const AnnotablePlan = ({ text, annotations, onAnnotate }) => {
               onClick={onBlockClick}
               dangerouslySetInnerHTML={{ __html: block.html }} />
             {!isHr && (
-              <button className="plan-block-add" title={ann ? "edit comment" : "add comment"}
+              <button className="plan-block-add" title={ann ? "编辑批注" : "添加批注"}
                 onClick={() => setSelectedBlock(isOpen ? null : block.index)}>
                 {ann
                   ? <_PA_Icon name="edit" size={9} color="var(--amber)" />

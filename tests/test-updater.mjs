@@ -32,10 +32,15 @@ function check(label, fn) {
 
 const INFO = {
   version: "0.4.0", notes: "fixes", date: "2026-09-24T00:00:00Z",
-  canInstall: true, releaseUrl: "https://github.com/apoc/omp-desktop/releases/tag/v0.4.0",
+  canInstall: true, releaseUrl: "https://github.com/roots2001/omp-desktop-zh/releases/tag/v0.4.0",
 };
 const run = (...actions) => actions.reduce(U.reduce, U.initialState());
 const available = (info = INFO) => run({ type: "check-start" }, { type: "check-done", info });
+
+check("the Chinese fork has no feed and points at its own releases", () => {
+  assert.equal(U.IN_APP_UPDATES, false);
+  assert.equal(U.RELEASES_URL, "https://github.com/roots2001/omp-desktop-zh/releases");
+});
 
 // ── check lifecycle ───────────────────────────────────────────────────────
 
@@ -184,6 +189,11 @@ check("formatBytes picks a readable unit", () => {
   assert.equal(U.formatBytes(2048), "2 KB");
   assert.equal(U.formatBytes(5 * 1024 * 1024), "5.0 MB");
   assert.equal(U.formatBytes(NaN), "—");
+});
+
+check("tauri.conf.json agrees that this fork has no update endpoint", () => {
+  const conf = JSON.parse(readFileSync(join(root, "src-tauri/tauri.conf.json"), "utf8"));
+  assert.deepEqual(conf.plugins.updater.endpoints, []);
 });
 
 console.log(`test-updater: ${passed} checks passed`);

@@ -1,233 +1,221 @@
-# OMP Desktop
+# OMP Desktop 中文版
 
-A native desktop app for [oh-my-pi](https://github.com/can1357/oh-my-pi) (`omp`), the terminal coding agent.
-Every tab runs its own `omp` process in RPC mode; the app shows what the agent is doing as it happens: streamed replies, tool calls, diffs, subagents, plans and what it costs.
-Built on Tauri 2 (Rust + the system webview). It doesn't bundle Electron or load anything from a CDN; chat needs no browser.
+这是 [OMP Desktop](https://github.com/apoc/omp-desktop) 的**非官方简体中文分支**。目标是保留完整功能，同时提供中文界面；它由社区维护，不代表上游作者发布。
 
-![OMP Desktop: project sidebar, a conversation with an edit diff, a test run and an approval prompt, and the ambient rail](screenshots/hero.webp)
+OMP Desktop 是 [oh-my-pi](https://github.com/can1357/oh-my-pi)（简称 `omp`）的桌面客户端。每个标签页各自运行一个 `omp` 进程，界面会实时显示回复、工具调用、代码差异、子智能体、计划、终端、浏览器和用量。应用基于 Tauri 2（Rust + 系统 WebView），不内置 Electron，也不依赖网页版聊天服务。
 
-## Contents
+> **当前状态：开发中，尚未正式发布。** 本仓库目前没有已验证的中文版安装包。正式发布后，请只从 [本分支的 Releases](https://github.com/roots2001/omp-desktop-zh/releases) 下载。请勿把上游英文版安装包当作中文版下载。
 
-- [Features](#features)
-- [Install](#install)
-- [Usage](#usage)
-- [Development](#development)
-- [Architecture](#architecture)
-- [License](#license)
+## 目录
 
-## Features
+- [当前状态](#当前状态)
+- [功能](#功能)
+- [安装与升级](#安装与升级)
+- [使用](#使用)
+- [开发](#开发)
+- [架构](#架构)
+- [汉化维护](#汉化维护)
+- [许可](#许可)
 
-### Projects and tabs
+## 当前状态
 
-- **One tab = one agent.** Each tab is its own `omp` process, with its own working folder and profile. Switching tabs keeps in-flight turns streaming in the background.
-- **Project sidebar** (`Ctrl+B`): open tabs grouped by project, plus recently opened folders. Tabs on the same folder collapse into one tab-bar chip with a dropdown. Drag a project or a conversation in the tab bar, the dropdown or the sidebar to reorder it; the order is kept across restarts.
-- **Named conversations.** A new tab starts under its folder name and renames itself to the conversation's generated title once the first exchange ends. A `/rename` you type always wins.
-- **Conversation history** (`Ctrl+H`): search and resume saved sessions. If the conversation is already open in a tab, that tab is focused instead of opening it twice.
-- **Open with OMP Desktop.** Open a folder from Finder, Explorer or your Linux file manager, or run `omp-desktop /path/to/project`. If the app is already running, the folder opens as a new tab in the existing window.
-- **Welcome screen.** With no tab open, the app shows a welcome screen and doesn't run any agent until you open a project.
+已完成和仍在处理的事项要分开看：
 
-![Welcome screen with recent projects in the sidebar](screenshots/welcome.webp)
+- 桌面主界面和手机远程控制页已进行大量中文化，翻译清单保存在 [`localization/zh.json`](localization/zh.json)。
+- 新增了只做完整字符串匹配的中文兜底层 [`src/zh-i18n.js`](src/zh-i18n.js)，不会翻译对话正文、用户或智能体内容、工具输出和输入框。
+- 中文分支暂不连接上游应用内更新源，避免中文版被自动替换成英文版；版本按钮和 `/check-updates` 会打开发行页面。
+- 发布用的 GitHub Actions 目前只配置 Windows x64 安装包构建，尚未实际跑通中文版发布流程。
+- 界面截图仍是上游英文旧图，因此 README 暂不展示截图，等中文版重新截图后再补充。
+- 窗口标题、原生文件选择器、Windows 安装器和右键菜单、macOS 权限说明、手机后台通知已改中文；安装器品牌、应用包标识、签名、自动更新和 macOS/Linux 实机构建仍需在正式发布前逐项确认。
 
-### Watching the agent work
+更具体的维护约定和发布前清单见 [`docs/zh-branch.md`](docs/zh-branch.md)。
 
-- **Tool cards** for every call: `read`, `grep`, `bash`, `eval` (JS/Python kernel cells), `edit`, `task` and more. Output streams live, code is syntax-highlighted, edit diffs have a scrubber, and the file path on an edit card opens the git browser on that file.
-- **Approvals.** The tool approval mode is chosen in the approvals panel (toolbar ✓) or in Settings → Approvals: `always ask`, `write` (the default) or `yolo`, for all projects or one project. Exec-tier tools ask first in `write`. Answer *Approve*, *Allow for this session* or *Always allow in this project*, and review or revoke the saved rules in the approvals panel. A change restarts the tab's agent, and the conversation continues; a tab that is working switches when its turn ends. The toolbar shows the mode in use.
-- **Ambient rail.** Shows the context-window gauge, cost, a tokens/sec sparkline, an agent radar of recent tool activity, and a minimap of the session. Click a minimap cell to jump to that message. Show or hide each card under Settings → Rail.
-- **Changes card.** With the [GitHub CLI](https://cli.github.com/) (`gh`) installed and signed in, the rail shows the open GitHub PR for the project's checked-out branch: title, diff counts and its CI checks, each opening its CI page. Its menu has an opt-in **Auto-fix**, off by default and per tab: when CI fails or a reviewer leaves an unresolved comment, it prompts the agent to fix, verify, commit and push, and resolve the threads it addressed. Your tool approvals still apply. Without `gh` the card stays hidden.
-- **Subagent manager.** Agents started by a `task` call appear in the rail as they run. Open the manager to get totals, a swimlane timeline, agents grouped by the task call that spawned them, and an inspector for each agent's assignment, tools, output and transcript.
+## 功能
 
-![Subagent manager: four parallel scouts, their timeline and per-agent cost](screenshots/subagents.webp)
+这一节浓缩介绍上游 OMP Desktop 的主要能力。它们反映上游设计，不代表中文分支已经在本机完成全部实机回归。
 
-### Browser panel
+### 项目与标签页
 
-Open the globe button in the toolbar, `Ctrl+Shift+B` or `/browser [url]` to see and use the same browser the tab's agent drives. The panel follows the page the agent works in, has page tabs, back/forward/reload and an address field, and can be resized or switched to full view (a toolbar button beside the globe while the panel is open). Mouse, scroll, keyboard, paste and IME input reach the page; the toggle-browser, toggle-terminal and next/previous-tab shortcuts, `⌘` shortcuts and, outside macOS, `Ctrl+Shift` shortcuts still reach the app. **Annotate** (the pencil beside the globe while the panel is open) picks an element or a dragged area: add a comment, and the chip goes out with your next message, goal included, as text plus a screenshot of the area. Localhost links in chat open in the panel by default (`⌘`/`Ctrl`+click opens your normal browser). The ambient rail hides while the panel is open.
+- **一个标签页对应一个智能体。** 每个标签页独立运行 `omp`，有各自的工作目录和配置；切换标签页后，正在进行的回合仍会在后台继续。
+- **项目侧栏**（`Ctrl+B`）：按项目归类打开的标签页，并显示最近打开的项目。可以拖动项目、标签页或会话调整顺序，重启后保留。
+- **会话历史**（`Ctrl+H`）：搜索并恢复已经保存的会话；同一会话已经打开时，聚焦已有标签页，不重复打开。
+- **自动命名。** 新标签页先使用文件夹名，第一轮对话结束后改为会话标题；手动 `/rename` 指定的名称始终优先。
+- **从文件管理器打开项目。** 目前可使用 Windows Explorer 的“用 OMP Desktop 打开”，也支持命令行 `omp-desktop /path/to/project`。应用已启动时，会复用窗口新建标签页。macOS/Linux 的菜单名称和安装器仍需在发布前验证。
 
-The panel needs a Chromium-based browser on your computer: Google Chrome, Chromium, Edge, Brave, or the Chrome for Testing omp downloads (snap packages can't be used). The app finds one itself; Settings → Browser lists what it found and lets you pick another program. Each tab gets its own headless browser, started the first time the tab needs it, with a fresh throwaway profile: no extensions, nothing from your normal browser profile, and gone when you close the tab or quit. Pages run in that browser, never in the app's own window. The agent drives the page you are looking at: it doesn't open a tab of its own, so its navigation replaces your page. Internals and the local trust boundary: [`docs/architecture/browser.md`](docs/architecture/browser.md).
+### 观察智能体工作
 
-Your annotation comments are instructions; what comes from the page (URL, selector, text, HTML) is marked as untrusted page content, and command or skill names and `@file` mentions in it are made harmless, so a page can't give the agent commands or make it read your files.
+- **工具卡片**：显示 `read`、`grep`、`bash`、`eval`、`edit`、`task` 等调用，以及实时输出、语法高亮、编辑差异和文件入口。
+- **审批**：在审批面板或“设置 → 审批”选择“每次都问 / 写入时询问 / 直接执行”，支持全局和单项目设置；变更审批模式会重启该标签页的智能体，但会话继续保留。
+- **环境侧栏**：显示上下文窗口占用、费用、吞吐曲线、最近工具活动和会话缩略图。
+- **变更卡片**：安装并登录 GitHub CLI 后，可查看当前分支的 PR、差异数量和 CI 状态，并可选择自动修复失败检查或未解决评论。
+- **子智能体管理器**：汇总 `task` 调用派生出的子智能体、时间线、工具、输出和费用。
 
-### Rail widgets
+### 浏览器面板
 
-Put your own cards in the rail, next to the built-in ones:
+通过工具栏地球按钮、`Ctrl+Shift+B` 或 `/browser [url]` 打开。面板显示智能体正在操作的页面，可输入地址、前进后退、刷新和调整大小。用旁边铅笔按钮标注元素或区域后，注释会连同截图随下一条消息发送。
 
-- **Widget plugins.** Any program, in any language, that prints JSON: status, numbers, progress, key/value rows, text, lists and links. List it in `widgets.json` and the desktop runs it for every project it matches, when you switch to the tab, when a turn ends, when the branch changes, on a timer or from its refresh button. A list item can add its text to your prompt or open a link. Nothing runs until you approve the plugin's exact command and script in the rail, and a change to either asks again. Examples in [`examples/widgets/`](examples/widgets/): a git card, an MCP tool call, and `hello` scripts in Python and Node.
-- **omp extension widgets.** What an omp extension shows with `ctx.ui.setStatus` and `ctx.ui.setWidget` appears as rail cards marked `extension`, per tab, including updates from a tab in the background.
+浏览器面板需要本机安装 Chromium 系浏览器（Chrome、Chromium、Edge、Brave 等）。每个标签页使用独立、临时的浏览器配置，关闭标签页或应用后清理。安全说明和信任边界见 [`docs/architecture/browser.md`](docs/architecture/browser.md)。
 
-Setup, the output format and the trust model: [`docs/widgets.md`](docs/widgets.md).
+### 侧栏小部件
 
-| | |
+- **小部件插件**：任何能向标准输出打印 JSON 的程序都可作为卡片，在 `widgets.json` 中注册。首次运行前需要在侧栏批准确切命令和脚本，命令或脚本变化后会再次询问。
+- **omp 扩展小部件**：扩展通过 `ctx.ui.setStatus`、`ctx.ui.setWidget` 显示的内容会成为当前标签页的侧栏卡片，也接收后台标签页的更新。
+
+示例与格式见 [`docs/widgets.md`](docs/widgets.md) 和 [`examples/widgets/`](examples/widgets/)。
+
+### 计划模式与输入框
+
+- 用 `Shift+Alt+P`、`/plan` 或输入框旁的按钮切换计划模式。智能体会先写计划；可以逐段评论，再把反馈发回，批准后才开始改文件。待办事项会显示在看板中（`/todo`）。
+- `/` 打开命令面板；`@` 补全项目文件路径。
+- 可从文件选择器或剪贴板附加图片。
+- 在空输入框按 `↑` 取回提示历史，按 `Ctrl+↑` 打开搜索式历史选择器。
+- 智能体工作时发送消息可以“引导”当前回合，按 `Ctrl+Enter` 或 `Ctrl+Q` 可以排队后续消息。
+- 支持模型与思考等级选择、语音转文字和实时语音会话。实时语音只适用于 Codex 配置，并需要对应的登录；切换标签页或打开设置会暂停录音。
+
+### Git 浏览器
+
+`Ctrl+Shift+G`、工具栏 Git 按钮或编辑卡片的文件路径可以打开 Git 浏览器：查看改动文件、完整差异、暂存/丢弃、分支和提交流程图。点击提交可以浏览该提交中的文件版本。应用通过 `gix` 读取仓库，只有暂存和丢弃操作会调用 `git`。
+
+### 终端、统计与配置
+
+- 每个标签页都有独立的终端，可用\`Ctrl+\`、工具栏按钮或 `/terminal` 打开。隐藏终端不会停止其中的进程；关闭标签页会终止它启动的全部进程。终端拥有你的完整权限，不受智能体审批规则限制。
+- “用量”面板显示最近 24 小时的请求、费用、Token 和吞吐；“历史”面板列出当前配置的已保存会话。
+- 标签页可以运行在独立的 `omp` 配置下，每个配置拥有自己的登录、会话、设置和缓存。
+- **设置**（工具栏齿轮、`Ctrl+,` 或 `/settings`）按外观、布局、对话、输入框、侧栏、终端、浏览器、智能体、会话、远程访问、审批和快捷键分组，支持全局搜索和逐项重置。
+
+### 远程访问
+
+“设置 → 远程访问”可以让同一网络或 VPN 中的手机打开桌面标签页，查看当前会话、回答提问、发送、引导和停止智能体，并支持把页面加入手机主屏幕后接收通知。该功能默认关闭，只监听选定的网卡，必须用一次性二维码配对，且可撤销每台手机。连接使用自签名证书或你提供的证书；当前上游实现只支持 macOS/Linux。详细安全模型见 [`docs/architecture/remote-access.md`](docs/architecture/remote-access.md)。
+
+### 安全边界
+
+- 智能体输出按 Markdown 渲染，原始 HTML 会被转义；外部链接交给系统浏览器，危险协议不会变成可点击链接。
+- 发布构建使用严格 CSP，不加载远程脚本。
+- 关键令牌、API Key 和认证头会从日志和智能体输出中脱敏。
+- 关闭标签页或退出应用会终止对应 `omp` 及其子进程，避免遗留孤儿进程。
+
+## 安装与升级
+
+### 运行要求
+
+`omp` 必须已经安装并加入 `PATH`。Windows 常见位置是 `%LOCALAPPDATA%\omp\omp.exe`。每个版本的 OMP Desktop 都需要足够新的 `omp`；版本过旧时标签页会启动失败，并提示所需版本，可运行 `omp update` 升级。
+
+可选安装 [GitHub CLI](https://cli.github.com/)（`gh`）并运行 `gh auth login`，用于变更卡片读取当前分支的 PR 和 CI 状态。
+
+### 下载
+
+**中文版当前尚未发布。** 正式发布后，安装包应从这里下载：
+
+<https://github.com/roots2001/omp-desktop-zh/releases>
+
+发布工作流目前只计划产出 Windows x64 的 `.msi` 和 NSIS `.exe`。在正式发布记录出现前，不要使用上面的上游英文版安装包冒充中文版。
+
+### 升级
+
+当前策略是从中文分支的发行页面手动下载新版安装包，覆盖安装后重启应用。应用内的检查入口只负责打开发行页面，不会连接上游更新源，也不会自动安装更新。
+
+不要从上游 Release 更新已经安装的中文版：上游安装包是英文界面，应用包信息也可能不同。是否启用中文分支自己的签名更新源，需要等独立仓库、签名密钥和更新流程都验证后再决定。
+
+## 使用
+
+打开项目后，在底部输入框向智能体提问。选择语言模型、思考等级、审批模式等入口都在工具栏和设置中；常用快捷键可参考下面的表格。上游的终端、Git、浏览器、远程访问等实现细节见 [架构](#架构) 和 `docs/architecture/`。
+
+### 键盘快捷键
+
+macOS 上以 `⌘` 代替 `Ctrl` 的常用组合键同样有效。所有快捷键都可到“设置 → 快捷键”（`Ctrl+/`）修改。
+
+| 操作 | 默认按键 |
 |---|---|
-| **Results**: git status, CI runs and open issues; the `+` on an issue added it to the prompt | **Approval**: a plugin's command, one argument per line, before it ever runs; below, two cards from an omp extension |
-| ![Rail widgets: git status, CI runs and open issues](screenshots/rail-widgets.webp) | ![Approval cards for three plugins and two omp extension cards](screenshots/widget-approval.webp) |
+| 命令面板 | `Ctrl+K` |
+| 会话历史 | `Ctrl+H` |
+| 设置 / 设置 → 快捷键 | `Ctrl+,` / `Ctrl+/` |
+| 显示或隐藏项目侧栏 | `Ctrl+B` |
+| 显示或隐藏浏览器面板 | `Ctrl+Shift+B` |
+| 新建 / 关闭标签页 | `Ctrl+T` / `Ctrl+W` |
+| 显示或隐藏终端 | ``Ctrl+`` |
+| Git 浏览器 | `Ctrl+Shift+G` |
+| 下一个 / 上一个标签页 | `Ctrl+Tab` / `Ctrl+Shift+Tab` |
+| 提示历史选择器 | `Ctrl+↑` |
+| 中断当前回合 | `Esc` |
+| 切换思考等级 | `Shift+Tab` |
+| 切换 / 选择模型 | `Ctrl+P`（`Ctrl+Shift+P` 返回）/ `Alt+M` |
+| 切换计划模式 | `Shift+Alt+P` |
+| 排队一个后续消息 | `Ctrl+Enter` 或 `Ctrl+Q` |
+| 打开发行页面 | 无默认按键，可在设置中绑定 |
 
-### Plan mode
+### 斜杠命令
 
-Toggle plan mode (`Shift+Alt+P`, `/plan` or the composer pill) and the agent drafts a plan before touching any files. Click any block of the plan to comment on it; your comments go back with the next *send feedback*, and *approve* lets the agent start. The agent's todo list fills the kanban (`/todo`).
+桌面端在内置命令之外，还会显示 `omp` 提供的斜杠命令和技能。内置命令包括 `/plan`、`/steer`、`/compact`、`/new`、`/history`、`/branch`、`/model`、`/thinking`、`/login`、`/live`、`/todo`、`/export`、`/settings`、`/shortcuts`、`/browser` 和 `/check-updates`。其余命令（例如 `/rename`、`/mcp`、`/skill:<name>`）由 `omp` 或其扩展提供。
 
-![Plan mode with an inline comment on the approach](screenshots/plan-mode.webp)
+## 开发
 
-### Composer
+开发需要 Rust stable、Node.js 18+ 和 Tauri 2 所需的系统依赖。Windows 需要 WebView2；Linux 需要 WebKitGTK 4.1。详见 [Tauri 环境准备](https://tauri.app/start/prerequisites/)。
 
-- `/` opens a palette with the desktop commands plus every omp slash command and skill discovered for the tab.
-- `@` autocompletes project file paths.
-- Attach images from a file picker or paste them from the clipboard. Click an attached image to view it full size.
-- Prompt history: `↑` in an empty prompt box recalls earlier prompts (`↓` goes back), and `Ctrl+↑` opens a searchable picker.
-- Send while the agent is working to *steer* the current turn, or queue a follow-up with `Ctrl+Enter` (or `Ctrl+Q`). Settings → Composer can make `Ctrl+Enter` the send key instead of `Enter`; the other one then adds a new line.
-- Model picker and thinking level (`off · minimal · low · medium · high · xhigh`) are available from the composer or the keyboard.
-- The composer has separate one-click **Voice to text** (microphone) and **Live conversation** (speech bubble with an audio waveform) buttons. Live conversation talks to the agent, with connection state, microphone/speaker levels, captions, mute, pause, resume and end controls. `/live` starts, ends an active call, or resumes a paused one; explicit `/live start`, `/live pause`, `/live resume`, `/live stop`, `/live mute` and `/live unmute` are also available. It is Codex only: it needs an OpenAI Codex login in the tab's profile (`/login` → ChatGPT Plus/Pro), and without one its button is greyed out, with a tooltip saying so.
-- Switching tabs or opening Settings **pauses live conversation** and turns off its microphone and speaker. Returning shows **Resume**, never an automatically reopened microphone. Each connection receives the current coding-chat history and the tab's earlier spoken discussion, so starting mid-chat or reconnecting does not start from a blank conversation. End stops audio without forgetting the spoken discussion in that tab. Voice history stays in memory until a new coding conversation, profile change, tab close or app restart. Context is bounded: the original objective, compacted summaries and recent exchanges take priority; omitted/truncated history is marked for the voice agent. Private thinking and image/audio payloads are not sent as history.
-- Voice to text uses the tab profile's configured omp speech-to-text engine. Speak, then stop to append the transcript to that tab's existing draft; nothing is sent unless Settings → Composer → Voice → **Send voice to text on stop** is on, which sends the draft when you stop it yourself. Recording also stops by itself after a pause in your speech (Settings → Composer → Voice → **Stop voice to text after a pause**, 3 s by default, `off` to disable); with both on, dictation is hands-free. While voice to text or a live conversation records, an equalizer of your microphone shows above the input (Settings → Composer → Voice → **Spectrum bars** sets how many bars, 64 by default). The composer shows recording/transcribing state, a preview and any error. Dictation stops before switching tabs or opening Settings; if stopping either mode fails, the tab stays visible so you can retry. On macOS, allow OMP Desktop under System Settings → Privacy & Security → Microphone.
+从本仓库工作目录开始：
 
-![Command bridge (Ctrl+K)](screenshots/command-bridge.webp)
-
-### Git browser
-
-`Ctrl+Shift+G`, the git button in the toolbar, or the file path on an edit card opens the tab's repository over the whole window: the project tree with every changed file marked (modified, added, deleted, renamed, untracked; ignored files left out) and a switch to show only those; the selected file in full with its uncommitted change inline — staged and unstaged together, against the last commit — with jump-between-changes, stage, discard and copy; and the commit graph of every branch, remote and tag, your uncommitted work on top and the branch's lead over its upstream. Click a commit to browse it: the files it changed, each shown as of that commit. The view refreshes by itself when the agent edits a file, when the branch changes and after a stage or discard. The app reads the repository itself (through [gix](https://github.com/GitoxideLabs/gitoxide)); only stage and discard run `git`.
-
-![Git browser: project tree with git status, the selected file with its change inline, and the commit graph](screenshots/git-browser.webp)
-
-### Panels
-
-| | |
-|---|---|
-| **Usage**: requests, cost, tokens and throughput for the last 24 h, by model, folder and agent type (from `omp stats`) | **History**: saved conversations for the tab's profile, searchable and resumable |
-| ![Usage statistics](screenshots/usage.webp) | ![Conversation history](screenshots/history.webp) |
-
-### Terminal
-
-A real shell in every tab. `` Ctrl+` `` (`` ⌘` `` on macOS), the toolbar button or `/terminal` opens a panel above the prompt, in the tab's project folder, running your login shell (or the one set under Settings → Terminal, which the app saves). Hiding the panel keeps the shell running; closing the tab ends it and everything it started. After `exit`, press Enter in the panel to start a new one. It is your terminal, not the agent's: it runs with your full rights, omp's approvals do not apply to it, and nothing passes between it and the agent.
-
-### Profiles, updates, look
-
-- **Profiles.** A tab can run under an omp profile (`omp --profile <id>`) with its own auth, sessions, settings and caches. Create, rename and switch profiles from the toolbar, and tick one as the startup default. A new profile boots far enough to run `/login`.
-- **In-app updates.** The app checks the signed release feed 15 s after launch and every 6 h after that. Windows, macOS and the Linux AppImage install updates themselves and relaunch. `.deb`/`.rpm` and source builds show a notice with a link to the release instead.
-- **Settings** (the cog in the toolbar, `Ctrl+,` or `/settings`) opens as a tab after your project tabs, with a search over every setting. Sections: Appearance (theme `aurora`, `phosphor` or `daylight`, accent colour, density, font size, mono chat font), Layout (side column, what new tabs show beside the chat, column widths), Chat (folding, follow new output), Composer (send key, paste collapse length, prompt-history size), Rail, Terminal (shell, scrollback), Browser, Agent (startup profile, goal auto-continue, auto-compaction, retrying failed requests), Session (reopen tabs on launch, ask before closing a working tab, name tabs automatically, updates), Approvals and Shortcuts. Changes apply at once; a dot marks a changed setting, and each one or a whole section can be reset.
-
-| phosphor | daylight |
-|---|---|
-| ![Phosphor theme](screenshots/theme-phosphor.webp) | ![Daylight theme](screenshots/theme-daylight.webp) |
-
-### Remote access
-
-Settings → Remote access lets a phone on your network (or VPN) open the app's tabs in its browser: read the active tab live, answer the agent's questions, send, steer and stop, and, with the page added to the home screen, get a push notification when a question waits or a long turn finishes. It is off until you enable it, listens only on the network interface you choose, pairs a phone with a one-time QR code, and each phone can be revoked. Use a generated certificate or your own (push needs one the phone trusts); macOS and Linux only. Internals and the security model: [`docs/architecture/remote-access.md`](docs/architecture/remote-access.md).
-
-### Security
-
-- Agent output is rendered as Markdown, with any raw HTML escaped. Links open in your system browser, and `javascript:`/`data:` links are rendered as plain text.
-- Release builds use a strict Content Security Policy: no inline scripts, no `eval`, the asset protocol off and the shell plugin removed.
-- Tokens, API keys and auth headers are redacted from agent output and logs.
-- Closing a tab or quitting kills the agent's whole process tree, so no orphaned subagents or tool processes are left behind.
-
-## Install
-
-### Requirements
-
-`omp` must be installed and on your `PATH` (on Windows it is usually `%LOCALAPPDATA%\omp\omp.exe`). Each release needs a recent omp: a tab started against an older one does not start, and its message names the version required (`omp update` fixes it). On macOS, GUI apps get a minimal `PATH`, so the app also looks in Homebrew, `~/.local/bin` and `~/.cargo/bin`.
-
-Optional: the [GitHub CLI](https://cli.github.com/) (`gh`), signed in with `gh auth login`, for the Changes card. It is found the same way as `omp`.
-
-### Download
-
-Grab the latest build from [Releases](https://github.com/apoc/omp-desktop/releases/latest):
-
-| Platform | Package |
-|---|---|
-| Windows x64 | `*_x64-setup.exe` (NSIS) or `*_x64_en-US.msi` |
-| macOS Apple Silicon / Intel | `*_aarch64.dmg` / `*_x64.dmg` |
-| Linux x64 | `*.AppImage`, `*.deb`, `*.rpm` |
-
-The installers are not code-signed with a publisher certificate yet (no Authenticode signature, no Apple notarisation). On Windows, SmartScreen warns the first time you run the app. The macOS app is only ad-hoc signed, so on first launch macOS says it "could not verify" OMP Desktop: open **System Settings → Privacy & Security** and click **Open Anyway**. Updates are still verified against the app's own minisign key.
-
-macOS releases up to 0.10.0 are not signed at all, and on Apple Silicon macOS refuses to open them with "OMP Desktop is damaged and can't be opened". The app is not damaged; remove the download's quarantine flag and open it again:
-
-```sh
-xattr -dr com.apple.quarantine "/Applications/OMP Desktop.app"
+```powershell
+npm install                 # 安装 Tauri CLI
+npm run dev                 # 开发模式；WebView 内用 Babel 转译 JSX
+npm run build:frontend      # 生成 dist/，用作发布构建的前端
 ```
 
-## Usage
+Rust 依赖和桌面安装包构建：
 
-Open a folder with the `+` button (or `Ctrl+T`), from the sidebar's recent projects, or with your OS's "Open with". Then talk to the agent. Conversations are stored by omp itself, per profile, so the history panel also lists sessions you started in a terminal.
-
-### Keyboard shortcuts
-
-On macOS, `Ctrl+K`, `Ctrl+H`, `Ctrl+/`, `Ctrl+,`, `Ctrl+B`, `Ctrl+T`, `Ctrl+W`, `Ctrl+Shift+G`, `Ctrl+Shift+B`, `` Ctrl+` `` and `Ctrl+↑` also work with `⌘`. All shortcuts can be rebound in Settings → Shortcuts (`Ctrl+/`): every action with its chord; rebind, add a second chord, or reset. Your overrides are stored in `<app config>/keybindings.json`, and omp's own `~/.omp/agent/keybindings.yml` is used as the base layer. With the terminal or a browser-panel page focused, only the toggle-terminal, toggle-browser and next/previous-tab shortcuts (whatever they are bound to), `⌘` shortcuts and, outside macOS, `Ctrl+Shift` shortcuts reach the app; `Ctrl+T`, `Ctrl+W`, `Ctrl+C`, `Esc` and other `Ctrl`/`Alt` keys stay with the shell or the page. Copy and paste in the terminal with `Ctrl+Shift+C` / `Ctrl+Shift+V` (`⌘C` / `⌘V` on macOS).
-
-![Keyboard shortcuts](screenshots/shortcuts.webp)
-
-| Action | Default |
-|---|---|
-| Command bridge | `Ctrl+K` |
-| Conversation history | `Ctrl+H` |
-| Settings / Settings → Shortcuts | `Ctrl+,` / `Ctrl+/` |
-| Toggle project sidebar | `Ctrl+B` |
-| Toggle browser panel | `Ctrl+Shift+B` |
-| New tab / close tab | `Ctrl+T` / `Ctrl+W` |
-| Toggle terminal | `` Ctrl+` `` |
-| Git browser | `Ctrl+Shift+G` |
-| Next / previous tab | `Ctrl+Tab` / `Ctrl+Shift+Tab` |
-| Move the tab's project left / right | `Ctrl+Shift+PageUp` / `Ctrl+Shift+PageDown` |
-| Prompt history picker | `Ctrl+↑` |
-| Interrupt the turn | `Esc` |
-| Cycle thinking level | `Shift+Tab` |
-| Cycle model / pick model | `Ctrl+P` (`Ctrl+Shift+P` back) / `Alt+M` |
-| Toggle plan mode | `Shift+Alt+P` |
-| Queue a follow-up | `Ctrl+Enter` or `Ctrl+Q` |
-
-The approvals, usage, kanban, compact, export and update-check actions have no default chord. You can bind one in Settings → Shortcuts.
-
-### Slash commands
-
-The desktop adds `/plan`, `/steer`, `/compact`, `/new`, `/history`, `/branch`, `/model`, `/thinking`, `/login`, `/live [start|pause|resume|stop|mute|unmute]`, `/todo`, `/export`, `/settings`, `/shortcuts`, `/browser [url]` and `/check-updates`. Everything else omp offers (`/rename`, `/mcp`, `/skill:<name>`, …) shows up in the same palette.
-
-## Development
-
-| Tool | Version |
-|---|---|
-| [Rust](https://rustup.rs/) | stable |
-| [Node.js](https://nodejs.org/) | 18+ |
-| Tauri 2 system dependencies | see [Tauri prerequisites](https://tauri.app/start/prerequisites/) (WebKitGTK 4.1 on Linux, WebView2 on Windows) |
-
-```bash
-git clone https://github.com/apoc/omp-desktop
-cd omp-desktop
-npm install            # Tauri CLI only
-npm run dev            # serves src/ as is; JSX is compiled in the webview by Babel
-npm run build          # precompiles src/ into dist/ and bundles installers
+```powershell
+Set-Location src-tauri
+cargo test --locked
 ```
 
-There is no bundler. In dev, `src/index.html` loads every script in dependency order and `@babel/standalone` transpiles the JSX in the page. Release builds embed `dist/`, written by `scripts/build-frontend.mjs`: the JSX is compiled ahead of time with the same vendored Babel, and React's production build is used.
+前端回归测试：
 
-| Check | Command |
-|---|---|
-| All JS regression scripts (+ `dist/` build) | `npm test` |
-| Rust tests | `cd src-tauri && cargo test --locked` |
-| Rust lint (must stay clean) | `cd src-tauri && cargo +nightly clippy --all-targets --all-features -- -W clippy::pedantic -W clippy::nursery -D warnings` |
-| Probe omp's RPC surface directly | `node tests/test-rpc.mjs` |
+```powershell
+npm test
+node tests/test-zh-i18n.mjs
+node scripts/zh/extract.mjs --stats
+```
 
-CI and every release run the same suite: `cargo test` on Windows, Linux and macOS, plus `npm test`.
-Contributor rules (script load order, the IIFE rule, CSP constraints, clone discipline in Rust, the changelog workflow) are in [`AGENTS.md`](AGENTS.md). User-facing changes are recorded in [`CHANGELOG.md`](CHANGELOG.md).
+项目没有 JS 打包器。开发时 `src/index.html` 按依赖顺序加载脚本，并由 `@babel/standalone` 在页面内转译 JSX；发布构建由 `scripts/build-frontend.mjs` 预先编译到 `dist/`。更细的脚本顺序、CSP 和贡献约束见 [`AGENTS.md`](AGENTS.md)，用户可见变更记录在 [`CHANGELOG.md`](CHANGELOG.md)。
 
-## Architecture
+## 架构
 
 ```mermaid
 flowchart LR
-  subgraph Webview["Webview (src/)"]
-    UI["React UI<br/>app-live.jsx · design/"] <--> Bridge["live.js<br/>OMP_BRIDGE · per-tab state"]
+  subgraph Webview["WebView（src/）"]
+    UI["React 界面<br/>app-live.jsx · design/"] <--> Bridge["live.js<br/>OMP_BRIDGE · 标签页状态"]
   end
-  subgraph Rust["Rust (src-tauri/)"]
-    AB["AgentBridge<br/>one child per tab"]
-    Svc["profiles · recent projects · approval rules<br/>keybindings · git workspace · stats · updater"]
+  subgraph Rust["Rust（src-tauri/）"]
+    AB["AgentBridge<br/>每个标签页一个 omp 子进程"]
+    Svc["配置 · 最近项目 · 审批规则<br/>快捷键 · Git · 统计 · 更新"]
   end
   Bridge -- "invoke send_command" --> AB
-  AB -- "agent://line/{id} events" --> Bridge
+  AB -- "agent://line/{id} 事件" --> Bridge
   Bridge -- invoke --> Svc
-  AB -- "stdin / stdout (JSON lines)" --> OMP["omp --mode rpc-ui"]
+  AB -- "stdin / stdout（JSON 行）" --> OMP["omp --mode rpc-ui"]
 ```
 
-- **Rust** (`src-tauri/src/`): `agent/` spawns and supervises one `omp` per tab. That covers process groups and job objects, so a tab's whole tree dies with it; bounded stdout/stderr readers; and a per-session journal that replays what a background tab missed. Around it are small modules for profiles, recent projects, approval rules, keybindings, the git working tree, `omp stats`, saved sessions, OS folder-open requests and the updater.
-- **Bridge** (`src/live.js`): all the RPC traffic. It keeps a registry of tabs, snapshots each tab's live state when you switch away, and exposes `window.OMP_BRIDGE` to React. `src/adapter.js` holds the pure transforms from RPC shapes to UI shapes.
-- **UI** (`src/app-live.jsx`, `src/app/`, `src/design/`): React 19 without a bundler. Pure logic (keymap, project navigation, subagent reducer, updater state, session-title gates, …) lives in plain `src/app/*.js` modules, which the regression scripts in `tests/` load directly.
+- **Rust（`src-tauri/src/`）**：创建并监管每个标签页的 `omp`，处理进程组、后台标签页回放、审批、Git、配置、终端、浏览器、远程访问和更新等功能。
+- **桥接层（`src/live.js`）**：处理 RPC、标签页注册与状态快照，向 React 暴露 `window.OMP_BRIDGE`。
+- **界面（`src/app-live.jsx`、`src/app/`、`src/design/`）**：React 19，不使用 JS 打包器；纯逻辑放在 `src/app/*.js` 中，便于直接测试。
 
-## License
+各功能的协议、状态和安全边界见 [`docs/architecture/`](docs/architecture/)。中文分支额外遵守 [`docs/zh-branch.md`](docs/zh-branch.md) 的同步与发布规则。
+
+## 汉化维护
+
+中文界面主要直接在 JSX 源码中翻译；动态构建的手机页面和少量运行时文案由 `src/zh-i18n.js` 做**精确匹配**兜底。不从运行时猜测翻译，也不翻译智能体或工具内容。
+
+上游同步的推荐流程：
+
+```powershell
+node scripts/zh/extract.mjs --stats
+node scripts/zh/extract.mjs --json > .tmp-zh-extract.json
+# 审阅并更新 localization/zh.json
+node scripts/zh/apply.mjs --dry
+node scripts/zh/apply.mjs
+node tests/test-zh-i18n.mjs
+```
+
+不要在未审阅时批量写入翻译。提交前检查 `--dry` 结果和 `localization/zh.json` 的差异，并确认没有改动 RPC、审批、按钮协议值等逻辑常量。完整清单见 [`docs/zh-branch.md`](docs/zh-branch.md)。
+
+## 许可
 
 [MIT](LICENSE)

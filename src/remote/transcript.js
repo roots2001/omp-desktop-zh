@@ -5,6 +5,10 @@
   const C = window.OMP_REMOTE_CLIENT;
   const P = window.OMP_SCROLL_PIN;
 
+  function text(text) {
+    return window.OMP_I18N?.translate(text) ?? text;
+  }
+
   function node(tag, text, className) {
     const element = document.createElement(tag);
     if (text !== undefined) element.textContent = text;
@@ -31,10 +35,10 @@
 
   function createTranscript({ status, scan, error, onAnswer, onError }) {
     const transcript = node("section");
-    transcript.setAttribute("aria-label", "Transcript");
+    transcript.setAttribute("aria-label", "对话记录");
     const asks = node("section");
-    asks.setAttribute("aria-label", "Open questions");
-    const jumpLatest = button("↓ Newest", () => { pinned = true; jumpToBottom(); updateJump(); });
+    asks.setAttribute("aria-label", "待回答问题");
+    const jumpLatest = button("↓ 最新", () => { pinned = true; jumpToBottom(); updateJump(); });
     jumpLatest.className = "jump-latest";
     jumpLatest.hidden = true;
     const scrollBox = node("div", undefined, "scroll");
@@ -122,7 +126,7 @@
     function renderAsk(ask, key) {
       const card = node("div", undefined, "ass-body");
       const row = railRow("article", `row ask${fade(`ask:${ask.id}`)}`, "ass-glyph ask-glyph", "?", card);
-      card.append(node("div", ask.title || "Question", "ask-question"));
+      card.append(node("div", ask.title || "问题", "ask-question"));
       if (ask.message) card.append(node("div", ask.message, "ask-confirm-message selectable"));
       if (ask.kind === "dialog") {
         card.append(dialogControls(ask, key));
@@ -141,14 +145,14 @@
         const wrap = node("div", undefined, "ask-other");
         const input = node(controls.multiline ? "textarea" : "input");
         input.className = controls.multiline ? "ask-editor-textarea selectable" : "ask-other-input";
-        input.setAttribute("aria-label", ask.title || "Answer");
+        input.setAttribute("aria-label", ask.title || "回答");
         input.value = askDrafts.get(key) ?? ask.value ?? "";
         input.addEventListener("input", () => askDrafts.set(key, input.value));
         wrap.append(input);
-        const submit = button(controls.multiline ? "Submit" : "Answer", () => onAnswer(ask.id, input.value));
+        const submit = button(controls.multiline ? "提交" : "回答", () => onAnswer(ask.id, input.value));
         submit.className = "ask-submit";
         if (controls.multiline) {
-          const cancel = button("Cancel", () => onAnswer(ask.id, null));
+          const cancel = button("取消", () => onAnswer(ask.id, null));
           cancel.className = "ask-opt";
           const actions = node("div", undefined, "ask-editor-actions");
           actions.append(submit, cancel);
@@ -176,7 +180,7 @@
         const head = node("div", undefined, "ask-q-head");
         if (questions.length > 1) head.append(node("span", `${qi + 1}/${questions.length}`, "mono"));
         if (q.header) head.append(node("span", q.header, "chip warn"));
-        const kind = node("span", q.multi ? "pick any" : "pick one", `ask-q-kind${q.multi ? "" : " todo"}`);
+        const kind = node("span", q.multi ? "可多选" : "选一个", `ask-q-kind${q.multi ? "" : " todo"}`);
         head.append(kind);
         group.append(head, node("div", q.question, "ask-question"));
         const rows = node("div", undefined, "ask-rows");
@@ -207,8 +211,8 @@
         const other = node("div", undefined, "ask-other");
         const input = node("input");
         input.className = "ask-other-input";
-        input.setAttribute("aria-label", `Custom answer: ${q.question}`);
-        input.placeholder = q.multi ? "Add your own…" : "Or type your own answer…";
+        input.setAttribute("aria-label", `自定义回答：${q.question}`);
+        input.placeholder = q.multi ? "添加你自己的…" : "或输入你自己的回答…";
         input.addEventListener("input", () => {
           draft[qi].text = input.value;
           if (!q.multi && input.value.trim()) draft[qi].picks = [];
@@ -228,11 +232,11 @@
         syncs.push(sync);
       });
       syncs.forEach(sync => sync());
-      const answer = button("Answer", () => {
+      const answer = button("提交", () => {
         const answers = [];
         for (const [qi, q] of questions.entries()) {
           const custom = draft[qi].text.trim();
-          if (!q.multi && !draft[qi].picks.length && !custom) { problem.textContent = "Answer every question."; return; }
+          if (!q.multi && !draft[qi].picks.length && !custom) { problem.textContent = "每个问题都要回答。"; return; }
           answers.push(custom ? { id: q.id, selectedOptions: draft[qi].picks, customInput: custom } : { id: q.id, selectedOptions: draft[qi].picks });
         }
         problem.textContent = "";
@@ -266,7 +270,7 @@
       transcript.className = "transcript";
       if (!view) {
         asks.replaceChildren(); asks.className = "asks"; renderedAsks = null;
-        transcript.append(node("p", "Select a session to read its live view.", "status"));
+        transcript.append(node("p", "选择一个会话以查看它的实时内容。", "status"));
         lastViewTabId = null; lastTailId = null; pinned = true; shownIds = new Set(); shownTab = null; updateJump();
         return;
       }

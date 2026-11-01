@@ -96,7 +96,7 @@ The chat history is the current coding conversation; voice history is earlier sp
     return { messages: entries.flatMap((_, i) => keep.has(i) ? [keep.get(i)] : []), omitted: entries.length - keep.size };
   }
   function instructions({ messages, voice = [], project = "" }) {
-    if (!Array.isArray(messages)) throw new Error("Could not read conversation history for live voice");
+    if (!Array.isArray(messages)) throw new Error("无法读取实时语音所需的对话历史");
     const rows = Array.isArray(voice) ? voice.filter(row =>
       (row?.role === "user" || row?.role === "assistant") && typeof row.text === "string" && row.text.trim()
     ).map(({ role, text, final }) => ({ role, text, final: final === true })) : [];

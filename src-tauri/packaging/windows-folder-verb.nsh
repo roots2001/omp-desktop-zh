@@ -18,11 +18,11 @@
 !define OMP_FOLDER_BG_VERB "Software\Classes\Directory\Background\shell\OpenWithOmpDesktop"
 
 !macro NSIS_HOOK_POSTINSTALL
-  WriteRegStr SHCTX "${OMP_FOLDER_VERB}" "" "Open with ${PRODUCTNAME}"
+  WriteRegStr SHCTX "${OMP_FOLDER_VERB}" "" "用 ${PRODUCTNAME} 打开"
   WriteRegStr SHCTX "${OMP_FOLDER_VERB}" "Icon" "$\"$INSTDIR\${MAINBINARYNAME}.exe$\",0"
   WriteRegStr SHCTX "${OMP_FOLDER_VERB}\command" "" "$\"$INSTDIR\${MAINBINARYNAME}.exe$\" $\"%V$\""
 
-  WriteRegStr SHCTX "${OMP_FOLDER_BG_VERB}" "" "Open with ${PRODUCTNAME}"
+  WriteRegStr SHCTX "${OMP_FOLDER_BG_VERB}" "" "用 ${PRODUCTNAME} 打开"
   WriteRegStr SHCTX "${OMP_FOLDER_BG_VERB}" "Icon" "$\"$INSTDIR\${MAINBINARYNAME}.exe$\",0"
   WriteRegStr SHCTX "${OMP_FOLDER_BG_VERB}\command" "" "$\"$INSTDIR\${MAINBINARYNAME}.exe$\" $\"%V$\""
 

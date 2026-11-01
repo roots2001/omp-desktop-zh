@@ -1,14 +1,9 @@
 /* app/use-updater.jsx — drives the in-app updater (issue #19): the
-   app/updater.js reducer, the background check timer, install progress,
-   and whether the update modal is open. `autoCheck` and `skipped` are the
-   `updateCheck`/`skippedUpdate` tweaks, so both persist like any other
-   preference.
-
-   A background check never opens anything — a found update only surfaces
-   as the status-bar pill, which just opens the modal on what the last check
-   found. A manual check (the status-bar version label, `/check-updates`,
-   keymap) opens the modal immediately so "checking…" / "up to date" / the
-   error are visible. */
+   app/updater.js reducer, update progress, and whether the update modal is
+   open. This fork has no in-app feed, so the status-bar version label,
+   `/check-updates` and the keymap open the releases page directly. The
+   reducer and install path stay in place for a fork that later configures
+   its own signed feed (docs/zh-branch.md). */
 
 // Frozen and loaded before this file (index.html), so safe to read once.
 const UPDATER = window.OMP_UPDATER;
@@ -27,28 +22,43 @@ function useUpdater({ bridge, autoCheck, skipped, setTweak }) {
     bridge?.appVersion().then(setVersion);
   }, [bridge]);
 
-  // `manual` stays private: only the timer passes false. Gates the IPC call
-  // itself — the reducer would merely drop the transition. A check already
-  // running feeds the modal just opened; one during an install would race it.
-  const runCheck = React.useCallback(async (manual) => {
-    if (manual) setOpen(true);
+  // Gates the IPC call itself rather than relying on the reducer to drop
+  // the transition. A check already running feeds a modal from an earlier
+  // build; one during an install would race it.
+  const runCheck = React.useCallback(async () => {
     if (!bridge || UPDATER.isBusy(stateRef.current)) return;
     dispatch({ type: "check-start" });
     const res = await bridge.checkForUpdate();
     dispatch(res.ok
       ? { type: "check-done", info: res.value }
       : { type: "check-failed", error: res.error });
-    if (!res.ok && !manual) console.warn("[updater] background check failed:", res.error);
   }, [bridge]);
 
-  // The public entry point is always a manual check, and takes no argument,
-  // so it can be handed straight to onClick / a keymap handler.
-  const check = React.useCallback(() => { runCheck(true); }, [runCheck]);
+  const openRelease = React.useCallback(async () => {
+    // No feed means there is no update object; the release index is still
+    // the manual upgrade path, so never fall through without an action.
+    const url = stateRef.current.update?.releaseUrl ?? UPDATER.RELEASES_URL;
+    if (!url || !bridge) return;
+    const res = await bridge.openExternalUrl(url);
+    if (!res.ok) console.error("[updater] opening the release page failed:", res.error);
+  }, [bridge]);
+
+  // The public entry point takes no argument, so it can be handed straight
+  // to onClick / a keymap handler. Without an in-app feed it opens the
+  // releases page instead of pretending a check is possible.
+  const check = React.useCallback(() => {
+    if (UPDATER.IN_APP_UPDATES) {
+      setOpen(true);
+      runCheck();
+    } else {
+      openRelease();
+    }
+  }, [openRelease, runCheck]);
 
   React.useEffect(() => {
-    if (!autoCheck || !bridge) return undefined;
-    const first = setTimeout(() => runCheck(false), UPDATER.STARTUP_DELAY_MS);
-    const every = setInterval(() => runCheck(false), UPDATER.CHECK_INTERVAL_MS);
+    if (!UPDATER.IN_APP_UPDATES || !autoCheck || !bridge) return undefined;
+    const first = setTimeout(runCheck, UPDATER.STARTUP_DELAY_MS);
+    const every = setInterval(runCheck, UPDATER.CHECK_INTERVAL_MS);
     return () => { clearTimeout(first); clearInterval(every); };
   }, [autoCheck, bridge, runCheck]);
 
@@ -69,15 +79,6 @@ function useUpdater({ bridge, autoCheck, skipped, setTweak }) {
   // Settings → Session → Version: forget the skipped release, so the pill
   // offers it again.
   const clearSkipped = React.useCallback(() => setTweak("skippedUpdate", null), [setTweak]);
-
-  const openRelease = React.useCallback(async () => {
-    const url = stateRef.current.update?.releaseUrl;
-    if (!url || !bridge) return;
-    // For a notify-only install this is the modal's only action; a launcher
-    // that can't start (no xdg-open) must at least leave a trace.
-    const res = await bridge.openExternalUrl(url);
-    if (!res.ok) console.error("[updater] opening the release page failed:", res.error);
-  }, [bridge]);
 
   return {
     state,

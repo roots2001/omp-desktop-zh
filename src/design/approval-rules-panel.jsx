@@ -47,24 +47,24 @@ function ApprovalRulesPanel({ onClose, activeProject, sessions, approvalModes })
       <div className="rules-panel" onClick={e => e.stopPropagation()}>
         <div className="rules-head">
           <_RulesIcon name="check" size={13} color="var(--accent)" />
-          <span className="mono" style={{ color: "var(--fg-2)" }}>approvals</span>
-          <button className="btn icon ghost" style={{ marginLeft: "auto" }} onClick={refresh} title="refresh">
+          <span className="mono" style={{ color: "var(--fg-2)" }}>审批</span>
+          <button className="btn icon ghost" style={{ marginLeft: "auto" }} onClick={refresh} title="刷新">
             <_RulesIcon name="refresh" size={11} />
           </button>
-          <button className="btn icon ghost" onClick={onClose} title="close">
+          <button className="btn icon ghost" onClick={onClose} title="关闭">
             <_RulesIcon name="close" size={11} />
           </button>
         </div>
         <div className="rules-body">
-          <div className="panel-sect-hd">tool approval mode</div>
+          <div className="panel-sect-hd">工具审批模式</div>
           <_RulesModeSection view={approvalModes} activeProject={activeProject} sessions={sessions} />
-          <div className="panel-sect-hd">standing rules</div>
-          {loading && rules.length === 0 && <div className="panel-empty mono">loading…</div>}
+          <div className="panel-sect-hd">常驻规则</div>
+          {loading && rules.length === 0 && <div className="panel-empty mono">加载中…</div>}
           {!loading && rules.length === 0 && (
             <div className="panel-empty mono">
               {activeProject
-                ? "no standing rules yet — grant one from an \"Allow tool\" prompt"
-                : "open a tab to see its session and project rules"}
+                ? "还没有常驻规则——在“允许工具”提示里授权一条"
+                : "打开一个标签页即可查看它的会话与项目规则"}
             </div>
           )}
           {rules.length > 0 && <div className="rules-list">{rules.map((rule, i) => (
@@ -85,7 +85,7 @@ function ApprovalRulesPanel({ onClose, activeProject, sessions, approvalModes })
               <button
                 className="btn icon ghost"
                 style={{ marginLeft: "auto" }}
-                title="revoke"
+                title="撤销授权"
                 onClick={() => handleRevoke(rule)}
               >
                 <_RulesIcon name="trash" size={10} />

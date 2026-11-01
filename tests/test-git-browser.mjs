@@ -140,24 +140,24 @@ const ago = secs => G.relativeTime(NOW - secs, NOW);
 const M = 60, H = 3600, D = 86400;
 
 check("relativeTime: under a minute is now, a future time too", () => {
-  assert.equal(ago(0), "now");
-  assert.equal(ago(59), "now");
-  assert.equal(ago(-500), "now");
+  assert.equal(ago(0), "刚刚");
+  assert.equal(ago(59), "刚刚");
+  assert.equal(ago(-500), "刚刚");
 });
 
 check("relativeTime: each unit starts at its boundary and floors", () => {
-  assert.equal(ago(M), "1m");
-  assert.equal(ago(H - 1), "59m");
-  assert.equal(ago(H), "1h");
-  assert.equal(ago(D - 1), "23h");
-  assert.equal(ago(D), "1d");
-  assert.equal(ago(7 * D - 1), "6d");
-  assert.equal(ago(7 * D), "1w");
-  assert.equal(ago(29 * D), "4w");
-  assert.equal(ago(30 * D), "1mo");
-  assert.equal(ago(364 * D), "12mo");
-  assert.equal(ago(365 * D), "1y");
-  assert.equal(ago(3 * 365 * D + 10 * D), "3y");
+  assert.equal(ago(M), "1 分钟前");
+  assert.equal(ago(H - 1), "59 分钟前");
+  assert.equal(ago(H), "1 小时前");
+  assert.equal(ago(D - 1), "23 小时前");
+  assert.equal(ago(D), "1 天前");
+  assert.equal(ago(7 * D - 1), "6 天前");
+  assert.equal(ago(7 * D), "1 周前");
+  assert.equal(ago(29 * D), "4 周前");
+  assert.equal(ago(30 * D), "1 个月前");
+  assert.equal(ago(364 * D), "12 个月前");
+  assert.equal(ago(365 * D), "1 年前");
+  assert.equal(ago(3 * 365 * D + 10 * D), "3 年前");
 });
 
 // ── diffText ─────────────────────────────────────────────────────────────────

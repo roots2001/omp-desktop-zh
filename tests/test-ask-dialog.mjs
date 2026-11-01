@@ -193,18 +193,18 @@ check("any sequence of clicks and typing yields answers omp accepts", () => {
 check("omp's ask timeout reads in seconds, then minutes", () => {
   assert.equal(A.timeoutLabel(undefined), null);
   assert.equal(A.timeoutLabel(0), null);
-  assert.equal(A.timeoutLabel(200), "1 s");
-  assert.equal(A.timeoutLabel(45_000), "45 s");
-  assert.equal(A.timeoutLabel(120_000), "2 min");
-  assert.equal(A.timeoutLabel(90_000), "1 min 30 s");
+  assert.equal(A.timeoutLabel(200), "1 秒");
+  assert.equal(A.timeoutLabel(45_000), "45 秒");
+  assert.equal(A.timeoutLabel(120_000), "2 分");
+  assert.equal(A.timeoutLabel(90_000), "1 分 30 秒");
 });
 
 check("the timeout note says whether omp picks the recommended options", () => {
   assert.equal(A.timeoutNote(qs, null), null);
   const recommended = qs.slice(0, 2);
-  assert.equal(A.timeoutNote(recommended, 45_000), "omp picks the recommended options after 45 s");
-  assert.equal(A.timeoutNote(recommended.slice(0, 1), 45_000), "omp picks the recommended option after 45 s");
-  assert.equal(A.timeoutNote(qs, 45_000), "omp answers for you after 45 s");
+  assert.equal(A.timeoutNote(recommended, 45_000), "45 秒后 omp 会选中推荐选项");
+  assert.equal(A.timeoutNote(recommended.slice(0, 1), 45_000), "45 秒后 omp 会选中推荐选项");
+  assert.equal(A.timeoutNote(qs, 45_000), "45 秒后 omp 会替你回答");
 });
 
 check("backtick pairs become code runs; an unpaired backtick stays literal", () => {

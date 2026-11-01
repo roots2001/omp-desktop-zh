@@ -30,10 +30,10 @@
   // What each busy run state (`OMP_TURN_STATUS.runStateOf`) is called in
   // the dialog.
   const BUSY_LABELS = Object.freeze({
-    "running":      "working",
-    "retrying":     "retrying a failed request",
-    "waiting-user": "waiting for your answer",
-    "background":   "running background jobs",
+    "running":      "正在工作",
+    "retrying":     "正在重试失败的请求",
+    "waiting-user": "等待你的回答",
+    "background":   "正在运行后台作业",
   });
 
   /** The open tabs whose agent is still at work, as `{id, name, state}`
@@ -44,7 +44,7 @@
     const { isBusyRunState } = window.OMP_TURN_STATUS;
     return sessions
       .filter(s => s && isBusyRunState(s.runState))
-      .map(s => ({ id: s.id, name: s.name || "untitled tab", state: BUSY_LABELS[s.runState] ?? "working" }));
+      .map(s => ({ id: s.id, name: s.name || "未命名标签页", state: BUSY_LABELS[s.runState] ?? "working" }));
   }
 
   /** Whether the Rust close guard should hold the window's close: the
@@ -65,10 +65,10 @@
     return {
       kind: "tab",
       id,
-      title: "Close a busy tab?",
-      body: "This tab's agent is still at work. Closing the tab stops it.",
+      title: "关闭正在工作的标签页？",
+      body: "本标签页的智能体仍在工作，关闭标签页会中断它。",
       tabs: [tab],
-      confirmLabel: "close tab",
+      confirmLabel: "关闭标签页",
     };
   }
 
@@ -80,10 +80,10 @@
     const one = tabs.length === 1;
     return {
       kind: "quit",
-      title: one ? "Quit with a busy tab?" : `Quit with ${tabs.length} busy tabs?`,
+      title: one ? "有标签页正忙，仍要退出？" : `有 ${tabs.length} 个标签页正忙，仍要退出？`,
       body: one
-        ? "A tab's agent is still at work. Quitting stops it."
-        : "These tabs' agents are still at work. Quitting stops them.",
+        ? "有一个标签页的智能体仍在工作。退出会中断它。"
+        : "这些标签页的智能体仍在工作。退出会中断它们。",
       tabs,
       confirmLabel: "quit",
     };

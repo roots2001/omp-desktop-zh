@@ -128,15 +128,15 @@ check("Codex login comes from get_login_providers; unknown stays null", () => {
   assert.equal(V.codexLogin(undefined), null);
 });
 check("live button is Codex only: greyed out without a login, a running call stays stoppable", () => {
-  assert.deepEqual(V.liveButton(V.EMPTY, false, true), { label: "Start live conversation (Codex only)", disabled: false });
-  assert.deepEqual(V.liveButton(V.EMPTY, false, null), { label: "Start live conversation (Codex only)", disabled: false }, "an unknown login does not block");
+  assert.deepEqual(V.liveButton(V.EMPTY, false, true), { label: "开始实时语音 (Codex only)", disabled: false });
+  assert.deepEqual(V.liveButton(V.EMPTY, false, null), { label: "开始实时语音 (Codex only)", disabled: false }, "an unknown login does not block");
   assert.deepEqual(V.liveButton(V.EMPTY, false, false), { label: V.CODEX_MISSING, disabled: true });
   const paused = apply(start(), { type: "live_phase", phase: "listening" }, { type: "stop" }, { type: "stop_success", paused: true });
   assert.deepEqual(V.liveButton(paused, false, false), { label: V.CODEX_MISSING, disabled: true });
-  assert.deepEqual(V.liveButton(paused, false, true), { label: "Resume live conversation (Codex only)", disabled: false });
+  assert.deepEqual(V.liveButton(paused, false, true), { label: "继续实时语音 (Codex only)", disabled: false });
   const calling = apply(start(), { type: "live_phase", phase: "listening" });
-  assert.deepEqual(V.liveButton(calling, false, false), { label: "Stop live conversation (Codex only)", disabled: false });
-  assert.deepEqual(V.liveButton(start(), false, false), { label: "Cancel live conversation (Codex only)", disabled: false });
+  assert.deepEqual(V.liveButton(calling, false, false), { label: "停止实时语音 (Codex only)", disabled: false });
+  assert.deepEqual(V.liveButton(start(), false, false), { label: "取消实时语音 (Codex only)", disabled: false });
   assert.equal(V.liveButton(apply(calling, { type: "stop" }), false, true).disabled, true, "stopping");
   assert.equal(V.liveButton(V.EMPTY, true, true).disabled, true, "voice to text running");
 });
@@ -422,7 +422,7 @@ await checkAsync("failed or malformed history read never launches the microphone
   const retry = h.bridge.liveStart();
   const next = h.commands.filter(c => c.type === "get_messages" && c.id?.startsWith("live-history-")).at(-1);
   h.reply(next, true, {});
-  assert.match((await retry).error, /history/i);
+  assert.match((await retry).error, /对话历史/);
   assert.equal(h.commands.some(c => c.type === "live_start"), false);
 });
 

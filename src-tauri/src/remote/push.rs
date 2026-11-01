@@ -36,8 +36,8 @@ pub enum Kind {
 impl Kind {
     const fn body(self) -> &'static str {
         match self {
-            Self::Question => "Question waiting",
-            Self::Finished => "Finished",
+            Self::Question => "有提问等待回答",
+            Self::Finished => "已完成",
         }
     }
 
@@ -235,7 +235,7 @@ impl Pusher {
         }
     }
 
-    /// Send "Test notification" to every subscription of every device and
+    /// Send a Chinese test notification to every subscription of every device and
     /// wait for the outcome.
     pub fn test(&self) -> Result<(), String> {
         if !locked(&self.shared.settings).enabled {
@@ -312,7 +312,7 @@ fn work(shared: &Shared, jobs: &Receiver<Job>) {
             }
             Job::Test(reply) => (
                 json!({
-                    "title": "OMP", "body": "Test notification", "tag": "test", "tab": "",
+                    "title": "OMP", "body": "测试通知", "tag": "test", "tab": "",
                 }),
                 "high",
                 Some(reply),

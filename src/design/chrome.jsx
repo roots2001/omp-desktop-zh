@@ -49,13 +49,13 @@ function WindowChrome({ project }) {
         {/* Windows controls — right side, hidden on macOS/Linux */}
         {IS_WIN && (
           <div className="win-controls">
-            <button className="win-ctrl win-min" title="Minimize">
+            <button className="win-ctrl win-min" title="最小化">
               <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 5.5h8" stroke="currentColor" strokeWidth="1" /></svg>
             </button>
-            <button className="win-ctrl win-max" title="Maximize / Restore">
+            <button className="win-ctrl win-max" title="最大化 / 还原">
               <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="currentColor" strokeWidth="1" /></svg>
             </button>
-            <button className="win-ctrl win-close" title="Close">
+            <button className="win-ctrl win-close" title="关闭">
               <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="currentColor" strokeWidth="1.1" /></svg>
             </button>
           </div>
@@ -150,7 +150,7 @@ function TabBar({
           {...tabClickProps(onSelectSettings, onCloseSettings)}>
           <span className="tab-bar-mark" style={{ background: settings.active ? "var(--fg-3)" : "transparent" }} />
           <Icon name="cog" size={12} />
-          <span className="tab-name">Settings</span>
+          <span className="tab-name">设置</span>
           {settings.changed > 0 && (
             <span className="tab-count" title={`${settings.changed} changed from default`}>{settings.changed}</span>
           )}
@@ -181,7 +181,7 @@ function StatusBar({ ctx, todoDone, todoTotal, onTodo, updater, branch, tabId, b
   const todoChord = hintFor("desktop.panel.todo", "");
   return (
     <div className="status">
-      <span className="status-cell"><span className="dot live" /> connected</span>
+      <span className="status-cell"><span className="dot live" /> 已连接</span>
       {branch && <>
         <span className="status-sep">·</span>
         <BranchMenu key={tabId} branch={branch} bridge={bridge} locked={branchLocked} />
@@ -195,24 +195,24 @@ function StatusBar({ ctx, todoDone, todoTotal, onTodo, updater, branch, tabId, b
         <span className="st-ctx-pct" style={{ color: "var(--fg-4)" }}>{(+ctx.pct).toFixed(1)}%</span>
       </span>
       <span className="status-sep st-cost">·</span>
-      <span className="status-cell st-cost mono"><span style={{ color: "var(--fg-3)" }}>cost</span> {ctx.cost}</span>
+      <span className="status-cell st-cost mono"><span style={{ color: "var(--fg-3)" }}>成本</span> {ctx.cost}</span>
       <span className="status-sep st-tps">·</span>
-      <span className="status-cell st-tps mono"><span style={{ color: "var(--fg-3)" }}>{ctx.tokensPerSec}</span> t/s</span>
+      <span className="status-cell st-tps mono"><span style={{ color: "var(--fg-3)" }}>{ctx.tokensPerSec}</span> tok/s</span>
       <span className="status-sep">·</span>
       <button className="status-cell btn ghost" onClick={onTodo}
-        title={todoChord ? `plan kanban (${todoChord})` : "plan kanban"}
+        title={todoChord ? `计划看板（${todoChord}）` : "计划看板"}
         style={{ height: 20, padding: "0 6px" }}>
         <Icon name="plan" size={11} color="var(--accent)" />
-        <span style={{ color: "var(--accent)" }}>todo {todoDone}/{todoTotal}</span>
+        <span style={{ color: "var(--accent)" }}>待办 {todoDone}/{todoTotal}</span>
       </button>
       <div className="status-gap" />
       {updater.pillVersion && (
         <button className="btn outlined update-pill mono" onClick={updater.openModal}
-          title={`OMP Desktop v${updater.pillVersion} is available`}>
+          title={`OMP Desktop v${updater.pillVersion} 可用`}>
           <Icon name="arrowUp" size={9} />v{updater.pillVersion}
         </button>
       )}
-      <button className="btn ghost app-version mono" onClick={updater.check} title="check for updates">
+      <button className="btn ghost app-version mono" onClick={updater.check} title="打开发行页面">
         {updater.version ? `v${updater.version}` : "—"}
       </button>
     </div>
@@ -243,7 +243,7 @@ function SessionMinimap({ messages, hoveredIdx, onHover, onClick }) {
     <div className="minimap">
       <div className="minimap-head">
         <Icon name="minimap" size={11} color="var(--fg-3)" />
-        <span className="mono" style={{ color: "var(--fg-3)" }}>session</span>
+        <span className="mono" style={{ color: "var(--fg-3)" }}>会话</span>
         <span className="mono" style={{ marginLeft: "auto", color: "var(--fg-4)" }}>{shown}</span>
       </div>
       <div className="minimap-grid">
@@ -271,28 +271,28 @@ function SessionMinimap({ messages, hoveredIdx, onHover, onClick }) {
           // so they get tool-specific info instead of a token chip.
           let title;
           if (m.kind === "assistant" && m.failure) {
-            title = `request failed${m.failure.httpStatus != null ? ` · HTTP ${m.failure.httpStatus}` : ""}${m.time ? " · " + m.time : ""}`;
+            title = `请求失败${m.failure.httpStatus != null ? ` · HTTP ${m.failure.httpStatus}` : ""}${m.time ? " · " + m.time : ""}`;
           } else if (m.kind === "assistant") {
             const tok  = m.tokens ? `${m.tokens.toLocaleString()} tok` : "—";
             const inOut = (m.tokensIn != null || m.tokensOut != null)
               ? ` (${(m.tokensIn ?? 0).toLocaleString()} in · ${(m.tokensOut ?? 0).toLocaleString()} out)`
               : "";
-            title = `assistant · ${tok}${inOut}${m.time ? " · " + m.time : ""}`;
+            title = `助手 · ${tok}${inOut}${m.time ? " · " + m.time : ""}`;
           } else if (m.kind === "tool") {
             const dur = m.duration ? ` · ${(m.duration / 1000).toFixed(1)}s` : "";
-            const status = m.status === "running" ? " · running" : (m.status === "ok" ? "" : ` · ${m.status}`);
-            title = `${m.tool ?? "tool"}${m.title ? " " + m.title : ""}${dur}${status}`;
+            const status = m.status === "running" ? " · 运行中" : (m.status === "ok" ? "" : ` · ${m.status}`);
+            title = `${m.tool ?? "工具"}${m.title ? " " + m.title : ""}${dur}${status}`;
           } else if (m.kind === "user") {
             const preview = m.text ? ` · ${m.text.slice(0, 80)}${m.text.length > 80 ? "…" : ""}` : "";
-            title = `you${preview}`;
+            title = `你${preview}`;
           } else if (m.kind === "job") {
-            title = `${m.jobId} finished${m.label ? " · " + m.label : ""}`;
+            title = `${m.jobId} 已完成${m.label ? " · " + m.label : ""}`;
           } else if (m.kind === "retry") {
-            title = `retrying · attempt ${m.attempt}${m.maxAttempts ? " of " + m.maxAttempts : ""}`;
+            title = `重试中 · 第 ${m.attempt} 次${m.maxAttempts ? "，共 " + m.maxAttempts + " 次" : ""}`;
           } else if (m.kind === "goal") {
             title = window.OMP_GOAL.rowView(m).title;
           } else if (m.kind === "approval") {
-            title = `auto-approved · ${m.tool || "tool"}`;
+            title = `已自动批准 · ${m.tool || "工具"}`;
           } else {
             title = m.kind;
           }
@@ -310,10 +310,10 @@ function SessionMinimap({ messages, hoveredIdx, onHover, onClick }) {
         })}
       </div>
       <div className="minimap-legend">
-        <span className="minimap-legend-item"><i style={{ background: "var(--fg-3)" }} />you</span>
-        <span className="minimap-legend-item"><i style={{ background: "var(--accent)" }} />assistant</span>
-        <span className="minimap-legend-item"><i style={{ background: "var(--amber)" }} />ask</span>
-        <span className="minimap-legend-item"><i style={{ background: "var(--fg-4)" }} />tool</span>
+        <span className="minimap-legend-item"><i style={{ background: "var(--fg-3)" }} />你</span>
+        <span className="minimap-legend-item"><i style={{ background: "var(--accent)" }} />助手</span>
+        <span className="minimap-legend-item"><i style={{ background: "var(--amber)" }} />提问</span>
+        <span className="minimap-legend-item"><i style={{ background: "var(--fg-4)" }} />工具</span>
       </div>
     </div>
   );
@@ -342,7 +342,7 @@ function AmbientRail({
           <div className="rail-spark">
             <Sparkline values={sparkVals} width={210} height={28} />
             <div className="rail-spark-foot mono">
-              <span style={{ color: "var(--fg-4)" }}>throughput</span>
+              <span style={{ color: "var(--fg-4)" }}>吞吐</span>
               <span style={{ color: "var(--accent)" }}>{ctx.tokensPerSec} t/s</span>
             </div>
           </div>
@@ -353,8 +353,8 @@ function AmbientRail({
         <div className="rail-card glass">
           <div className="rail-card-head">
             <Icon name="radar" size={11} color="var(--accent)" />
-            <span className="mono" style={{ color: "var(--fg-2)" }}>agent radar</span>
-            <span className="chip muted mono" style={{ marginLeft: "auto" }}>last 60s</span>
+            <span className="mono" style={{ color: "var(--fg-2)" }}>智能体雷达</span>
+            <span className="chip muted mono" style={{ marginLeft: "auto" }}>最近 60 秒</span>
           </div>
           <ActivityRadar activity={activity} tps={ctx.tokensPerSec} />
           <div className="legend">
@@ -377,7 +377,7 @@ function AmbientRail({
         <div className="rail-card glass" style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 120 }}>
           <div className="rail-card-head">
             <Icon name="minimap" size={11} color="var(--fg-3)" />
-            <span className="mono" style={{ color: "var(--fg-2)" }}>minimap</span>
+            <span className="mono" style={{ color: "var(--fg-2)" }}>小地图</span>
           </div>
           <SessionMinimap messages={messages} hoveredIdx={hoveredMsgIdx} onHover={onMinimapHover} onClick={onMinimapClick} />
         </div>

@@ -64,42 +64,42 @@ function ApprovalModeButton({ cell, onClick }) {
 function Toolbar({ nav, rail, subagents, tree, browser, terminal, onGit, approvals, onStats, onCommands, profile, settings }) {
   const commands = _tbChord("desktop.commands.open");
   return (
-    <div className="toolbar" role="toolbar" aria-label="app toolbar">
+    <div className="toolbar" role="toolbar" aria-label="应用工具栏">
       <div className="tb-main">
-        <ToolButton icon="sidebar" title={_tbTip("project sidebar", "desktop.sidebar.toggle")}
+        <ToolButton icon="sidebar" title={_tbTip("项目侧栏", "desktop.sidebar.toggle")}
           pressed={nav.sidebarOpen} onClick={nav.onToggleSidebar} />
-        <ToolButton icon="rail" title="ambient rail" pressed={rail.open} onClick={rail.onToggle} />
-        <ToolButton icon="plus" title={_tbTip("open project", "desktop.tab.new")} onClick={nav.onOpenProject} />
-        <ToolButton icon="clock" title={_tbTip("conversation history", "desktop.history.open")} onClick={nav.onHistory} />
+        <ToolButton icon="rail" title="环境侧栏" pressed={rail.open} onClick={rail.onToggle} />
+        <ToolButton icon="plus" title={_tbTip("打开项目", "desktop.tab.new")} onClick={nav.onOpenProject} />
+        <ToolButton icon="clock" title={_tbTip("对话历史", "desktop.history.open")} onClick={nav.onHistory} />
         <span className="tb-sep" />
 
-        <ToolButton icon="agent" title="subagent manager" pressed={subagents.open} onClick={subagents.onToggle} />
-        <ToolButton icon="branch" title="conversation tree (prompt-cache status)" pressed={tree.open} onClick={tree.onToggle} />
+        <ToolButton icon="agent" title="子智能体管理器" pressed={subagents.open} onClick={subagents.onToggle} />
+        <ToolButton icon="branch" title="对话树（提示词缓存状态）" pressed={tree.open} onClick={tree.onToggle} />
         {tree.open && (
-          <span className="tb-sub" role="group" aria-label="conversation tree">
-            <ToolButton icon="refresh" title="refresh conversation tree" disabled={!tree.canRefresh} onClick={tree.onRefresh} />
+          <span className="tb-sub" role="group" aria-label="对话树">
+            <ToolButton icon="refresh" title="刷新对话树" disabled={!tree.canRefresh} onClick={tree.onRefresh} />
           </span>
         )}
-        <ToolButton icon="web" title={_tbTip("browser panel", "desktop.browser.toggle")} pressed={browser.open} onClick={browser.onToggle} />
+        <ToolButton icon="web" title={_tbTip("浏览器面板", "desktop.browser.toggle")} pressed={browser.open} onClick={browser.onToggle} />
         {browser.open && (
-          <span className="tb-sub" role="group" aria-label="browser panel">
-            <ToolButton icon="edit" title="annotate the page" pressed={browser.annotate}
+          <span className="tb-sub" role="group" aria-label="浏览器面板">
+            <ToolButton icon="edit" title="在页面上批注" pressed={browser.annotate}
               disabled={!browser.canAnnotate} onClick={() => browser.onAnnotate(!browser.annotate)} />
-            <ToolButton icon="focus" title="browser full view" pressed={browser.fullView}
+            <ToolButton icon="focus" title="浏览器全屏" pressed={browser.fullView}
               onClick={() => browser.onFullView(!browser.fullView)} />
           </span>
         )}
-        <ToolButton icon="terminal" title={_tbTip("terminal", "desktop.terminal.toggle")} pressed={terminal.open} onClick={terminal.onToggle} />
+        <ToolButton icon="terminal" title={_tbTip("终端", "desktop.terminal.toggle")} pressed={terminal.open} onClick={terminal.onToggle} />
         <span className="tb-sep" />
 
-        <ToolButton icon="diff2" title={_tbTip("git browser", "desktop.panel.changes")} onClick={onGit} />
-        <ToolButton icon="cost" title={_tbTip("usage statistics", "desktop.panel.stats")} onClick={onStats} />
+        <ToolButton icon="diff2" title={_tbTip("Git 浏览器", "desktop.panel.changes")} onClick={onGit} />
+        <ToolButton icon="cost" title={_tbTip("用量统计", "desktop.panel.stats")} onClick={onStats} />
       </div>
 
       <div className="tb-end">
         <ApprovalModeButton cell={approvals.cell} onClick={approvals.onOpen} />
-        <ToolButton icon="command" title={commands ? `command bridge (${commands})` : "command bridge"} onClick={onCommands}>
-          <span className="tb-end-label">bridge</span>
+        <ToolButton icon="command" title={commands ? `命令桥（${commands}）` : "命令桥"} onClick={onCommands}>
+          <span className="tb-end-label">命令面板</span>
           {commands && <span className="kbd tb-end-label">{commands}</span>}
         </ToolButton>
         {/* Per-tab omp profile — the selector acts on the active tab only. */}

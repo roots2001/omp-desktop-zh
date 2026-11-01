@@ -48,9 +48,9 @@
       case "stop_success":
         return state.phase === "stopping" ? ended(state, null, !!event.paused && !state.discardTranscripts) : state;
       case "stop_failure":
-        return state.phase === "stopping" ? { ...state, phase: "error", error: event.error || "Could not stop live voice" } : state;
+        return state.phase === "stopping" ? { ...state, phase: "error", error: event.error || "无法停止实时语音" } : state;
       case "start_failure":
-        return state.active && state.phase !== "stopping" ? ended(state, event.error || "Could not start live voice", !!event.paused) : state;
+        return state.active && state.phase !== "stopping" ? ended(state, event.error || "无法启动实时语音", !!event.paused) : state;
       case "forget":
         // An in-process conversation change can leave a recorder stopping.
         // Keep it visible, but do not attribute its remaining frames to the new conversation.
@@ -61,9 +61,9 @@
           ? { ...state, muted: event.muted, error: null, input: event.muted ? 0 : state.input }
           : state;
       case "mute_failure":
-        return state.active && state.phase !== "stopping" ? { ...state, error: event.error || "Could not change microphone mute" } : state;
+        return state.active && state.phase !== "stopping" ? { ...state, error: event.error || "无法切换麦克风静音" } : state;
       case "process_exit":
-        return state.active ? ended(state, event.error || state.error || "The omp process ended during live voice", true) : state;
+        return state.active ? ended(state, event.error || state.error || "实时语音过程中 omp 进程已退出", true) : state;
       case "live_end":
         // During an explicit stop omp can report a transport error caused by
         // cancellation. Stop's reply, not that error, decides the outcome.
@@ -126,7 +126,7 @@
       case "stop":
         return state.phase === "stopping" ? state : { ...state, phase: "stopping", error: null };
       case "stop_failure":
-        return { ...state, phase: "error", error: event.error || "Could not stop voice to text" };
+        return { ...state, phase: "error", error: event.error || "无法停止语音转文字" };
       case "start_failure":
       case "process_exit":
       case "dictation_end": {
@@ -153,15 +153,15 @@
     if (!Array.isArray(providers)) return null;
     return providers.some(p => p?.id === "openai-codex" && p.authenticated === true);
   }
-  const CODEX_MISSING = "Live conversation (Codex only): log in with /login → ChatGPT Plus/Pro (Codex Subscription)";
+  const CODEX_MISSING = "实时语音（仅 Codex）：用 /login 登录 → ChatGPT Plus/Pro（Codex 订阅）";
   // The composer's live-conversation button: its label (also the tooltip) and
   // whether it is clickable. Without a Codex login no call can start, but a
   // running one stays stoppable; an unknown login does not block.
   function liveButton(live, dictating, login) {
     const calling = !!live?.active;
     if (!calling && login === false) return { label: CODEX_MISSING, disabled: true };
-    const action = calling ? (live.phase === "connecting" ? "Cancel live conversation" : "Stop live conversation")
-      : live?.paused ? "Resume live conversation" : "Start live conversation";
+    const action = calling ? (live.phase === "connecting" ? "取消实时语音" : "停止实时语音")
+      : live?.paused ? "继续实时语音" : "开始实时语音";
     return { label: `${action} (Codex only)`, disabled: !!dictating || (calling && live.phase === "stopping") };
   }
   window.OMP_LIVE_VOICE = { EMPTY, LIMITS, CONNECTED_PHASES, apply, DICTATION, meterLevel, codexLogin, liveButton, CODEX_MISSING };

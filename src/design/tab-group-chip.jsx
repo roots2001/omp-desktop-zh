@@ -14,11 +14,11 @@ const { groupTarget, groupRunState, membersNewestFirst, tabLabel } = window.OMP_
  *  tab bar and the project sidebar so the titles stay in one place. */
 function TabRunDot({ state }) {
   if (!state || state === "idle") return null;
-  const title = state === "waiting-user" ? "waiting for you"
-    : state === "failed" ? "agent process exited"
-    : state === "background" ? "background job running · the agent resumes when it finishes"
-    : state === "retrying" ? "retrying a failed request"
-    : "running";
+  const title = state === "waiting-user" ? "等待你的回复"
+    : state === "failed" ? "智能体进程已退出"
+    : state === "background" ? "后台作业运行中 · 完成后智能体继续"
+    : state === "retrying" ? "正在重试失败的请求"
+    : "运行中";
   return <span className={`tab-run-dot ${state}`} title={title} />;
 }
 
@@ -84,7 +84,7 @@ function TabGroupChip({ group, activeId, profileLabel, onSelect, onClose, onNewI
         <span className="chip muted tab-profile" title={`profile: ${profile}`}>{profile}</span>
       )}
       <button ref={triggerRef} className="tab-group-trigger"
-        title="conversations in this project"
+        title="此项目中的对话"
         aria-haspopup="menu" aria-expanded={open}
         onClick={e => { e.stopPropagation(); if (open) close(); else setOpen(true); }}>
         <Icon name="chev" size={9} />
@@ -116,14 +116,14 @@ function TabGroupChip({ group, activeId, profileLabel, onSelect, onClose, onNewI
                 </button>
               )}
               {onRename && renaming !== t.id && (
-                <button className="tab-close" title="rename conversation"
+                <button className="tab-close" title="重命名对话"
                   onClick={() => { onSelect(t.id); setRenaming(t.id); }}>
                   <Icon name="edit" size={9} />
                 </button>
               )}
               {/* Stays open: the rest of the group is still listed, and when
                   fewer than two tabs remain the whole chip unmounts. */}
-              <button className="tab-close" title="close tab" onClick={() => onClose?.(t.id)}>
+              <button className="tab-close" title="关闭标签页" onClick={() => onClose?.(t.id)}>
                 <Icon name="close" size={9} />
               </button>
             </div>
@@ -132,7 +132,7 @@ function TabGroupChip({ group, activeId, profileLabel, onSelect, onClose, onNewI
           <button className="tab-group-item" role="menuitem"
             onClick={() => { onNewInProject?.(group.path, group.profile); close(); }}>
             <span className="tab-group-dot"><Icon name="plus" size={10} /></span>
-            <span className="tab-name">new conversation</span>
+            <span className="tab-name">新建对话</span>
           </button>
         </div>
       )}

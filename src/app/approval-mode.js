@@ -14,12 +14,12 @@
    ═════════════════════════════════════════════════════════════════════ */
 (function () {
   const MODES = Object.freeze([
-    Object.freeze({ value: "always-ask", label: "always ask", warn: false,
-      blurb: "the agent asks before every file change and every command. Only reads run on their own. \"Allow for this session\" / \"Always allow in this project\" on a prompt still work." }),
-    Object.freeze({ value: "write",      label: "write",      warn: false,
-      blurb: "the agent edits files on its own and asks before shell commands and anything else that runs code. Reads never ask." }),
+    Object.freeze({ value: "always-ask", label: "总是询问", warn: false,
+      blurb: "智能体在每次文件修改和每条命令前都会询问。只有读取类操作自动执行。提示框上的“本次会话允许”/“此项目始终允许”仍然可用。" }),
+    Object.freeze({ value: "write",      label: "写入",      warn: false,
+      blurb: "智能体自行修改文件，但在 shell 命令及其他会执行代码的操作前询问。读取类从不询问。" }),
     Object.freeze({ value: "yolo",       label: "yolo",       warn: true,
-      blurb: "every tool runs without asking, shell commands included. omp's own stop for dangerous commands (rm -rf /, fork bombs, …) is skipped too. Your standing rules are kept but never needed here." }),
+      blurb: "所有工具都不经询问直接运行，包括 shell 命令。omp 对危险命令（rm -rf /、fork 炸弹等）的拦截也会跳过。你的常驻规则会保留，但在此模式下用不到。" }),
   ]);
   const DEFAULT_MODE = "write";
 

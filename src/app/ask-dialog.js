@@ -111,10 +111,10 @@
   function timeoutLabel(ms) {
     if (!Number.isFinite(ms) || ms <= 0) return null;
     const s = Math.max(1, Math.round(ms / 1000));
-    if (s < 60) return `${s} s`;
+    if (s < 60) return `${s} 秒`;
     const min = Math.floor(s / 60);
     const rest = s % 60;
-    return rest ? `${min} min ${rest} s` : `${min} min`;
+    return rest ? `${min} 分 ${rest} 秒` : `${min} 分`;
   }
 
   /** What omp does once its ask timeout (ms) runs out, or null when there
@@ -123,8 +123,8 @@
   function timeoutNote(questions, ms) {
     const after = timeoutLabel(ms);
     if (!after) return null;
-    if (!questions.every(q => q.recommended !== null)) return `omp answers for you after ${after}`;
-    return `omp picks the recommended option${questions.length > 1 ? "s" : ""} after ${after}`;
+    if (!questions.every(q => q.recommended !== null)) return `${after}后 omp 会替你回答`;
+    return `${after}后 omp 会选中推荐选项`;
   }
 
   /** `text` split into plain runs and `code` runs (a backtick pair). Option

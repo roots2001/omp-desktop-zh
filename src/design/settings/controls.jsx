@@ -43,9 +43,9 @@ function SettingsRow({ label, desc, modified, resettable, onReset, stack, aside,
     <div className="st-rt">
       <div className="st-rl">
         {typeof label === "string" ? <SettingsMark text={label} query={query} /> : label}
-        {modified && <span className="st-moddot" title="Changed from default" />}
+        {modified && <span className="st-moddot" title="已偏离默认值" />}
         {(modified || resettable) && onReset && (
-          <button type="button" className="st-reset" onClick={reset} title="Reset to default">↺ reset</button>
+          <button type="button" className="st-reset" onClick={reset} title="恢复默认">↺ 重置</button>
         )}
       </div>
       {desc != null && desc !== "" && (
@@ -118,7 +118,7 @@ function SettingsButton({ children, onClick, accent, disabled, title }) {
  *  tokens (styles.css) to the card, so it previews itself. */
 function ThemeCards({ value, themes, onChange }) {
   return (
-    <div className="st-themes" role="radiogroup" aria-label="Theme">
+    <div className="st-themes" role="radiogroup" aria-label="主题">
       {themes.map(th => (
         <button type="button" key={th.id} className={`st-th theme-${th.id}`} role="radio"
           aria-checked={value === th.id} onClick={() => onChange(th.id)}>
@@ -139,7 +139,7 @@ function ThemeCards({ value, themes, onChange }) {
 function ScreenCards({ value, screens, paused, onChange }) {
   const { Backdrop } = window;
   return (
-    <div className="st-themes" role="radiogroup" aria-label="Start screen">
+    <div className="st-themes" role="radiogroup" aria-label="启动画面">
       {screens.map(s => (
         <button type="button" key={s.value} className="st-th" role="radio"
           aria-checked={value === s.value} onClick={() => onChange(s.value)}>
@@ -156,9 +156,9 @@ function AccentSwatches({ value, themeAccent, colors, onChange }) {
   const { sameColor } = window.OMP_ACCENT;
   const own = sameColor(value, themeAccent);
   return (
-    <div className="st-sw" role="radiogroup" aria-label="Accent">
+    <div className="st-sw" role="radiogroup" aria-label="强调色">
       <button type="button" className="st-sw-theme" role="radio" aria-checked={own}
-        onClick={() => onChange(themeAccent)}>theme</button>
+        onClick={() => onChange(themeAccent)}>主题</button>
       {colors.map(c => (
         <button type="button" key={c} role="radio" aria-checked={!own && sameColor(value, c)}
           aria-label={c} title={c} style={{ background: c }} onClick={() => onChange(c)} />
@@ -171,7 +171,7 @@ function AccentSwatches({ value, themeAccent, colors, onChange }) {
  *  `searching` (sections without a match dim). */
 function SettingsStrip({ sections, active, counts, searching, onSelect }) {
   return (
-    <div className="st-tabs" role="tablist" aria-label="Settings sections">
+    <div className="st-tabs" role="tablist" aria-label="设置分区">
       {sections.map(s => {
         const n = counts[s.id] ?? 0;
         const selected = !searching && active === s.id;

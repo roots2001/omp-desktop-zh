@@ -104,12 +104,12 @@
   function parseOutput(stdout) {
     let doc;
     try { doc = JSON.parse(stdout); } catch {
-      return { ok: false, error: "stdout is not JSON" };
+      return { ok: false, error: "标准输出不是 JSON" };
     }
-    if (!doc || typeof doc !== "object" || Array.isArray(doc)) return { ok: false, error: "stdout is not a JSON object" };
+    if (!doc || typeof doc !== "object" || Array.isArray(doc)) return { ok: false, error: "标准输出不是 JSON 对象" };
     if (typeof doc.version !== "number") return { ok: false, error: `plugin reports an invalid version, this desktop supports ${VERSION}` };
     if (doc.version !== VERSION) return { ok: false, error: `plugin reports version ${doc.version}, this desktop supports ${VERSION}` };
-    if (!Array.isArray(doc.blocks)) return { ok: false, error: "output has no \"blocks\" array" };
+    if (!Array.isArray(doc.blocks)) return { ok: false, error: "输出里没有 \"blocks\" 数组" };
     let skipped = 0;
     const blocks = [];
     for (const raw of doc.blocks.slice(0, LIMITS.blocks)) {
@@ -185,9 +185,9 @@
   // folder and the ⌥-click override.
   function insertTitle(cfg) {
     const a = insertAction(cfg, false);
-    if (a.target !== "new-tab") return "insert into prompt";
+    if (a.target !== "new-tab") return "插入到输入框";
     const folder = a.project.replace(/[\\/]+$/, "").split(/[\\/]/).pop() || a.project;
-    return `Click: new tab in ${folder} · ⌥-click: insert here`;
+    return `点击：在 ${folder} 中新标签页打开 · ⌥-点击：插入到这里`;
   }
 
   // consumePromptInsert: whether `Composer` should apply `promptInsert` now,
@@ -267,7 +267,7 @@
   function cardRun(run, parsed) {
     const last = run?.last ?? null;
     const base = { durationMs: last?.durationMs ?? null, at: last?.at ?? null, lastOkAt: run?.lastOkAt ?? null };
-    const result = !last ? null : last.error != null ? { ok: false, error: last.error } : parsed ?? { ok: false, error: "plugin printed no output" };
+    const result = !last ? null : last.error != null ? { ok: false, error: last.error } : parsed ?? { ok: false, error: "插件没有输出" };
     if (run && (run.phase === "running" || run.phase === "waiting")) {
       return { state: "running", widget: result?.ok ? result.widget : null, error: null, ...base };
     }
@@ -281,10 +281,10 @@
   // "now"; whole units are floored; more than 30 days away is the UTC date.
   function relativeTime(epochMs, nowMs) {
     const abs = Math.abs(epochMs - nowMs);
-    if (abs < 60_000) return "now";
+    if (abs < 60_000) return "刚刚";
     if (abs > 30 * 86_400_000) return new Date(epochMs).toISOString().slice(0, 10);
-    const [n, unit] = abs < 3_600_000 ? [abs / 60_000, "m"] : abs < 86_400_000 ? [abs / 3_600_000, "h"] : [abs / 86_400_000, "d"];
-    return `${epochMs > nowMs ? "in " : ""}${Math.floor(n)}${unit}`;
+    const [n, unit] = abs < 3_600_000 ? [abs / 60_000, " 分钟"] : abs < 86_400_000 ? [abs / 3_600_000, " 小时"] : [abs / 86_400_000, " 天"];
+    return `${Math.floor(n)}${unit}${epochMs > nowMs ? "后" : "前"}`;
   }
 
   window.OMP_WIDGETS = {

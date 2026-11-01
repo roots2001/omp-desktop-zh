@@ -28,7 +28,7 @@ function PrAutomationCard({ automation, available = true, bridge }) {
     setActionError(null);
     try {
       const result = await bridge.openExternalUrl(url);
-      if (!result?.ok) throw new Error(result?.error || "Could not open the link.");
+      if (!result?.ok) throw new Error(result?.error || "无法打开链接。");
       return true;
     } catch (error) {
       setActionError(error?.message || String(error));
@@ -40,26 +40,26 @@ function PrAutomationCard({ automation, available = true, bridge }) {
   };
   const copyLink = async () => {
     if (await window.copyText(pr.url)) close();
-    else setActionError("Could not copy the PR link.");
+    else setActionError("无法复制 PR 链接。");
   };
   const error = automation.error || automation.discoveryError;
   const summary = !available
-    ? "Open a connected project tab to see its pull request."
+    ? "打开一个已连接的项目标签页以查看它的 PR。"
     : automation.loading
-      ? "Updating the current branch's pull request…"
+      ? "正在更新当前分支的 PR…"
       : error
-        ? "Could not update pull request."
-        : "No open pull request for the current branch.";
+        ? "无法更新 PR。"
+        : "当前分支没有打开的 PR。";
 
   return (
-    <section className="rail-card glass pr-changes" aria-label="Changes">
+    <section className="rail-card glass pr-changes" aria-label="改动">
       <div className="pr-changes-head">
         <button
           className="pr-changes-heading"
           aria-expanded={!collapsed}
           onClick={() => setCollapsed((v) => !v)}
         >
-          Changes <window.Icon name={collapsed ? "chevR" : "chev"} size={11} />
+          改动 <window.Icon name={collapsed ? "chevR" : "chev"} size={11} />
         </button>
       </div>
       {!collapsed &&
@@ -69,7 +69,7 @@ function PrAutomationCard({ automation, available = true, bridge }) {
               className={`pr-changes-icon${pr.isDraft ? " draft" : ""}`}
               role="img"
               aria-label={
-                pr.isDraft ? "Draft pull request" : "Open pull request"
+                pr.isDraft ? "草稿 PR" : "打开的 PR"
               }
             >
               <svg
@@ -152,7 +152,7 @@ function PrAutomationCard({ automation, available = true, bridge }) {
       )}
       {!collapsed && !pr && automation.enabled && (
         <button className="pr-changes-disable" onClick={automation.toggle}>
-          Turn off Auto-fix
+          关闭自动修复
         </button>
       )}
       {actionError && !menuOpen && (

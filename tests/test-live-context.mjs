@@ -115,7 +115,7 @@ test("separate tab histories never reuse another conversation's voice discussion
   const next = history(C.instructions({ project: "/beta", messages: [{ role: "user", content: "beta task" }], voice: [] }));
   assert.deepEqual(next.voice.messages, []);
   assert.equal(JSON.stringify(next).includes("alpha"), false);
-  assert.throws(() => C.instructions({ messages: null }), /history/);
+  assert.throws(() => C.instructions({ messages: null }), /对话历史/);
 });
 
 test("compacted and branched chat retains the summary that holds earlier decisions", () => {

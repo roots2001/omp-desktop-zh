@@ -8,9 +8,13 @@
   let socket, token, selected = null, pendingTab = new URLSearchParams(location.search).get("tab");
   if (pendingTab) history.replaceState(null, "", location.pathname + location.hash);
   let connected = false, attempt = 0, notificationsEnabled = false, notificationsPending = false;
-  let connectionText = "Connecting…";
+  let connectionText = "正在连接…";
   const sentDrafts = new Map();
   let fallbackView = null, selectReqId = null;
+  function text(text) {
+    return window.OMP_I18N?.translate(text) ?? text;
+  }
+
   function node(tag, text, className) {
     const element = document.createElement(tag);
     if (text !== undefined) element.textContent = text;
@@ -48,7 +52,7 @@
   const draft = node("textarea", undefined, "composer-field");
   draft.id = "draft";
   draft.rows = 1;
-  draft.setAttribute("aria-label", "Message");
+  draft.setAttribute("aria-label", "消息");
   draft.setAttribute("enterkeyhint", "enter");
   const send = button("↑", onComposerButton);
   send.className = "composer-btn";
@@ -80,10 +84,10 @@
   }
   function syncComposer() {
     const kind = currentAction();
-    draft.placeholder = state.view?.busy ? "Steer…" : "Message…";
+    draft.placeholder = state.view?.busy ? "插话…" : "发消息…";
     send.textContent = kind === "stop" ? "■" : "↑";
     send.className = `composer-btn ${kind}`;
-    send.setAttribute("aria-label", kind === "stop" ? "Stop" : kind === "steer" ? "Steer" : "Send");
+    send.setAttribute("aria-label", kind === "stop" ? "停止" : kind === "steer" ? "插话" : "发送");
     send.disabled = !connected || !state.view || (kind === "send" && !draft.value.trim());
     draft.disabled = !connected || !state.view;
   }
@@ -92,7 +96,7 @@
     const text = draft.value;
     if (!text.trim()) return;
     if (typeof TextEncoder !== "undefined" && new TextEncoder().encode(text).length > 32768) {
-      state = { ...state, error: "Message is too long (max 32 KB)." };
+      state = { ...state, error: "消息太长（上限 32 KB）。" };
       updateControls();
       return;
     }
@@ -121,7 +125,7 @@
     try {
       const response = await fetch("/pair", { method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, name: navigator.userAgent.slice(0, 120) }) });
-      if (!response.ok) throw new Error(`Pairing failed (${response.status}); create a new pairing code on the desktop`);
+      if (!response.ok) throw new Error(`配对失败（${response.status}）；请在桌面端重新生成配对码`);
       const paired = await response.json();
       token = paired.token;
       localStorage.setItem(TOKEN_KEY, token);
@@ -168,7 +172,7 @@
     transcript.renderView(state.view);
   }
   function connect() {
-    connectionText = "Connecting…"; updateControls();
+    connectionText = "连接中…"; updateControls();
     socket = new WebSocket(`wss://${location.host}/ws`);
     socket.onopen = () => socket.send(JSON.stringify({ t: "auth", token }));
     socket.onmessage = event => {
@@ -176,7 +180,7 @@
         const msg = JSON.parse(event.data);
         state = C.reduce(state, msg);
         if (msg.t === "hello") {
-          connected = true; attempt = 0; connectionText = "Connected";
+          connected = true; attempt = 0; connectionText = "已连接";
           const wanted = pendingTab ?? selected;
           pendingTab = null;
           if (wanted) transmit(C.selectFor(wanted));
@@ -225,15 +229,15 @@
         token = null;
         notificationsEnabled = false;
         localStorage.removeItem(TOKEN_KEY);
-        connectionText = "This device is no longer paired — pair again from the desktop";
+        connectionText = "这台设备已解除配对——请在桌面端重新配对";
       } else {
-        connectionText = event.code === 4503 ? "Desktop not ready — reconnecting…"
-          : event.code === 4429 ? "Too many connections — reconnecting…" : "Connection lost — reconnecting…";
+        connectionText = event.code === 4503 ? "桌面端未就绪——正在重连…"
+          : event.code === 4429 ? "连接数过多——正在重连…" : "连接已断开——正在重连…";
         setTimeout(connect, C.backoff(attempt++));
       }
       updateControls();
     };
-    socket.onerror = () => { connectionText = "Connection failed — reconnecting…"; updateControls(); };
+    socket.onerror = () => { connectionText = "连接失败——正在重连…"; updateControls(); };
   }
 
   async function enableNotifications() {
@@ -241,7 +245,7 @@
     notificationsPending = true; updateControls();
     try {
       const permission = await Notification.requestPermission();
-      if (permission !== "granted") throw new Error("Notification permission was not granted");
+      if (permission !== "granted") throw new Error("未获得通知权限");
       const registration = await navigator.serviceWorker.register("/sw.js");
       // Wait for activation before pushManager.subscribe on a first visit.
       const ready = await navigator.serviceWorker.ready;
@@ -249,7 +253,7 @@
       const applicationServerKey = Uint8Array.from(atob(key), char => char.charCodeAt(0));
       const sub = await registration.pushManager.getSubscription()
         || await ready.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey });
-      if (!transmit({ t: "push-subscribe", sub: sub.toJSON() })) throw new Error("Connection lost; enable notifications again after reconnecting");
+      if (!transmit({ t: "push-subscribe", sub: sub.toJSON() })) throw new Error("连接已断开；重连后请重新开启通知");
     } catch (err) { notificationsPending = false; state = { ...state, error: err.message }; }
     updateControls();
   }
@@ -265,9 +269,9 @@
       }
       token = localStorage.getItem(TOKEN_KEY);
       if (token) connect();
-      else { connectionText = "Pair this phone from the desktop"; updateControls(); }
+      else { connectionText = "请在桌面端配对这台手机"; updateControls(); }
     } catch (err) {
-      connectionText = "Unable to connect";
+      connectionText = "无法连接";
       state = { ...state, error: err.message }; updateControls();
     }
   }

@@ -3,6 +3,10 @@
 (function () {
   const C = window.OMP_REMOTE_CLIENT;
 
+  function text(text) {
+    return window.OMP_I18N?.translate(text) ?? text;
+  }
+
   function node(tag, text, className) {
     const element = document.createElement(tag);
     if (text !== undefined) element.textContent = text;
@@ -19,9 +23,9 @@
 
   function createScanner({ onPair, installed }) {
     const scan = node("section", undefined, "scan");
-    scan.setAttribute("aria-label", "Pair with camera");
-    const scanButton = button("Pair with your desktop", startScan);
-    const cancelScan = button("Cancel", () => { stopScan(); scanHint.textContent = ""; });
+    scan.setAttribute("aria-label", "用摄像头配对");
+    const scanButton = button("与桌面端配对", startScan);
+    const cancelScan = button("取消", () => { stopScan(); scanHint.textContent = ""; });
     cancelScan.hidden = true;
     const video = node("video");
     video.muted = true;
@@ -50,12 +54,12 @@
 
     async function startScan() {
       if (!navigator.mediaDevices?.getUserMedia) {
-        scanHint.textContent = "Camera access is not available on this device.";
+        scanHint.textContent = "这台设备无法使用摄像头。";
         return;
       }
       stopScan(); // a second tap replaces the running scan instead of leaking it
       const gen = scanGen;
-      scanButton.hidden = true; cancelScan.hidden = false; video.hidden = false; scanHint.textContent = "Point the camera at the pairing QR code…";
+      scanButton.hidden = true; cancelScan.hidden = false; video.hidden = false; scanHint.textContent = "把摄像头对准配对二维码…";
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
         if (gen !== scanGen) { for (const track of stream.getTracks()) track.stop(); return; }
@@ -77,15 +81,15 @@
             stopScan();
             onPair(parsed.code);
           } else if (parsed?.other) {
-            scanHint.textContent = "This code is for another server.";
+            scanHint.textContent = "这个二维码属于另一台服务器。";
           }
         }, 125);
       } catch (err) {
         if (gen !== scanGen) return; // cancelled: not a denial
         stopScan();
         scanHint.textContent = installed()
-          ? "Camera access was denied. Allow camera access for this app in the iOS Settings, then try again."
-          : "Camera access was denied. Allow camera access for this site in your browser settings, then try again.";
+          ? "摄像头访问被拒绝。请在 iOS 设置中允许本应用使用摄像头，然后重试。"
+          : "摄像头访问被拒绝。请在浏览器设置里允许本网站使用摄像头，然后重试。";
       }
     }
 

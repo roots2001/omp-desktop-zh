@@ -1,10 +1,10 @@
 {
-  "name": "OMP Remote",
+  "name": "OMP 远程控制",
   "short_name": "OMP",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#17191e",
   "theme_color": "#17191e",
-  "description": "Read and control your OMP Desktop sessions from your phone."
+  "description": "在手机上查看并控制 OMP Desktop 会话。"
 }

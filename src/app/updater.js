@@ -73,7 +73,7 @@
         return {
           ...state,
           phase: state.update ? "available" : "error",
-          error: String(action.error ?? "update check failed"),
+          error: String(action.error ?? "检查更新失败"),
         };
 
       case "install-start":
@@ -94,7 +94,7 @@
 
       case "install-failed":
         if (state.phase !== "downloading") return state;
-        return { ...state, phase: "available", progress: null, error: String(action.error ?? "update failed") };
+        return { ...state, phase: "available", progress: null, error: String(action.error ?? "更新失败") };
 
       default:
         return state;
@@ -140,6 +140,10 @@
   window.OMP_UPDATER = Object.freeze({
     STARTUP_DELAY_MS,
     CHECK_INTERVAL_MS,
+    // This Chinese fork ships without an update feed; see docs/zh-branch.md.
+    // An empty release index is always a safe link for the manual entry point.
+    IN_APP_UPDATES: false,
+    RELEASES_URL: "https://github.com/roots2001/omp-desktop-zh/releases",
     initialState,
     normalizeInfo,
     reduce,

@@ -39,10 +39,10 @@ function _FP_lines(path, body) {
 // The non-content kinds of Rust's `FilePreview` (TooLarge's text names the
 // size, below).
 const _FP_STATES = {
-  Binary:   { title: "Binary file", sub: "There is no text preview for this file." },
-  TooLarge: { title: "Too large to preview" },
-  Missing:  { title: "File no longer exists", sub: "It was deleted or moved after the agent touched it." },
-  Outside:  { title: "Outside the project", sub: "The preview reads only files inside this tab's project folder." },
+  Binary:   { title: "二进制文件", sub: "这个文件没有文本预览。" },
+  TooLarge: { title: "文件过大，无法预览" },
+  Missing:  { title: "文件已不存在", sub: "智能体操作之后它被删除或移动了。" },
+  Outside:  { title: "项目之外", sub: "预览只读取这个标签页项目文件夹内的文件。" },
 };
 
 // Memoised: a re-render of the head (a copy click) must not rebuild every row.
@@ -95,7 +95,7 @@ function FilePreview({ target, onClose, onOpenGit }) {
     setRes(null);
     // `{ok, value | error}`, never a rejection (live.js `_invokeResult`).
     window.OMP_BRIDGE.readProjectFile(target.path)
-      .then((r) => { if (live) setRes(r ?? { ok: false, error: "No tab is open." }); });
+      .then((r) => { if (live) setRes(r ?? { ok: false, error: "没有打开的标签页。" }); });
     return () => { live = false; };
   }, [target.path]);
 
@@ -128,10 +128,10 @@ function FilePreview({ target, onClose, onOpenGit }) {
   const range = target.range;
 
   let body;
-  if (!res) body = <div className="fp-state"><span className="shimmer-text">Loading…</span></div>;
-  else if (!res.ok) body = <_FP_State title="Can't preview this file" sub={res.error} />;
+  if (!res) body = <div className="fp-state"><span className="shimmer-text">加载中…</span></div>;
+  else if (!res.ok) body = <_FP_State title="无法预览此文件" sub={res.error} />;
   else if (state) {
-    const sub = state.sub ?? `${_FP_size(value.size)} is over the preview limit.`;
+    const sub = state.sub ?? `${_FP_size(value.size)} 超过预览上限。`;
     body = <_FP_State title={state.title} sub={sub} />;
   } else if (imgSrc) {
     body = (
@@ -147,7 +147,7 @@ function FilePreview({ target, onClose, onOpenGit }) {
       className="fp-scrim"
       role="dialog"
       aria-modal="true"
-      aria-label={`Preview of ${shownPath}`}
+      aria-label={`预览 ${shownPath}`}
       tabIndex={-1}
       onMouseDown={(e) => { downOnScrim.current = e.target === e.currentTarget; }}
       onClick={(e) => {
@@ -161,24 +161,24 @@ function FilePreview({ target, onClose, onOpenGit }) {
           <span className="fp-crumb mono" title={shownPath}>
             {shownPath.slice(0, slash)}<b>{shownPath.slice(slash)}</b>
           </span>
-          {clip && <span className="chip muted mono">{clip.total} lines</span>}
+          {clip && <span className="chip muted mono">{clip.total} 行</span>}
           {clip?.truncated && (
-            <span className="chip warn mono" title={`Shown: the first ${_FP_MAX_LINES} lines, each cut at ${_FP_MAX_LINE_CHARS} characters`}>truncated</span>
+            <span className="chip warn mono" title={`仅显示前 ${_FP_MAX_LINES} 行，每行截断到 ${_FP_MAX_LINE_CHARS} 个字符`}>已截断</span>
           )}
           {value && value.kind !== "Missing" && value.kind !== "Outside" && <span className="chip muted mono">{_FP_size(value.size)}</span>}
           {value?.kind === "Text" && range && (
             <span className="chip accent mono">
-              {range.to === range.from ? `line ${range.from}` : `read ${range.from}–${range.to}`}
+              {range.to === range.from ? `第 ${range.from} 行` : `读取 ${range.from}–${range.to} 行`}
             </span>
           )}
           <div className="fp-spacer" />
-          <_FP_Copy className="fp-copy" label="Copy the project-relative path" text={shownPath} />
+          <_FP_Copy className="fp-copy" label="复制项目内相对路径" text={shownPath} />
           {openable && (
-            <button type="button" className="btn outlined" onClick={() => onOpenGit(shownPath)} title="Open in the git browser">
-              <_FP_Icon name="branch" size={12} /> Open in git browser
+            <button type="button" className="btn outlined" onClick={() => onOpenGit(shownPath)} title="在 Git 浏览器中打开">
+              <_FP_Icon name="branch" size={12} /> 在 Git 浏览器中打开
             </button>
           )}
-          <button type="button" className="btn ghost icon" onClick={onClose} title="Close (Esc)" aria-label="Close">
+          <button type="button" className="btn ghost icon" onClick={onClose} title="关闭 (Esc)" aria-label="关闭">
             <_FP_Icon name="close" size={12} />
           </button>
         </div>

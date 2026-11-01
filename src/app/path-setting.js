@@ -32,7 +32,7 @@
     for (const p of installed) {
       rows.push({ name: p.name, hint: p.hint ?? "", path: p.path, value: p.path, checked: stored !== "" && normPath(p.path) === normPath(stored) });
     }
-    if (stored && !rows.some((r) => r.checked)) rows.push({ name: name(stored), hint: "other", path: stored, value: stored, checked: true });
+    if (stored && !rows.some((r) => r.checked)) rows.push({ name: name(stored), hint: "其他", path: stored, value: stored, checked: true });
     const shown = stored || fallback.path;
     return { label: shown ? name(shown) : fallback.name, rows };
   }

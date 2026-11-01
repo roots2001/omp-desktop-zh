@@ -28,7 +28,7 @@ function ResizeHandle({ edge, label, className = "", drag, value, min, max, onSi
       aria-valuemin={min}
       aria-valuemax={max}
       tabIndex={0}
-      title="drag to resize, double-click for the default width"
+      title="拖动调整宽度，双击恢复默认宽度"
       {...drag.handlers}
       onDoubleClick={onReset}
       onKeyDown={onKeyDown}

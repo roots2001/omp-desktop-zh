@@ -39,30 +39,30 @@ function ApprovalModeSeg({ label, options, value, disabled, onPick }) {
 // What the last change did: `result` is a set's `{ ok, error?, restarted,
 // deferred }`, null before any change in this editor.
 function ApprovalModeApplyLine({ result, busy, hasProject, sessions }) {
-  if (busy) return <div className="mode-apply"><span className="spin">⟳</span> restarting…</div>;
+  if (busy) return <div className="mode-apply"><span className="spin">⟳</span> 正在重启…</div>;
   if (!result) {
     return (
       <div className="mode-apply">
         {hasProject
-          ? "A change restarts omp in that project's open tabs; the conversation continues. A tab whose agent is working switches when its turn ends."
-          : "Applies to new tabs and to open tabs of projects without their own setting."}
+          ? "修改会重启该项目下打开的标签页中的 omp，对话会继续。智能体正在工作的标签页会在本轮结束时切换。"
+          : "作用于新标签页，以及没有单独设置的项目下已打开的标签页。"}
       </div>
     );
   }
-  if (!result.ok) return <div className="mode-apply error">{result.error || "the change could not be saved"}</div>;
+  if (!result.ok) return <div className="mode-apply error">{result.error || "改动未能保存"}</div>;
   const n = result.restarted.length;
   const names = result.deferred
     .map(id => sessions.find(s => s.id === id)?.name)
     .filter(Boolean);
   return (
     <div className="mode-apply">
-      {n > 0 && <><span className="spin">⟳</span>{n} tab{n === 1 ? "" : "s"} restarted with the new mode.</>}
-      {n === 0 && names.length === 0 && "Saved. No open tab needed a restart."}
+      {n > 0 && <><span className="spin">⟳</span>{n} 个标签页已按新模式重启。</>}
+      {n === 0 && names.length === 0 && "已保存。没有标签页需要重启。"}
       {names.length > 0 && (
         <>
           {n > 0 && " "}
           <b>{names.join(", ")}</b>
-          {names.length === 1 ? " is working and switches when its turn ends." : " are working and switch when their turns end."}
+          {" 正在工作，会在本轮结束时切换。"}
         </>
       )}
     </div>
@@ -85,7 +85,7 @@ function ApprovalModeSection({ view, activeProject, sessions, query }) {
   const effective = AM.effectiveFor(view, path);
   const shown = AM.MODES.find(m => m.value === effective);
   const modeOptions = AM.MODES.map(m => ({ value: m.value, label: m.label }));
-  const projectOptions = [{ value: "default", label: "inherit" }, ...modeOptions];
+  const projectOptions = [{ value: "default", label: "继承" }, ...modeOptions];
   const disabled = busy || !view;
 
   const apply = async call => {
@@ -103,9 +103,9 @@ function ApprovalModeSection({ view, activeProject, sessions, query }) {
   return (
     <div className="mode-sect">
       <div className="mode-row">
-        <div className="mode-lbl"><span>default for every project</span></div>
+        <div className="mode-lbl"><span>所有项目的默认值</span></div>
         <ApprovalModeSeg
-          label="default for every project"
+          label="所有项目的默认值"
           options={modeOptions}
           value={fallback}
           disabled={disabled}
@@ -116,7 +116,7 @@ function ApprovalModeSection({ view, activeProject, sessions, query }) {
       {projects.map(p => (
         <div className="mode-row" key={p.path}>
           <div className="mode-lbl">
-            <span>{p.active ? "this project" : "project"}</span>
+            <span>{p.active ? "当前项目" : "项目"}</span>
             <span className="mode-path mono" title={p.path}>{pathText(p.path)}</span>
           </div>
           <ApprovalModeSeg
@@ -130,7 +130,7 @@ function ApprovalModeSection({ view, activeProject, sessions, query }) {
             ? <span className="mode-rm" aria-hidden="true" />
             : (
               <button className="btn icon ghost mode-rm" disabled={disabled}
-                title="remove the override (inherit the default)" aria-label={`remove the override of ${p.path}`}
+                title="移除覆盖（继承默认值）" aria-label={`remove the override of ${p.path}`}
                 onClick={() => setProject(p.path, "default")}>
                 <_AMS_Icon name="close" size={10} />
               </button>
@@ -139,7 +139,7 @@ function ApprovalModeSection({ view, activeProject, sessions, query }) {
       ))}
       {shown && (
         <div className={`mode-note${shown.warn ? " warn" : ""}`}>
-          {path ? "this project: " : "new tabs: "}<b>{shown.label}</b> — {shown.blurb}
+          {path ? "本项目：" : "新标签页："}<b>{shown.label}</b> — {shown.blurb}
         </div>
       )}
       <ApprovalModeApplyLine result={result} busy={busy} hasProject={projects.length > 0} sessions={sessions ?? []} />

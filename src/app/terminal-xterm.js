@@ -23,7 +23,7 @@
 // app/use-terminal.jsx destructures it at top level, so it must load
 // before it.
 (function () {
-  const SKIPPED_LINE = "\r\n\x1b[2m[output skipped]\x1b[0m\r\n";
+  const SKIPPED_LINE = "\r\n\x1b[2m[输出已省略]\x1b[0m\r\n";
 
   function exitLine(code) {
     const label = code == null ? "" : ` (code ${code})`;

@@ -46,7 +46,7 @@
           ? { label: option, value: option }
           : { label: option.label, value: option.value ?? option.label });
       case "confirm":
-        return [{ label: "Confirm", value: true }, { label: "Deny", value: false }];
+        return [{ label: "确认", value: true }, { label: "拒绝", value: false }];
       case "input":
       case "editor":
         return { input: true, multiline: ask.kind === "editor" };

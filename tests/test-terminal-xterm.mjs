@@ -200,7 +200,7 @@ check("exit / failure / skipped lines", () => {
   assert.match(X.exitLine(3), /shell exited \(code 3\) — press Enter to restart/);
   assert.match(X.exitLine(null), /shell exited — press Enter/);
   assert.match(X.failLine("no such file"), /could not start the shell: no such file\x1b\[0m — press Enter to retry/);
-  assert.match(X.SKIPPED_LINE, /\[output skipped\]/);
+  assert.match(X.SKIPPED_LINE, /\[输出已省略\]/);
   for (const line of [X.exitLine(0), X.failLine("x"), X.SKIPPED_LINE]) {
     assert.ok(line.startsWith("\r\n") && line.endsWith("\r\n"), "on a line of its own");
   }

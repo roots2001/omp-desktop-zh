@@ -215,7 +215,7 @@ check("an idle active goal tells why omp is waiting, depending on auto-continue"
 
 check("the meter reports used, left and percentage against the budget, and the overrun past it", () => {
   const v = G.stripView(known(goal({ tokensUsed: 10340, timeUsedSeconds: 51 })));
-  assert.deepEqual(v.meter, { used: "10,340", budget: "50,000", pct: 21, left: "39,660", over: null, time: "51 s" });
+  assert.deepEqual(v.meter, { used: "10,340", budget: "50,000", pct: 21, left: "39,660", over: null, time: "51 秒" });
   const over = G.stripView(known(goal({ tokenBudget: 2000, tokensUsed: 6390, status: "budget-limited" })));
   assert.equal(over.meter.pct, 100);
   assert.equal(over.meter.left, null);
@@ -233,11 +233,11 @@ check("each status offers its own actions", () => {
 });
 
 check("durations read in the largest sensible units", () => {
-  assert.equal(G.fmtSeconds(51), "51 s");
-  assert.equal(G.fmtSeconds(125), "2 min 5 s");
-  assert.equal(G.fmtSeconds(120), "2 min");
-  assert.equal(G.fmtSeconds(3780), "1 h 3 min");
-  assert.equal(G.fmtSeconds(-4), "0 s");
+  assert.equal(G.fmtSeconds(51), "51 秒");
+  assert.equal(G.fmtSeconds(125), "2 分 5 秒");
+  assert.equal(G.fmtSeconds(120), "2 分");
+  assert.equal(G.fmtSeconds(3780), "1 小时 3 分");
+  assert.equal(G.fmtSeconds(-4), "0 秒");
 });
 
 // ── Start ─────────────────────────────────────────────────────────────────
@@ -269,9 +269,9 @@ check("only omp's hidden goal-continuation prompt marks a turn omp started for t
 check("rows show the final usage against the budget, the stop cause and the elapsed time", () => {
   const done = G.rowView({ kind: "goal", event: "complete", objective: "O", tokensUsed: 10340, tokenBudget: 50000, timeUsedSeconds: 51 });
   assert.equal(done.tone, "done");
-  assert.deepEqual(done.chips, ["10,340 of 50,000 tokens", "51 s"]);
+  assert.deepEqual(done.chips, ["10,340 / 50,000 token", "51 秒"]);
   const free = G.rowView({ kind: "goal", event: "complete", objective: "O", tokensUsed: 12, tokenBudget: null, timeUsedSeconds: 0 });
-  assert.deepEqual(free.chips, ["12 tokens"]);
+  assert.deepEqual(free.chips, ["12 token"]);
   const pausedRow = cause => G.rowView({ kind: "goal", event: "paused", tokensUsed: 1, tokenBudget: null, timeUsedSeconds: 0, cause });
   assert.notEqual(pausedRow("stop").detail, null);
   assert.equal(pausedRow(null).detail, null);

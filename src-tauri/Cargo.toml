@@ -2,6 +2,7 @@
 name = "omp-desktop"
 version = "0.13.2"
 edition = "2021"
+repository = "https://github.com/roots2001/omp-desktop-zh"
 
 [lib]
 name = "omp_desktop_lib"

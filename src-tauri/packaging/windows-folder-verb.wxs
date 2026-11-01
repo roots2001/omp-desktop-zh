@@ -30,7 +30,7 @@
             <Component Id="OpenFolderVerb" Guid="A01ADD48-C9E9-4715-B01A-E5BBF217819A" Win64="$(var.Win64)">
                 <!-- Right-click on a folder. -->
                 <RegistryKey Root="HKLM" Key="Software\Classes\Directory\shell\OpenWithOmpDesktop" ForceDeleteOnUninstall="yes">
-                    <RegistryValue Type="string" Value="Open with OMP Desktop" KeyPath="yes" />
+                    <RegistryValue Type="string" Value="用 OMP Desktop 打开" KeyPath="yes" />
                     <RegistryValue Type="string" Name="Icon" Value="&quot;[!Path]&quot;,0" />
                     <RegistryKey Key="command">
                         <RegistryValue Type="string" Value="&quot;[!Path]&quot; &quot;%V&quot;" />
@@ -38,7 +38,7 @@
                 </RegistryKey>
                 <!-- Right-click inside an open folder. -->
                 <RegistryKey Root="HKLM" Key="Software\Classes\Directory\Background\shell\OpenWithOmpDesktop" ForceDeleteOnUninstall="yes">
-                    <RegistryValue Type="string" Value="Open with OMP Desktop" />
+                    <RegistryValue Type="string" Value="用 OMP Desktop 打开" />
                     <RegistryValue Type="string" Name="Icon" Value="&quot;[!Path]&quot;,0" />
                     <RegistryKey Key="command">
                         <RegistryValue Type="string" Value="&quot;[!Path]&quot; &quot;%V&quot;" />

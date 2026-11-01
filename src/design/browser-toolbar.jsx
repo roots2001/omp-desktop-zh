@@ -12,7 +12,7 @@ function BrowserTabs({ ui }) {
     <div className="browser-tabs">
       <div className="browser-tabs-scroll">
         {ui.tabs.map((t) => {
-          const name = t.title || t.url || "new tab";
+          const name = t.title || t.url || "新标签页";
           return (
             <div key={t.targetId} className={`tab${t.active ? " active" : ""}`} title={t.url || name}
               onClick={() => ui.activateTab(t.targetId)}>
@@ -25,7 +25,7 @@ function BrowserTabs({ ui }) {
           );
         })}
       </div>
-      <button type="button" className="tab-add" title="new tab" aria-label="new tab" onClick={() => ui.newTab()}>
+      <button type="button" className="tab-add" title="新建标签页" aria-label="新建标签页" onClick={() => ui.newTab()}>
         <_BT_Icon name="plus" size={11} />
       </button>
     </div>
@@ -57,13 +57,13 @@ function BrowserToolbar({ ui }) {
     <>
       <BrowserTabs ui={ui} />
       <div className="browser-bar">
-        <button className="btn icon ghost" title="back" aria-label="back" disabled={!state.canBack} onClick={() => ui.history(-1)}>
+        <button className="btn icon ghost" title="后退" aria-label="后退" disabled={!state.canBack} onClick={() => ui.history(-1)}>
           <_BT_Icon name="back" size={11} />
         </button>
-        <button className="btn icon ghost" title="forward" aria-label="forward" disabled={!state.canForward} onClick={() => ui.history(1)}>
+        <button className="btn icon ghost" title="前进" aria-label="前进" disabled={!state.canForward} onClick={() => ui.history(1)}>
           <_BT_Icon name="arrow" size={11} />
         </button>
-        <button className="btn icon ghost" title="reload" aria-label="reload" disabled={!state.url} onClick={() => ui.navigate(state.url)}>
+        <button className="btn icon ghost" title="重新加载" aria-label="重新加载" disabled={!state.url} onClick={() => ui.navigate(state.url)}>
           <_BT_Icon name="refresh" size={11} />
         </button>
         <form className={`browser-address${shake ? " shake" : ""}`} onSubmit={submit} onAnimationEnd={() => setShake(false)}>
@@ -71,7 +71,7 @@ function BrowserToolbar({ ui }) {
             name="address"
             className="mono"
             value={draft ?? state.url}
-            placeholder="address or localhost:3000"
+            placeholder="地址或 localhost:3000"
             spellCheck={false}
             autoComplete="off"
             onChange={(e) => setDraft(e.target.value)}

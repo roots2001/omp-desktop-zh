@@ -122,14 +122,14 @@
    *  days) and years (from 365 days), each floored. A future time is "now". */
   function relativeTime(atSecs, nowSecs) {
     const d = Math.max(0, nowSecs - atSecs);
-    if (d < MINUTE) return "now";
-    if (d < HOUR) return `${Math.floor(d / MINUTE)}m`;
-    if (d < DAY) return `${Math.floor(d / HOUR)}h`;
+    if (d < MINUTE) return "刚刚";
+    if (d < HOUR) return `${Math.floor(d / MINUTE)} 分钟前`;
+    if (d < DAY) return `${Math.floor(d / HOUR)} 小时前`;
     const days = Math.floor(d / DAY);
-    if (days < 7) return `${days}d`;
-    if (days < 30) return `${Math.floor(days / 7)}w`;
-    if (days < 365) return `${Math.floor(days / 30)}mo`;
-    return `${Math.floor(days / 365)}y`;
+    if (days < 7) return `${days} 天前`;
+    if (days < 30) return `${Math.floor(days / 7)} 周前`;
+    if (days < 365) return `${Math.floor(days / 30)} 个月前`;
+    return `${Math.floor(days / 365)} 年前`;
   }
 
   /** The changed lines of a `FileView`, one per line prefixed `+`/`-`, for

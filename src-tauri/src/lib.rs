@@ -501,7 +501,7 @@ async fn terminal_pick_shell(
     window: tauri::WebviewWindow,
     terminal: State<'_, Arc<terminal::TerminalManager>>,
 ) -> Result<Option<terminal::TerminalSettings>, String> {
-    let picked = pick_program(&window, "Choose a Shell");
+    let picked = pick_program(&window, "选择 Shell");
     with_blocking(&terminal, move |t| {
         picked_program(&picked)?.map_or(Ok(None), |path| t.set_shell(&path).map(Some))
     })
@@ -518,7 +518,7 @@ fn pick_program(
     let (tx, rx) = std::sync::mpsc::channel();
     let dialog = window.dialog().file().set_title(title).set_parent(window);
     #[cfg(windows)]
-    let dialog = dialog.add_filter("Programs", &["exe"]);
+    let dialog = dialog.add_filter("程序", &["exe"]);
     dialog.pick_file(move |result| {
         let _ = tx.send(result);
     });
@@ -571,7 +571,7 @@ async fn browser_pick_path(
     window: tauri::WebviewWindow,
     settings: State<'_, Arc<browser::SettingsStore>>,
 ) -> Result<Option<browser::BrowserSettings>, String> {
-    let picked = pick_program(&window, "Choose a Browser");
+    let picked = pick_program(&window, "选择浏览器");
     with_blocking(&settings, move |s| {
         picked_program(&picked)?.map_or(Ok(None), |path| s.set_path(&path).map(Some))
     })
@@ -788,7 +788,7 @@ async fn open_project(app: tauri::AppHandle) -> Result<Option<String>, String> {
     let (tx, rx) = std::sync::mpsc::channel();
     app.dialog()
         .file()
-        .set_title("Open Project Folder")
+        .set_title("打开项目文件夹")
         .pick_folder(move |result| {
             let _ = tx.send(result);
         });

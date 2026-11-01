@@ -343,7 +343,7 @@
     return window.OMP_PATH_SETTING.menu({
       stored: path,
       name: browserName,
-      fallback: { name: "automatic", hint: automatic ? browserName(automatic) : "none found", path: automatic ?? "" },
+      fallback: { name: "自动", hint: automatic ? browserName(automatic) : "未找到", path: automatic ?? "" },
       installed: installed.map((p, i) => ({
         name: names[i], path: p, hint: names.indexOf(names[i]) !== names.lastIndexOf(names[i]) ? folder(p) : "",
       })),

@@ -37,18 +37,18 @@ function QueueStrip({ queue, sending, canSendNow, onSendNow, onRemove, onPromote
     setNotice(null);
     let text = null;
     try {
-      if (!(await action(row))) text = "already delivered";
+      if (!(await action(row))) text = "已经发送过";
     } catch (e) {
-      text = `failed: ${e?.message ?? e}`;
+      text = `失败：${e?.message ?? e}`;
     }
     setBusy(false);
     if (text) setNotice({ key: row.key, text });
   };
 
   return (
-    <div className="queue-strip" role="list" aria-label="queued messages">
+    <div className="queue-strip" role="list" aria-label="排队中的消息">
       {rows.map(r => {
-        const note = r.sending ? "sending…" : notice?.key === r.key ? notice.text : null;
+        const note = r.sending ? "正在发送…" : notice?.key === r.key ? notice.text : null;
         return (
           <div className={`queue-row ${r.kind}${r.sending ? " sending" : ""}`} role="listitem" key={r.key}>
             <span className="queue-kind">{_QS_KIND_LABEL[r.kind]}</span>
@@ -57,25 +57,25 @@ function QueueStrip({ queue, sending, canSendNow, onSendNow, onRemove, onPromote
             {!r.sending && (<>
               {canSendNow && (
                 <button className={_QS_BTN} disabled={busy} onClick={() => run(r, onSendNow)}
-                  title="send now: stop the agent's current step (as Esc does) and deliver this message at once"
-                  aria-label="send now">
+                  title="立即发送：中断智能体当前步骤（等同按 Esc）并马上投递这条消息"
+                  aria-label="立即发送">
                   <_QS_Icon name="bolt" size={11} />
                 </button>
               )}
               {r.kind === "followUp" && (
                 <button className={_QS_BTN} disabled={busy} onClick={() => run(r, onPromote)}
-                  title="steer now: deliver at the agent's next step" aria-label="steer now">
+                  title="立即引导：在智能体的下一步投递" aria-label="立即引导">
                   <_QS_Icon name="arrowUp" size={11} />
                 </button>
               )}
               {r.editable && (
                 <button className={_QS_BTN} disabled={busy} onClick={() => run(r, onEdit)}
-                  title="edit: take the text back into the prompt box" aria-label="edit">
+                  title="编辑：把文本取回输入框" aria-label="编辑">
                   <_QS_Icon name="edit" size={11} />
                 </button>
               )}
               <button className={_QS_BTN} disabled={busy} onClick={() => run(r, onRemove)}
-                title="remove from the queue" aria-label="remove">
+                title="从队列中移除" aria-label="移除">
                 <_QS_Icon name="close" size={10} />
               </button>
             </>)}

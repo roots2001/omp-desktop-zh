@@ -34,7 +34,7 @@ function BrowserChips({ chips, dropped = 0, onRemove, onChipClick }) {
             {onChipClick
               ? <button type="button" className="paste-chip-label browser-chip-label" onClick={() => onChipClick(c)}>{body}</button>
               : <span className="paste-chip-label browser-chip-label">{body}</span>}
-            <button type="button" className="browser-chip-remove" title="remove annotation" aria-label="remove annotation"
+            <button type="button" className="browser-chip-remove" title="移除批注" aria-label="移除批注"
               onClick={() => onRemove(c.id)}>
               <_BC_Icon name="close" size={9} />
             </button>
@@ -43,7 +43,7 @@ function BrowserChips({ chips, dropped = 0, onRemove, onChipClick }) {
       })}
       {dropped > 0 && (
         <span className="browser-chips-note">
-          {dropped} screenshot{dropped === 1 ? "" : "s"} over the {_BC_CAP}-image limit will not be attached
+          {dropped} screenshot{dropped === 1 ? "" : "s"} 超出 {_BC_CAP} 张图片超出上限，将不会附带
         </span>
       )}
     </div>

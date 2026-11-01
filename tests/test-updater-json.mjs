@@ -7,9 +7,9 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   buildPlatforms, changelogSection, keysFor, versionMismatch,
@@ -108,11 +108,25 @@ check("a stable tag must match the app version; a prerelease may not", () => {
 // entry guard silently skipped main() and emitted an empty feed.
 check("run directly (via a symlink with a space), the CLI writes the feed", () => {
   const dir = mkdtempSync(join(tmpdir(), "updater-json-"));
+  let cli = "";
   try {
     for (const n of ASSETS) writeFileSync(join(dir, `${n}.sig`), `sig:${n}\n`);
     const link = join(dir, "a b.mjs");
-    symlinkSync(realpathSync(SCRIPT), link);
-    const run = (...extra) => execFileSync(process.execPath, [link, "--sigdir", dir, "--repo", "o/r",
+    try {
+      symlinkSync(realpathSync(SCRIPT), link);
+      cli = link;
+    } catch (err) {
+      // GitHub's ubuntu runner allows symlinks; a stock Windows checkout may
+      // return EPERM unless Developer Mode or elevation is enabled. The
+      // space-in-path entry guard still needs coverage there: a copied CLI
+      // keeps the same basename and absolute path, while its sibling script
+      // stays next to it. Only the symlink mechanism is skipped.
+      if (process.platform !== "win32" || !["EPERM", "EACCES"].includes(err.code)) throw err;
+      cli = join(dir, basename(SCRIPT));
+      copyFileSync(SCRIPT, cli);
+      console.log("SKIP (Windows symlink unavailable; copied CLI instead): " + err.code);
+    }
+    const run = (...extra) => execFileSync(process.execPath, [cli, "--sigdir", dir, "--repo", "o/r",
       "--tag", "v0.3.0", "--app-version", "0.3.0", ...extra], { encoding: "utf8", stdio: "pipe" });
     const feed = JSON.parse(run());
     assert.equal(feed.version, "0.3.0");

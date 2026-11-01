@@ -49,7 +49,7 @@ function BranchMenu({ branch, bridge, locked = false }) {
     let live = true;
     bridge.gitBranches().then(res => {
       if (!live) return;
-      setList(!res ? { error: "this tab has no project folder" } : res.ok ? { branches: res.value } : { error: res.error });
+      setList(!res ? { error: "这个标签页没有项目文件夹" } : res.ok ? { branches: res.value } : { error: res.error });
     });
     inputRef.current?.focus();
     // The menu is placed once: a resize would leave it off the pill.
@@ -65,7 +65,7 @@ function BranchMenu({ branch, bridge, locked = false }) {
     if (locked) return;
     run(async () => {
       const res = await bridge.gitSwitchBranch(b.name, b.remote);
-      if (!res?.ok) throw new Error(res ? res.error : "this tab has no project folder");
+      if (!res?.ok) throw new Error(res ? res.error : "这个标签页没有项目文件夹");
     }, e => e.message);
   };
 
@@ -101,35 +101,35 @@ function BranchMenu({ branch, bridge, locked = false }) {
   return (
     <>
       <button ref={triggerRef} className="status-cell btn ghost branch-pill" aria-haspopup="menu" aria-expanded={open}
-        title={locked ? "branches (no switching while the agent works)" : "switch branch"}
+        title={locked ? "分支（智能体工作期间不能切换）" : "切换分支"}
         onClick={() => (open ? close() : setPlace(_BM_place(triggerRef.current)))}>
         <_BM_Icon name="branch" size={11} color="var(--fg-3)" />
         <span className="mono">{branch}</span>
       </button>
       {open && ReactDOM.createPortal(
         <div ref={popRef} className={`branch-pop${busy ? " busy" : ""}${locked ? " locked" : ""}`} style={place}
-          role="menu" aria-label="switch branch" onKeyDown={onPopKey}>
+          role="menu" aria-label="切换分支" onKeyDown={onPopKey}>
           <div className="branch-pop-filter">
             <_BM_Icon name="search" size={11} color="var(--fg-4)" />
-            <input ref={inputRef} className="mono" value={query} placeholder="filter branches"
-              aria-label="filter branches" spellCheck={false}
+            <input ref={inputRef} className="mono" value={query} placeholder="筛选分支"
+              aria-label="筛选分支" spellCheck={false}
               onChange={e => setQuery(e.target.value)} onKeyDown={onInputKey} />
           </div>
           <div className="branch-pop-list">
             {!list ? (
-              <div className="branch-pop-note">loading…</div>
+              <div className="branch-pop-note">加载中…</div>
             ) : list.error ? (
-              <div className="branch-pop-note error">could not list the branches: {list.error}</div>
+              <div className="branch-pop-note error">无法列出分支： {list.error}</div>
             ) : (<>
-              {rows.local.length > 0 && <div className="branch-pop-head mono" role="none">local</div>}
+              {rows.local.length > 0 && <div className="branch-pop-head mono" role="none">本地</div>}
               {rows.local.map(row)}
-              {rows.remote.length > 0 && <div className="branch-pop-head mono" role="none">remote</div>}
+              {rows.remote.length > 0 && <div className="branch-pop-head mono" role="none">远程</div>}
               {rows.remote.map(row)}
-              {!first && <div className="branch-pop-note">{query.trim() ? "no branch matches" : "no other branches"}</div>}
-              {rows.hidden > 0 && <div className="branch-pop-note">{rows.hidden} more — narrow the filter</div>}
+              {!first && <div className="branch-pop-note">{query.trim() ? "没有匹配的分支" : "没有其他分支"}</div>}
+              {rows.hidden > 0 && <div className="branch-pop-note">{rows.hidden} 更多——请缩小筛选范围</div>}
             </>)}
           </div>
-          {locked && <div className="branch-pop-note" role="status">the agent is working — switch branches once it's idle</div>}
+          {locked && <div className="branch-pop-note" role="status">智能体正在工作——等它空闲后再切换分支</div>}
           {error && <div className="branch-pop-note error" role="alert">{error}</div>}
         </div>,
         document.body,

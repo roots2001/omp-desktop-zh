@@ -330,7 +330,7 @@ function App() {
   };
   const requestLiveAction = (action) => {
     if ((action === "start" || action === "resume") && settingsOpening.current) return Promise.resolve(false);
-    return runVoiceAction(liveActionSeq, setLiveErrors, "Live voice", b =>
+    return runVoiceAction(liveActionSeq, setLiveErrors, "实时语音", b =>
       action === "start" ? b.liveStart()
         : action === "pause" ? b.livePause()
         : action === "resume" ? b.liveResume()
@@ -348,7 +348,7 @@ function App() {
   const requestDictationAction = action => {
     if (action === "start" && settingsOpening.current) return Promise.resolve(false);
     // The user's own stop sends the draft when Settings › Composer says so.
-    return runVoiceAction(dictationActionSeq, setDictationErrors, "Voice to text",
+    return runVoiceAction(dictationActionSeq, setDictationErrors, "语音转文字",
       b => action === "start" ? b.dictationStart() : b.dictationStop({ send: !!t.dictationSend }));
   };
   // Settings › Composer › Stop after a pause: no new dictated text for that
@@ -366,7 +366,7 @@ function App() {
   const handleLiveAction = (args = "") => {
     const action = window.OMP_SLASH.liveCommand(args, liveVoice);
     if (!action) {
-      setLiveErrors(m => ({ ...m, [planKey]: "Use /live, /live start, /live pause, /live resume, /live stop, /live mute, or /live unmute." }));
+      setLiveErrors(m => ({ ...m, [planKey]: "使用 /live、/live start、/live pause、/live resume、/live stop、/live mute 或 /live unmute。" }));
       return false;
     }
     // The command bridge is also reachable over Settings. Show the owning
@@ -409,7 +409,7 @@ function App() {
   });
   const subagentList = React.useMemo(() => window.OMP_SUBAGENTS.listAgents(subagents), [subagents]);
 
-  const updater = useUpdater({ bridge, autoCheck: t.updateCheck ?? true, skipped: t.skippedUpdate, setTweak });
+  const updater = useUpdater({ bridge, skipped: t.skippedUpdate, setTweak });
 
   // The browser panel (app/use-browser.jsx). `activeProject.id`, like the
   // widgets below, not `activeSessionId`, which keeps a closed tab's id.
@@ -526,7 +526,7 @@ function App() {
             const quoted = raw.split('\n').map(l => `> ${l}`).join('\n');
             return `${quoted}\n→ ${comment.trim()}`;
           }).join('\n\n');
-        const parts = ['Line comments:\n' + lineComments, text.trim()].filter(Boolean);
+        const parts = ['行内评论：\n' + lineComments, text.trim()].filter(Boolean);
         msg = parts.join('\n\n');
         updatePlan(markPlanSent); // annotations imply plan is already in progress; spends them
       } else if (!plan.started) {

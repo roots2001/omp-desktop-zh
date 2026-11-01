@@ -61,7 +61,7 @@ await check("actionFor builds answer, prompt and abort frames with unique reques
 await check("askControls supports select, confirm, input and editor", () => {
   assert.deepEqual(C.askControls({ kind: "select", options: ["One", { label: "Two", value: "two" }] }),
     [{ label: "One", value: "One" }, { label: "Two", value: "two" }]);
-  assert.deepEqual(C.askControls({ kind: "confirm" }), [{ label: "Confirm", value: true }, { label: "Deny", value: false }]);
+  assert.deepEqual(C.askControls({ kind: "confirm" }), [{ label: "确认", value: true }, { label: "拒绝", value: false }]);
   assert.deepEqual(C.askControls({ kind: "input" }), { input: true, multiline: false });
   assert.deepEqual(C.askControls({ kind: "editor" }), { input: true, multiline: true });
 });
@@ -122,6 +122,19 @@ await check("phone HTML forbids inline scripts, handlers and styles and keeps PW
   assert.match(html, /name="apple-mobile-web-app-capable" content="yes"/);
   assert.match(html, /name="viewport"/);
   assert.match(html, /<meta charset="utf-8">/);
+  assert.match(html, /<html lang="zh-CN">/);
+  assert.match(html, /<title>OMP 远程控制<\/title>/);
+  assert.ok(html.indexOf("<script src=" + JSON.stringify("/zh-i18n.js") + ">") < html.indexOf("<script src=" + JSON.stringify("/client.js") + ">"), "i18n must load before generated UI");
+});
+await check("every remote script is embedded by the Rust asset table", () => {
+  const html = load("src/remote/index.html");
+  const assets = load("src-tauri/src/remote/assets.rs");
+  const scripts = [...html.matchAll(/<script src="\/([^"]+)"><\/script>/g)].map(match => "/" + match[1]);
+  assert.ok(scripts.includes("/zh-i18n.js"));
+  for (const script of scripts) assert.ok(assets.includes(JSON.stringify(script)), `${script} missing from assets.rs`);
+  const manifest = JSON.parse(load("src/remote/manifest.json"));
+  assert.equal(manifest.name, "OMP 远程控制");
+  assert.equal(manifest.description, "在手机上查看并控制 OMP Desktop 会话。");
 });
 
 // Browser APIs are unavailable in Node. Keep real phone modules;
@@ -199,6 +212,7 @@ function browser({ pair = false, token = "saved-token", standalone = true, pairS
   ctx.window = ctx;
   vm.runInContext(load("src/app/accent.js"), ctx);
   vm.runInContext(load("src/app/scroll-pin.js"), ctx);
+  vm.runInContext(load("src/zh-i18n.js"), ctx);
   vm.runInContext(load("src/remote/client.js"), ctx);
   // Markdown safety itself uses the actual vendored libraries above.
   ctx.OMP_REMOTE_CLIENT.renderMarkdown = text => "SAFE:" + text;
@@ -253,7 +267,7 @@ await check("transcript and asks use text nodes; only assistant markdown receive
   assert.ok(!b.app.textContent.includes("secret thinking"));
   assert.ok(b.nodes().some(n => n.tagName === "details"));
   assert.deepEqual(b.nodes().filter(n => n.markup !== undefined).map(n => n.markup), ["SAFE:**reply**"]);
-  await b.button("Deny").emit("click");
+  await b.button("拒绝").emit("click");
   assert.equal(b.frames.at(-1).kind, "answer");
   assert.equal(b.frames.at(-1).value, false);
   assert.equal(b.frames.at(-1).askId, "q");
@@ -267,7 +281,7 @@ await check("streaming views preserve live question input nodes and answer their
   input.value = "<typed>"; await input.emit("input");
   await b.message({ t: "view", view: { ...inner, messages: [] } });
   assert.equal(b.nodes().find(n => n.tagName === "input"), input);
-  await b.button("Answer").emit("click");
+  await b.button("回答").emit("click");
   assert.equal(b.frames.at(-1).value, "<typed>");
   await b.message({ t: "view", view: { ...inner, asks: [] } });
   assert.ok(!b.nodes().some(n => n.tagName === "input"));
@@ -275,21 +289,21 @@ await check("streaming views preserve live question input nodes and answer their
 await check("composer sends prompt, steers with a draft while busy, stops with an empty one", async () => {
   const b = browser(); await b.connect(); await b.message(view());
   const draft = b.nodes().find(n => n.tagName === "textarea");
-  assert.equal(draft.placeholder, "Message…"); assert.equal(draft["enterkeyhint"], "enter");
-  assert.ok(b.control("Send").disabled, "empty idle draft disables send");
-  draft.value = "hello"; await draft.emit("input"); await b.control("Send").emit("click");
+  assert.equal(draft.placeholder, "发消息…"); assert.equal(draft["enterkeyhint"], "enter");
+  assert.ok(b.control("发送").disabled, "empty idle draft disables send");
+  draft.value = "hello"; await draft.emit("input"); await b.control("发送").emit("click");
   assert.equal(b.frames.at(-1).kind, "prompt"); assert.equal(b.frames.at(-1).text, "hello");
   assert.equal(draft.value, "", "a sent draft is cleared");
   await b.message(view(true));
-  assert.equal(draft.placeholder, "Steer…");
-  assert.equal(b.control("Stop").textContent, "■", "busy and empty draft shows stop");
-  assert.ok(b.control("Stop").className.includes("stop"));
+  assert.equal(draft.placeholder, "插话…");
+  assert.equal(b.control("停止").textContent, "■", "busy and empty draft shows stop");
+  assert.ok(b.control("停止").className.includes("stop"));
   draft.value = "redirect"; await draft.emit("input");
-  assert.equal(b.control("Steer").textContent, "↑"); assert.ok(b.control("Steer").className.includes("steer"));
-  await b.control("Steer").emit("click");
+  assert.equal(b.control("插话").textContent, "↑"); assert.ok(b.control("插话").className.includes("steer"));
+  await b.control("插话").emit("click");
   assert.equal(b.frames.at(-1).kind, "steer"); assert.equal(b.frames.at(-1).text, "redirect");
   draft.value = "   "; await draft.emit("input");
-  await b.control("Stop").emit("click"); assert.equal(b.frames.at(-1).kind, "abort");
+  await b.control("停止").emit("click"); assert.equal(b.frames.at(-1).kind, "abort");
 });
 await check("a pinned reader follows a shrinking transcript box; an unpinned one stays", async () => {
   const b = browser(); await b.connect();
@@ -305,36 +319,36 @@ await check("disconnect retries with backoff; revoked token stops reconnect and 
   const b = browser(); await b.connect(); await b.message(view(true));
   b.sockets[0].onclose({ code: 1006 });
   assert.equal(b.timers.at(-1).delay, 1000);
-  assert.ok(b.control("Stop").disabled);
+  assert.ok(b.control("停止").disabled);
   b.timers.at(-1).fn(); await b.connect();
   b.sockets.at(-1).onclose({ code: 4401 });
   assert.equal(b.storage.has("omp-remote-token"), false);
-  assert.match(b.app.textContent, /no longer paired/);
+  assert.match(b.app.textContent, /已解除配对/);
   assert.equal(b.timers.length, 1);
 });
 await check("tab removal clears view and prevents stale actions", async () => {
   const b = browser(); await b.connect();
   await b.message({ t: "tabs", tabs: [{ id: "t", title: "Tab", project: "Project", busy: true, hasAsk: true }] });
   await b.message(view()); await b.message({ t: "tabs", tabs: [] });
-  assert.ok(b.control("Send").disabled);
+  assert.ok(b.control("发送").disabled);
   assert.ok(!b.app.textContent.includes("<img user>"));
 });
 await check("push opt-in registers worker and sends subscription only on user gesture", async () => {
   const b = browser(); await b.connect(); await b.message({ t: "push-key", key: "AQID" });
   assert.equal(b.registrations.length, 0);
-  await b.button("Enable notifications").emit("click");
+  await b.button("开启通知").emit("click");
   assert.deepEqual(b.registrations, ["/sw.js"]);
   assert.deepEqual(b.frames.at(-1), { t: "push-subscribe", sub: { endpoint: "https://push.test", keys: { auth: "a", p256dh: "p" } } });
-  assert.equal(b.button("Enable notifications").disabled, true, "pending until ack");
+  assert.equal(b.button("开启通知").disabled, true, "pending until ack");
   await b.message({ t: "ack", reqId: null, kind: "push", ok: false, error: "bad subscription" });
-  assert.equal(b.button("Enable notifications").disabled, false, "failed ack re-enables button for retry");
-  await b.button("Enable notifications").emit("click");
+  assert.equal(b.button("开启通知").disabled, false, "failed ack re-enables button for retry");
+  await b.button("开启通知").emit("click");
   await b.message({ t: "ack", reqId: null, kind: "push", ok: true, error: null });
-  assert.ok(b.button("Notifications enabled").disabled, "enabled after positive ack");
+  assert.ok(b.button("通知已开启").disabled, "enabled after positive ack");
   b.sockets.at(-1).onclose({ code: 4401 });
-  assert.ok(b.button("Enable notifications"), "4401 revocation resets notification button label");
+  assert.ok(b.button("开启通知"), "4401 revocation resets notification button label");
   const tab = browser({ standalone: false }); await tab.connect(); await tab.message({ t: "push-key", key: "AQID" });
-  assert.ok(tab.button("Enable notifications").hidden);
+  assert.ok(tab.button("开启通知").hidden);
 });
 await check("service worker displays minimal payload and focuses selected tab or opens encoded URL", async () => {
   const handlers = {}, shown = [], opened = [], navigated = [];
@@ -391,21 +405,21 @@ await check("opening a tab jumps to the end; new content keeps it pinned", async
   root.scrollHeight = 1400;
   await b.message({ t: "view", view: { ...view().view, messages: [...view().view.messages, { id: "b", role: "assistant", text: "more" }] } });
   assert.equal(root.scrollTop, 900, "a pinned view follows new content");
-  assert.equal(b.button("↓ Newest").hidden, true);
+  assert.equal(b.button("↓ 最新").hidden, true);
 });
 await check("scrolling up keeps the position and shows ↓ Newest, which jumps back", async () => {
   const b = browser(); await b.connect();
   const root = b.scrollBox;
   await b.message(view());
   root.scrollTop = 100; root.listeners.scroll();
-  assert.equal(b.button("↓ Newest").hidden, false);
+  assert.equal(b.button("↓ 最新").hidden, false);
   root.scrollHeight = 1400;
   await b.message({ t: "view", view: { ...view().view, messages: [...view().view.messages, { id: "b", role: "assistant", text: "more" }] } });
   assert.equal(root.scrollTop, 100, "an unpinned reader is not moved");
-  assert.equal(b.button("↓ Newest").hidden, false);
-  await b.button("↓ Newest").emit("click");
+  assert.equal(b.button("↓ 最新").hidden, false);
+  await b.button("↓ 最新").emit("click");
   assert.equal(root.scrollTop, 900);
-  assert.equal(b.button("↓ Newest").hidden, true);
+  assert.equal(b.button("↓ 最新").hidden, true);
 });
 await check("switching to another tab jumps to its end even when scrolled up", async () => {
   const b = browser(); await b.connect();
@@ -414,7 +428,7 @@ await check("switching to another tab jumps to its end even when scrolled up", a
   root.scrollTop = 100; root.listeners.scroll();
   await b.message({ t: "view", view: { ...view().view, tabId: "other" } });
   assert.equal(root.scrollTop, 500);
-  assert.equal(b.button("↓ Newest").hidden, true);
+  assert.equal(b.button("↓ 最新").hidden, true);
 });
 await check("dialog asks send one answer per question with options or custom text", async () => {
   const b = browser(); await b.connect();
@@ -423,14 +437,14 @@ await check("dialog asks send one answer per question with options or custom tex
     { id: "b", question: "Pick any", options: [{ label: "P" }, { label: "Q" }], multi: true },
   ];
   await b.message({ t: "view", view: { ...view().view, asks: [{ id: "d", kind: "dialog", title: "T", message: "", questions }] } });
-  await b.button("Answer").emit("click");
+  await b.button("提交").emit("click");
   assert.ok(b.frames.every(f => f.kind !== "answer"), "an unanswered pick-one question is not sent");
   await b.button("X").emit("click"); await b.button("P").emit("click"); await b.button("Q").emit("click");
   assert.equal(b.button("X")["aria-checked"], "true");
   assert.equal(b.button("Y")["aria-checked"], "false");
   const text = b.nodes().filter(n => n.tagName === "input")[0];
   text.value = " custom "; await text.emit("input");
-  await b.button("Answer").emit("click");
+  await b.button("提交").emit("click");
   assert.deepEqual(b.frames.at(-1).value, [
     { id: "a", selectedOptions: [], customInput: "custom" },
     { id: "b", selectedOptions: ["P", "Q"] },
@@ -441,7 +455,7 @@ await check("pick-any answers keep option order whatever order the buttons were 
   const questions = [{ id: "b", question: "Pick any", options: [{ label: "P" }, { label: "Q" }, { label: "R" }], multi: true }];
   await b.message({ t: "view", view: { ...view().view, asks: [{ id: "d", kind: "dialog", title: "T", message: "", questions }] } });
   await b.button("R").emit("click"); await b.button("P").emit("click"); await b.button("Q").emit("click");
-  await b.button("Answer").emit("click");
+  await b.button("提交").emit("click");
   assert.deepEqual(b.frames.at(-1).value, [{ id: "b", selectedOptions: ["P", "Q", "R"] }]);
 });
 // Rust's build_action drops a frame without a non-empty reqId, so every
@@ -453,10 +467,10 @@ await check("every select and action frame carries a unique non-empty reqId", as
   await b.button("Two").emit("click");
   await b.message({ t: "view", view: { ...view().view, tabId: "u" } });
   const draft = b.nodes().find(n => n.tagName === "textarea");
-  draft.value = "hello"; await draft.emit("input"); await b.control("Send").emit("click");
+  draft.value = "hello"; await draft.emit("input"); await b.control("发送").emit("click");
   await b.message({ t: "view", view: { ...view().view, tabId: "u", busy: true } });
-  await b.control("Stop").emit("click");
-  await b.button("Confirm").emit("click");
+  await b.control("停止").emit("click");
+  await b.button("确认").emit("click");
   const sent = b.frames.filter(f => f.t === "select" || f.t === "action");
   assert.ok(sent.filter(f => f.t === "select").length >= 2, "connect and tab click both select");
   assert.ok(sent.some(f => f.kind === "prompt") && sent.some(f => f.kind === "answer"));
@@ -469,18 +483,18 @@ await check("clicking the active tab keeps its view; another tab clears it until
   await b.message(view());
   await b.button("One").emit("click");
   assert.ok(b.app.textContent.includes("<img user>"), "the view stays");
-  assert.equal(b.control("Send").disabled, true, "idle with an empty draft cannot send");
+  assert.equal(b.control("发送").disabled, true, "idle with an empty draft cannot send");
   const draft = b.nodes().find(n => n.tagName === "textarea");
   draft.value = "hi"; await draft.emit("input");
-  assert.equal(b.control("Send").disabled, false, "a draft enables send");
+  assert.equal(b.control("发送").disabled, false, "a draft enables send");
   draft.value = ""; await draft.emit("input");
   await b.button("Two").emit("click");
   assert.ok(!b.app.textContent.includes("<img user>"));
-  assert.ok(b.control("Send").disabled);
+  assert.ok(b.control("发送").disabled);
   const selectReq = b.frames.filter(f => f.t === "select").at(-1).reqId;
   await b.message({ t: "ack", reqId: selectReq, ok: false, error: "tab not available" });
   assert.ok(b.app.textContent.includes("<img user>"), "failed select ack restores the previous tab view");
-  draft.value = "recover me"; await draft.emit("input"); await b.control("Send").emit("click");
+  draft.value = "recover me"; await draft.emit("input"); await b.control("发送").emit("click");
   const promptReq = b.frames.filter(f => f.t === "action").at(-1).reqId;
   assert.equal(draft.value, "");
   await b.message({ t: "ack", reqId: promptReq, ok: false, error: "desktop could not deliver" });
@@ -529,25 +543,25 @@ await check("scan: cancel stops the camera and shows the pair button again", asy
   let stopped = 0;
   b.ctx.navigator.mediaDevices = { getUserMedia: async () => ({ getTracks: () => [{ stop: () => stopped++ }] }) };
   await flush();
-  await b.button("Pair with your desktop").emit("click");
+  await b.button("与桌面端配对").emit("click");
   await flush();
-  assert.equal(b.button("Pair with your desktop").hidden, true);
-  assert.equal(b.button("Cancel").hidden, false);
-  await b.button("Cancel").emit("click");
+  assert.equal(b.button("与桌面端配对").hidden, true);
+  assert.equal(b.button("取消").hidden, false);
+  await b.button("取消").emit("click");
   assert.equal(stopped, 1);
-  assert.equal(b.button("Pair with your desktop").hidden, false);
-  assert.equal(b.button("Cancel").hidden, true);
+  assert.equal(b.button("与桌面端配对").hidden, false);
+  assert.equal(b.button("取消").hidden, true);
 });
 await check("scan: denial in the installed app points to iOS settings, not Safari", async () => {
   const b = browser({ token: null });
   b.ctx.navigator.mediaDevices = { getUserMedia: async () => { throw new Error("denied"); } };
   await flush();
-  await b.button("Pair with your desktop").emit("click");
+  await b.button("与桌面端配对").emit("click");
   await flush();
   const hint = b.nodes().find(n => n.className === "scan-hint").textContent;
-  assert.match(hint, /iOS Settings/);
+  assert.match(hint, /iOS 设置/);
   assert.doesNotMatch(hint, /Safari/);
-  assert.equal(b.button("Pair with your desktop").hidden, false);
+  assert.equal(b.button("与桌面端配对").hidden, false);
 });
 await check("projectName keeps only the last path segment", () => {
   assert.equal(C.projectName("/Users/me/work/omp-desktop"), "omp-desktop");
@@ -623,8 +637,8 @@ await check("sheet lists every tab with folder and dot, highlights the active on
   assert.ok(rows[0].className.includes("active")); assert.ok(!rows[1].className.includes("active"));
   assert.equal(rows[0]["aria-current"], "true");
   assert.ok(rows[1].textContent.includes("side") && rows[1].textContent.includes("?"));
-  assert.ok(sheet.textContent.includes("OMP Remote") && sheet.textContent.includes("Connected"));
-  assert.ok(descendants(sheet).includes(b.button("Enable notifications")), "notifications live in the sheet");
+  assert.ok(sheet.textContent.includes("OMP 远程") && sheet.textContent.includes("已连接"));
+  assert.ok(descendants(sheet).includes(b.button("开启通知")), "notifications live in the sheet");
   assert.ok(!b.app.children.some(c => c.tagName === "nav"), "the old tab tiles are gone");
 });
 const deferred = () => { let resolve, reject; const promise = new Promise((a, b) => { resolve = a; reject = b; }); return { promise, resolve, reject }; };
@@ -634,20 +648,20 @@ await check("scan race: a camera that arrives after Cancel is stopped and no den
   const b = browser({ token: null }); const counter = { stopped: 0 }; const gum = deferred();
   b.ctx.navigator.mediaDevices = { getUserMedia: () => gum.promise };
   await flush();
-  b.button("Pair with your desktop").emit("click");
-  await b.button("Cancel").emit("click");
+  b.button("与桌面端配对").emit("click");
+  await b.button("取消").emit("click");
   gum.resolve(fakeStream(counter)); await flush();
   assert.equal(counter.stopped, 1, "the late stream's tracks are stopped");
-  assert.equal(b.button("Pair with your desktop").hidden, false);
-  assert.equal(b.button("Cancel").hidden, true);
+  assert.equal(b.button("与桌面端配对").hidden, false);
+  assert.equal(b.button("取消").hidden, true);
   assert.equal(scanHint(b), "", "no hint after cancel");
 });
 await check("scan race: a late camera error after Cancel shows no denial; Cancel during play stops once", async () => {
   const b = browser({ token: null }); const gum = deferred();
   b.ctx.navigator.mediaDevices = { getUserMedia: () => gum.promise };
   await flush();
-  b.button("Pair with your desktop").emit("click");
-  await b.button("Cancel").emit("click");
+  b.button("与桌面端配对").emit("click");
+  await b.button("取消").emit("click");
   gum.reject(new Error("denied")); await flush();
   assert.equal(scanHint(b), "");
   const counter = { stopped: 0 }, play = deferred();
@@ -655,25 +669,25 @@ await check("scan race: a late camera error after Cancel shows no denial; Cancel
   c.ctx.navigator.mediaDevices = { getUserMedia: async () => fakeStream(counter) };
   c.nodes().find(n => n.tagName === "video").play = () => play.promise;
   await flush();
-  c.button("Pair with your desktop").emit("click"); await flush();
-  await c.button("Cancel").emit("click");
+  c.button("与桌面端配对").emit("click"); await flush();
+  await c.button("取消").emit("click");
   assert.equal(counter.stopped, 1);
   play.reject(new Error("AbortError")); await flush();
   assert.equal(counter.stopped, 1);
   assert.equal(scanHint(c), "");
-  assert.equal(c.button("Pair with your desktop").hidden, false);
+  assert.equal(c.button("与桌面端配对").hidden, false);
 });
 await check("scan race: a second Pair tap replaces the first scan without leaking a stream", async () => {
   const b = browser({ token: null }); const first = { stopped: 0 }, second = { stopped: 0 };
   const pending = [deferred(), deferred()]; let call = 0;
   b.ctx.navigator.mediaDevices = { getUserMedia: () => pending[call++].promise };
   await flush();
-  b.button("Pair with your desktop").emit("click");
-  b.button("Pair with your desktop").emit("click");
+  b.button("与桌面端配对").emit("click");
+  b.button("与桌面端配对").emit("click");
   pending[0].resolve(fakeStream(first)); pending[1].resolve(fakeStream(second)); await flush();
   assert.equal(first.stopped, 1, "the replaced scan's stream is stopped");
   assert.equal(second.stopped, 0, "the live scan keeps its camera");
-  await b.button("Cancel").emit("click");
+  await b.button("取消").emit("click");
   assert.equal(second.stopped, 1);
 });
 await check("trackShown keys rows by id, else role and text, and tracks open asks", () => {
@@ -708,3 +722,5 @@ await check("production-shaped synthetic ids: a row whose index shifts keeps its
   assert.equal(C.messageKey({ id: "real", role: "user", text: "a" }), "id:real", "a real id still wins");
 });
 console.log(`remote-client: ${passed} checks passed`);
+
+

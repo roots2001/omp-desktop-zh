@@ -87,8 +87,8 @@
    *  has a copy button) that its own text cannot close
    *  (app/marked-setup.js `fenceCode`). */
   function failureNote(kind, error, text) {
-    const what = kind === "steering" ? "Steer" : "Follow-up";
-    const head = `**${what} not sent:** ${error}`;
+    const what = kind === "steering" ? "插话" : "后续消息";
+    const head = `**${what}未发送：** ${error}`;
     return text ? `${head}\n\n${window.OMP_MARKDOWN.fenceCode(text)}` : head;
   }
 

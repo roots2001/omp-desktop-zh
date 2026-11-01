@@ -44,7 +44,6 @@
     "foldTools": null,
     "collapseAfter": 5,
     "followOutput": true,
-    "updateCheck": true,
     "skippedUpdate": null,
     "sidebar": true,
     "sidebarWidth": 0,
@@ -119,13 +118,13 @@
   // omp's thinking levels, lowest first, with its own descriptions
   // (packages/tui/src/thinking.ts, THINKING_LEVEL_METADATA).
   const THINKING_LEVELS = {
-    off:     { hint: "no reasoning" },
-    minimal: { hint: "very brief reasoning (~1k tokens)" },
-    low:     { hint: "light reasoning (~2k tokens)" },
-    medium:  { hint: "moderate reasoning (~8k tokens)" },
-    high:    { hint: "deep reasoning (~16k tokens)" },
-    xhigh:   { hint: "extended reasoning (~32k tokens)" },
-    max:     { hint: "maximum reasoning the model supports" },
+    off:     { hint: "无推理" },
+    minimal: { hint: "极简推理（约 1k token）" },
+    low:     { hint: "轻度推理（约 2k token）" },
+    medium:  { hint: "中等推理（约 8k token）" },
+    high:    { hint: "深度推理（约 16k token）" },
+    xhigh:   { hint: "扩展推理（约 32k token）" },
+    max:     { hint: "模型支持的最大推理量" },
   };
 
   Object.assign(window, {

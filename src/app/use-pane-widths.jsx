@@ -20,10 +20,10 @@ const {
 // Per pane: its tweak, the handle's label and the side of the pane the
 // handle sits on.
 const _PW_UI = {
-  sidebar: { tweak: "sidebarWidth", label: "resize project sidebar", edge: "right" },
-  split: { tweak: "splitWidth", label: "resize subagent pane", edge: "left" },
-  rail: { tweak: "railWidth", label: "resize ambient rail", edge: "left" },
-  tree: { tweak: "treeWidth", label: "resize conversation tree", edge: "left" },
+  sidebar: { tweak: "sidebarWidth", label: "调整项目侧边栏宽度", edge: "right" },
+  split: { tweak: "splitWidth", label: "调整子智能体面板宽度", edge: "left" },
+  rail: { tweak: "railWidth", label: "调整环境侧栏宽度", edge: "left" },
+  tree: { tweak: "treeWidth", label: "调整对话树宽度", edge: "left" },
 };
 const _PW_RESET = { browserWidth: 0 };
 for (const { tweak } of Object.values(_PW_UI)) _PW_RESET[tweak] = 0;

@@ -55,15 +55,15 @@ check("menu: a stored listed program is checked, Windows paths ignoring case and
 
 check("menu: a stored path outside the list is appended once, marked other", () => {
   const m = P.menu({ stored: "/home/me/bin/fish", name, fallback, installed });
-  assert.deepEqual(m.rows.at(-1), { name: "fish", hint: "other", path: "/home/me/bin/fish", value: "/home/me/bin/fish", checked: true });
+  assert.deepEqual(m.rows.at(-1), { name: "fish", hint: "其他", path: "/home/me/bin/fish", value: "/home/me/bin/fish", checked: true });
   assert.deepEqual(checkedOf(m), ["fish"]);
   assert.equal(m.label, "fish");
 });
 
 check("menu: with nothing stored and nothing found the label is the fallback's name", () => {
-  const m = P.menu({ stored: "", name, fallback: { name: "automatic", hint: "none found", path: "" }, installed: [] });
-  assert.equal(m.label, "automatic");
-  assert.deepEqual(m.rows, [{ name: "automatic", hint: "none found", path: "", value: "", checked: true }]);
+  const m = P.menu({ stored: "", name, fallback: { name: "自动", hint: "未找到", path: "" }, installed: [] });
+  assert.equal(m.label, "自动");
+  assert.deepEqual(m.rows, [{ name: "自动", hint: "未找到", path: "", value: "", checked: true }]);
 });
 
 console.log(`path-setting: ${passed} checks passed`);

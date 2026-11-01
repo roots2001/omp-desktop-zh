@@ -42,7 +42,7 @@ function GitFileView({ path, file, error, commit, onStage, onDiscard }) {
   if (!path) {
     return (
       <div className="gitb-pane gitb-view">
-        <div className="gitb-empty tall">select a file</div>
+        <div className="gitb-empty tall">选择一个文件</div>
       </div>
     );
   }
@@ -70,29 +70,29 @@ function GitFileView({ path, file, error, commit, onStage, onDiscard }) {
             <span style={{ color: "var(--diff-rm-fg)" }}>−{file.rems}</span>
           </span>
         )}
-        {file?.truncated && <span className="gitb-chip" title="cut at the view cap: lines past 20 000 or a line's characters past 500">truncated</span>}
+        {file?.truncated && <span className="gitb-chip" title="已达查看上限：超过 20 000 行，或单行字符超过 500">已截断</span>}
         {hunks.length > 0 && (
           <span className="gitb-hunks">
-            <button type="button" className="btn ghost icon" onClick={() => jump(shown - 1)} aria-label="previous change"><_GV_Icon name="arrowUp" size={11} /></button>
+            <button type="button" className="btn ghost icon" onClick={() => jump(shown - 1)} aria-label="上一处改动"><_GV_Icon name="arrowUp" size={11} /></button>
             <span>{shown + 1}/{hunks.length}</span>
-            <button type="button" className="btn ghost icon" onClick={() => jump(shown + 1)} aria-label="next change"><_GV_Icon name="chev" size={11} /></button>
+            <button type="button" className="btn ghost icon" onClick={() => jump(shown + 1)} aria-label="下一处改动"><_GV_Icon name="chev" size={11} /></button>
           </span>
         )}
         {actions && <>
-          <button type="button" className="btn ghost gitb-act" onClick={onStage} title="git add"><_GV_Icon name="check" size={11} /> stage</button>
-          <button type="button" className="btn ghost gitb-act danger" onClick={onDiscard} title="restore from HEAD"><_GV_Icon name="trash" size={11} /> discard</button>
+          <button type="button" className="btn ghost gitb-act" onClick={onStage} title="git add"><_GV_Icon name="check" size={11} /> 暂存</button>
+          <button type="button" className="btn ghost gitb-act danger" onClick={onDiscard} title="从 HEAD 恢复"><_GV_Icon name="trash" size={11} /> 丢弃</button>
         </>}
-        {copyText && <_GV_Copy className="gitb-copy" label="Copy diff" text={copyText} />}
+        {copyText && <_GV_Copy className="gitb-copy" label="复制差异" text={copyText} />}
       </div>
       <div className="gitb-view-body mono selectable" ref={bodyRef}>
         {/* A refetch (refresh, stage, discard) keeps the previous content in
             view; "loading…" only when there is nothing to show yet. */}
-        {!file && !error && <div className="gitb-empty tall">loading…</div>}
+        {!file && !error && <div className="gitb-empty tall">加载中…</div>}
         {error && <div className="gitb-empty tall gitb-error">{error}</div>}
-        {file?.kind === "Binary" && <div className="gitb-empty tall">binary file</div>}
-        {file?.kind === "TooLarge" && <div className="gitb-empty tall">file larger than the 2 MiB view cap</div>}
+        {file?.kind === "Binary" && <div className="gitb-empty tall">二进制文件</div>}
+        {file?.kind === "TooLarge" && <div className="gitb-empty tall">文件超过 2 MiB 查看上限</div>}
         {file?.kind === "Missing" && (
-          <div className="gitb-empty tall">{commit ? "not in this commit" : "no such file in the working tree or HEAD"}</div>
+          <div className="gitb-empty tall">{commit ? "不在本次提交中" : "工作区和 HEAD 中都没有这个文件"}</div>
         )}
         {lines && (
           <div className="gitb-lines">
@@ -106,7 +106,7 @@ function GitFileView({ path, file, error, commit, onStage, onDiscard }) {
             ))}
           </div>
         )}
-        {lines && lines.length === 0 && <div className="gitb-empty">empty file</div>}
+        {lines && lines.length === 0 && <div className="gitb-empty">空文件</div>}
       </div>
     </div>
   );

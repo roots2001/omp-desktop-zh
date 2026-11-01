@@ -17,6 +17,7 @@ const { Icon: _UpdIcon } = window;
 function UpdateModal({ updater, busyTabs }) {
   const U = window.OMP_UPDATER;
   const { state, version, close } = updater;
+  const inAppUpdates = U.IN_APP_UPDATES;
   const { phase, update, progress, error } = state;
   const pct = U.progressPct(progress);
   const inFlight = U.isInstalling(state);
@@ -58,22 +59,23 @@ function UpdateModal({ updater, busyTabs }) {
       <div className="update-panel" ref={panelRef} tabIndex={-1} onClick={e => e.stopPropagation()}>
         <div className="update-head">
           <_UpdIcon name="arrowUp" size={13} color="var(--accent)" />
-          <span className="mono" style={{ color: "var(--fg-2)" }}>updates · OMP Desktop {version ? `v${version}` : ""}</span>
-          <button className="btn icon ghost" style={{ marginLeft: "auto" }} title="check again"
-            onClick={updater.check} disabled={U.isBusy(state)}>
+          <span className="mono" style={{ color: "var(--fg-2)" }}>更新 · OMP Desktop {version ? `v${version}` : ""}</span>
+          <button className="btn icon ghost" style={{ marginLeft: "auto" }} title={inAppUpdates ? "重新检查" : "打开发行页面"}
+            onClick={inAppUpdates ? updater.check : updater.openRelease} disabled={U.isBusy(state)}>
             <_UpdIcon name="refresh" size={11} />
           </button>
           {!inFlight && (
-            <button className="btn icon ghost" onClick={close} title="close">
+            <button className="btn icon ghost" onClick={close} title="关闭">
               <_UpdIcon name="close" size={11} />
             </button>
           )}
         </div>
 
         <div className="update-body">
-          {phase === "idle" && <div className="panel-empty mono">not checked yet</div>}
-          {phase === "checking" && !update && <div className="panel-empty mono">checking for updates…</div>}
-          {phase === "uptodate" && <div className="panel-empty mono">you're on the latest version</div>}
+          {phase === "idle" && !inAppUpdates && <div className="panel-empty mono">{`中文版没有配置应用内更新源。请在发行页面下载新版安装包。`}</div>}
+          {phase === "idle" && inAppUpdates && <div className="panel-empty mono">尚未检查</div>}
+          {phase === "checking" && !update && <div className="panel-empty mono">正在检查更新…</div>}
+          {phase === "uptodate" && <div className="panel-empty mono">已是最新版本</div>}
           {phase === "error" && <div className="panel-empty mono update-error">{error}</div>}
 
           {update && (
@@ -81,21 +83,19 @@ function UpdateModal({ updater, busyTabs }) {
               <div className="update-title">
                 <span className="mono" style={{ color: "var(--accent)" }}>v{update.version}</span>
                 <span className="mono" style={{ color: "var(--fg-4)" }}>
-                  available{update.date ? ` · ${update.date.slice(0, 10)}` : ""}
+                  可用{update.date ? ` · ${update.date.slice(0, 10)}` : ""}
                 </span>
               </div>
               {update.notes && <pre className="update-notes selectable">{update.notes}</pre>}
               {error && <div className="update-error mono">{error}</div>}
               {!update.canInstall && (
                 <div className="update-hint mono">
-                  This installation is managed outside the app (system package or source build) —
-                  download the new version from the release page.
+                  此安装由应用之外的方式管理（系统包或源码构建）——请从发行页面下载新版本。
                 </div>
               )}
               {update.canInstall && busyTabs > 0 && !inFlight && (
                 <div className="update-hint mono">
-                  {busyTabs === 1 ? "1 tab is" : `${busyTabs} tabs are`} still working — restarting interrupts
-                  {busyTabs === 1 ? " it" : " them"} (unfinished turns and background jobs are lost).
+                  {busyTabs} 个标签页仍在运行——重启会中断它们（未完成的回合和后台作业将丢失）。
                 </div>
               )}
               {inFlight && (
@@ -107,7 +107,7 @@ function UpdateModal({ updater, busyTabs }) {
                   </span>
                   <span className="mono" style={{ color: "var(--fg-3)" }}>
                     {phase === "restarting"
-                      ? "restarting…"
+                      ? "正在重启…"
                       : `${U.formatBytes(progress?.downloaded ?? 0)}${progress?.total ? ` / ${U.formatBytes(progress.total)}` : ""}`}
                   </span>
                 </div>
@@ -118,21 +118,21 @@ function UpdateModal({ updater, busyTabs }) {
 
         {update && !inFlight && (
           <div className="update-foot">
-            <button className="btn ghost" onClick={updater.skip} title="hide the notice until a newer version">skip this version</button>
+            <button className="btn ghost" onClick={updater.skip} title="在新版本发布前不再提示">跳过此版本</button>
             <div style={{ flex: 1 }} />
-            <button className="btn ghost" onClick={close}>later</button>
+            <button className="btn ghost" onClick={close}>稍后</button>
             {update.canInstall ? (
               <>
                 <button className="btn outlined" onClick={updater.openRelease}>
-                  <_UpdIcon name="external" size={11} /> release page
+                  <_UpdIcon name="external" size={11} /> 发行页面
                 </button>
                 <button className="btn primary" onClick={updater.install} disabled={!U.canStartInstall(state)}>
-                  install &amp; restart
+                  安装并重启
                 </button>
               </>
             ) : (
               <button className="btn primary" onClick={updater.openRelease}>
-                <_UpdIcon name="external" size={11} /> open release page
+                <_UpdIcon name="external" size={11} /> 打开发行页面
               </button>
             )}
           </div>

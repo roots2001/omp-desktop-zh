@@ -126,7 +126,7 @@
   // null (cancel) is always allowed. Returns an error text or null.
   function invalidAnswer(ask, value) {
     if (value === null) return null;
-    const bad = "invalid answer";
+    const bad = "回答无效";
     switch (ask.kind) {
       case "confirm": return typeof value === "boolean" ? null : bad;
       case "select": {
@@ -154,10 +154,10 @@
     const activeTab = () => bridge.activeSessionId !== undefined ? bridge.activeSessionId : getSnapshot()?.activeSessionId;
     const refusal = (action, enqueuedAt) => {
       const status = getStatus();
-      if (!status?.listening) return "remote access disabled";
-      if (!status.devices?.some(device => device.id === action.deviceId && device.connected)) return "device revoked";
+      if (!status?.listening) return "远程访问已关闭";
+      if (!status.devices?.some(device => device.id === action.deviceId && device.connected)) return "设备已被撤销";
       const startedAt = typeof action.dispatchedAt === "number" ? Math.min(enqueuedAt, action.dispatchedAt) : enqueuedAt;
-      return Date.now() - startedAt > ACTION_MAX_AGE_MS ? "expired" : null;
+      return Date.now() - startedAt > ACTION_MAX_AGE_MS ? "已过期" : null;
     };
     async function ensureTab(action, enqueuedAt) {
       if (typeof bridge.waitForActivation === "function") await bridge.waitForActivation();
@@ -165,14 +165,14 @@
         try {
           await bridge.activateSession(action.tabId);
         } catch {
-          throw new Error("tab not available");
+          throw new Error("标签页不可用");
         }
       }
       if (typeof bridge.waitForActivation === "function") await bridge.waitForActivation();
       const reason = refusal(action, enqueuedAt);
       if (reason) throw new Error(reason);
       if (!action.tabId || activeTab() !== action.tabId || getSnapshot()?.activeSessionId !== action.tabId) {
-        throw new Error("tab not available");
+        throw new Error("标签页不可用");
       }
     }
     async function execute(action, enqueuedAt) {
@@ -189,20 +189,20 @@
         const deliver = async call => {
           if (typeof bridge.waitForActivation === "function") await bridge.waitForActivation();
           guard();
-          if (activeTab() !== tabId || getSnapshot()?.activeSessionId !== tabId) throw new Error("tab not available");
+          if (activeTab() !== tabId || getSnapshot()?.activeSessionId !== tabId) throw new Error("标签页不可用");
           let result;
-          try { result = await call(); } catch { throw new Error("desktop could not deliver"); }
-          if (result === false) throw new Error("desktop could not deliver");
+          try { result = await call(); } catch { throw new Error("桌面端未能送达"); }
+          if (result === false) throw new Error("桌面端未能送达");
           if (result?.ok === false) throw new Error(result.error);
         };
         switch (kind) {
           case "select": break;
           case "prompt":
-            if (!nonBlank(action.text)) throw new Error("invalid text");
+            if (!nonBlank(action.text)) throw new Error("文本无效");
             await deliver(() => getSnapshot().isStreaming ? bridge.steer(action.text) : bridge.send(action.text));
             break;
           case "steer":
-            if (!nonBlank(action.text)) throw new Error("invalid text");
+            if (!nonBlank(action.text)) throw new Error("文本无效");
             await deliver(() => bridge.steer(action.text)); break;
           case "abort": await deliver(() => bridge.abort()); break;
           case "answer": {
@@ -211,19 +211,19 @@
             while (true) {
               guard();
               const snapshot = getSnapshot();
-              if (activeTab() !== tabId || snapshot?.activeSessionId !== tabId) throw new Error("tab not available");
+              if (activeTab() !== tabId || snapshot?.activeSessionId !== tabId) throw new Error("标签页不可用");
               ask = (snapshot.messages ?? []).map(askCard).find(q => q?.id === action.askId);
               if (ask || Date.now() >= deadline) break;
               await new Promise(resolve => setTimeout(resolve, 100));
             }
-            if (!ask) throw new Error("question no longer open");
+            if (!ask) throw new Error("问题已关闭");
             const invalid = invalidAnswer(ask, action.value);
             if (invalid) throw new Error(invalid);
             const call = answerCall(ask, action.value);
             await deliver(() => bridge[call.method](...call.args));
             break;
           }
-          default: throw new Error("unknown remote action");
+          default: throw new Error("未知的远程操作");
         }
         await bridge.remoteActionResult(reqId, true);
       } catch (error) {

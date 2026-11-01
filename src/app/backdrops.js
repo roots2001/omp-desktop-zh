@@ -13,12 +13,12 @@
 // test-backdrops.mjs.
 (function () {
   const SCREENS = Object.freeze([
-    { id: "matrix", label: "Matrix", blurb: "digital rain" },
-    { id: "latent", label: "Latent space", blurb: "embeddings + retrieval" },
-    { id: "sampling", label: "Next token", blurb: "top-k sampling" },
-    { id: "orbit", label: "Agent loop", blurb: "tool calls in orbit" },
-    { id: "neural", label: "Forward pass", blurb: "activations firing" },
-    { id: "attention", label: "Attention", blurb: "multi-head self-attention" },
+    { id: "matrix", label: "矩阵雨", blurb: "数字雨" },
+    { id: "latent", label: "潜空间", blurb: "嵌入 + 检索" },
+    { id: "sampling", label: "下一个 token", blurb: "top-k 采样" },
+    { id: "orbit", label: "智能体循环", blurb: "轨道上的工具调用" },
+    { id: "neural", label: "前向传播", blurb: "激活值激发" },
+    { id: "attention", label: "注意力", blurb: "多头自注意力" },
   ]);
 
   // ── shared math ──────────────────────────────────────────────────────

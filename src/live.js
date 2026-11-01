@@ -39,12 +39,12 @@
     activity: [],
     ctx: { used: 0, total: 200000, pct: 0, label: "0 / 200k", cost: "$0.00", tokensPerSec: 0 },
     microcopy: {
-      empty:        "Hand me a project. I'll set the table.",
-      streamingTip: "Press ⎋ to interrupt — your cursor is in the room.",
-      paletteTip:   "type / to give orders · ⌘K opens the bridge",
-      planTip:      "describe what to build, or give feedback on the plan…",
-      todoEmpty:    "no plan yet. think out loud below.",
-      radarHint:    "agent has been busy — last 60 seconds",
+      empty:        "把项目交给我，我来摆好桌子。",
+      streamingTip: "按 ⎋ 打断——光标就在输入框里。",
+      paletteTip:   "输入 / 下达指令 · ⌘K 打开命令面板",
+      planTip:      "描述要做什么，或对计划给出反馈…",
+      todoEmpty:    "还没有计划。在下面说说你的想法。",
+      radarHint:    "智能体忙碌度——最近 60 秒",
     },
   };
 
@@ -289,7 +289,7 @@
     let commandId = null;
     const response = new Promise((resolve, reject) => {
       if (!window.__TAURI__ || !activeSessionId) {
-        reject(new Error("Not connected"));
+        reject(new Error("未连接"));
         return;
       }
       const id = commandId = `${idPrefix}${_nextCmdId++}`;
@@ -456,7 +456,7 @@
   // of swallowing it: resolves to `{ok: true, value}` or `{ok: false, error}`
   // (an error string meant for display).
   async function _invokeResult(cmd, args) {
-    if (!window.__TAURI__) return { ok: false, error: "not connected" };
+    if (!window.__TAURI__) return { ok: false, error: "未连接" };
     try {
       return { ok: true, value: await window.__TAURI__.core.invoke(cmd, args) };
     } catch (err) {
@@ -716,12 +716,12 @@
     }
     const flag = profileId && profileId !== DEFAULT_PROFILE_ID ? ` --profile ${profileId}` : "";
     return [
-      "**This profile has no model credentials yet.**",
+      "**这个配置还没有模型凭据。**",
       "",
-      "omp's RPC mode refuses to start without a usable model, so this tab has no agent —"
-        + " which is also why `/login` and the provider list do nothing here.",
+      "omp 的 RPC 模式没有可用模型就拒绝启动，所以这个标签页没有智能体——"
+        + " 这也是这里 `/login` 和供应商列表都无效的原因。",
       "",
-      "Log in once from a terminal, then reopen the tab:",
+      "先在终端登录一次，再重新打开标签页：",
       "",
       "```",
       `omp${flag}`,
@@ -800,7 +800,7 @@
     // Its extensions died with it; the backend's copy ended with the entry.
     _cancelLiveRequests();
     state.liveVoice = LIVE.apply(state.liveVoice, { type: "process_exit", error: state.exitReason });
-    if (state.dictation.active) _finishDictation({ type: "process_exit", error: state.exitReason || "The omp process ended during voice to text" });
+    if (state.dictation.active) _finishDictation({ type: "process_exit", error: state.exitReason || "语音转文字过程中 omp 进程已退出" });
     _cancelDictationRequests();
     state.extWidgets = EXT.EMPTY;
   }
@@ -1410,7 +1410,7 @@
    *  Shared by in-process `new_session` and a profile switch's respawn. */
   function _freshConversationFields(entry) {
     return {
-      name: _tabNameFor(entry.path, "new session"),
+      name: _tabNameFor(entry.path, "新会话"),
       sessionFile: null,
       autoRenameArmed: true,
       autoRenameInFlight: false,
@@ -1433,10 +1433,10 @@
    *  in test-live-voice.mjs; the remaining ordering relies on the comments
    *  at each await and the pure profile/approval-mode decisions. */
   async function _respawnSession(id, { profile, resume = null, fresh = false }) {
-    if (!window.__TAURI__) return { ok: false, error: "not connected" };
+    if (!window.__TAURI__) return { ok: false, error: "未连接" };
     const entry = sessionRegistry.get(id);
-    if (!entry) return { ok: false, error: "unknown tab" };
-    const what = fresh ? "Profile switch" : "Approval mode change";
+    if (!entry) return { ok: false, error: "未知标签页" };
+    const what = fresh ? "配置切换" : "审批模式变更";
     // Re-entrancy: this call spans two awaits, and a second respawn of the
     // same tab would read `wasActive` as false (call 1 already nulled the
     // active slot), so it would never re-activate or `_initFetch` the
@@ -1444,14 +1444,14 @@
     // opening envelopes were all dropped as `seq <= lastSeq` against the
     // previous incarnation's journal.
     if (_respawning.has(id)) {
-      return { ok: false, error: "omp is already restarting in this tab" };
+      return { ok: false, error: "omp 正在这个标签页里重启" };
     }
     _respawning.add(id);
     try {
       if (id === activeSessionId && (state.dictation.active || _dictationStopPending)) {
         const stopped = await _dictationStop();
         if (!stopped.ok && state.dictation.active) return stopped;
-        if (!sessionRegistry.has(id)) return { ok: false, error: "tab closed" };
+        if (!sessionRegistry.has(id)) return { ok: false, error: "标签页已关闭" };
       }
       // Only a resumed coding conversation can retain its tab-local voice
       // history. Killing the process itself closes its native transport.
@@ -1474,7 +1474,7 @@
       // the user closed. `_killSessionProcess` above already released the
       // process and the git watcher, so bailing here leaks nothing.
       if (!sessionRegistry.has(id)) {
-        return { ok: false, error: "tab closed" };
+        return { ok: false, error: "标签页已关闭" };
       }
       // Both re-read *after* that round-trip, never before it. It is a real
       // IPC gap and `_respawning` only blocks re-entry for this id, so
@@ -1712,7 +1712,7 @@
     if (!activeSessionId || !sessionRegistry.has(activeSessionId)) return;
     const entry = sessionRegistry.get(activeSessionId);
     if (!entry.autoRenameInFlight) return;
-    const untitledLabel = _tabNameFor(entry.path, "new session");
+    const untitledLabel = _tabNameFor(entry.path, "新会话");
     const rearm = STITLE.shouldRearmAfterAbort(state.rpcState, entry.name, untitledLabel);
     sessionRegistry.set(activeSessionId, {
       ...entry,
@@ -1742,7 +1742,7 @@
   }) {
     _lastSessionMs = Math.max(Date.now(), _lastSessionMs + 1);
     const id = `session-${_lastSessionMs}`;
-    const tabName = name || _tabNameFor(cwd, resume ? "resumed" : "new session");
+    const tabName = name || _tabNameFor(cwd, resume ? "已恢复" : "新会话");
     const color = resume ? "var(--cyan)" : "var(--lilac)";
     // Register in tab list before starting omp so the tab shows immediately.
     // Register with null branch — chip hidden until git resolves. `repoRoot`:
@@ -1948,7 +1948,7 @@
       if (!saved) return;
       if (saved.skipped.length > 0) {
         notes.push(
-          "**Could not reopen tabs whose folder no longer exists:**\n\n" +
+          "**以下标签页的文件夹已不存在，未能重新打开：**\n\n" +
           saved.skipped.map(p => `- \`${p}\``).join("\n"),
         );
       }
@@ -1959,7 +1959,7 @@
           id = await _startProjectSession(cwd, { ...opts, activate: false, remember: false });
         } catch (e) {
           console.error(`[live] reopening tab '${cwd}' failed:`, e);
-          notes.push(`**Could not reopen ${tab.name || cwd || "a tab"}:** ${String(e?.message ?? e)}`);
+          notes.push(`**无法重新打开 ${tab.name || cwd || "标签页"}：** ${String(e?.message ?? e)}`);
           continue;
         }
         restored.push(id);
@@ -2249,7 +2249,7 @@
       const next = LIVE.apply(before, ev);
       if (next !== before) {
         state.liveVoice = next;
-        if (before.active && !next.active) _cancelLiveRequests(next.error || "Live voice ended");
+        if (before.active && !next.active) _cancelLiveRequests(next.error || "实时语音已结束");
         notify();
       }
       return;
@@ -2409,7 +2409,7 @@
       // {value: <text>} or {cancelled: true}.
       if (ev.method === "input") {
         state.messages = [...state.messages, _askMessage("input", ev, {
-          placeholder: ev.placeholder ?? "Enter value…",
+          placeholder: ev.placeholder ?? "输入值…",
         })];
         notify();
         return;
@@ -2843,7 +2843,7 @@
     const msg     = state.messages[realIdx];
     if (msg.blocks?.some(b => b.type === "plan")) return;
     const planBlock = {
-      type: "plan", title: "Plan",
+      type: "plan", title: "计划",
       phases: phases.map(ph => ({
         id: ph.name, label: ph.name,
         tasks: ph.tasks.map((t, i) => ({
@@ -3421,7 +3421,7 @@
    *  transcript is mid-turn); omp's own refusals (`session_busy`) arrive as
    *  the rejection's message. `text` is the branched prompt (empty for a fork). */
   async function _moveToNewFile(send) {
-    if (state.isStreaming) return { ok: false, error: "Wait for the current turn to finish." };
+    if (state.isStreaming) return { ok: false, error: "请等当前回合结束。" };
     let data;
     try {
       data = await send();
@@ -3486,7 +3486,7 @@
 
   // Live voice responses are tied to the process and call that sent them.
   // Invalidate them on stop, terminal event, close, or process replacement.
-  function _cancelLiveRequests(reason = "Live voice session ended") {
+  function _cancelLiveRequests(reason = "实时语音会话已结束") {
     ++_liveGen;
     for (const op of [_liveStartPending, _liveStopPending, _liveMutePending]) {
       op?.history?.cancel(reason);
@@ -3503,8 +3503,8 @@
   // Why the active tab cannot open a microphone now, or null when it can.
   // `otherBusy`: the other voice mode still holds or is releasing it.
   function _voiceStartRefusal(otherBusy, otherLabel) {
-    if (!window.__TAURI__ || !activeSessionId || !sessionRegistry.has(activeSessionId)) return "Not connected";
-    if (_replayBuffer || _switchAwayFrom === activeSessionId || _respawning.has(activeSessionId) || _closingVoiceTabs.has(activeSessionId)) return "Tab is not ready";
+    if (!window.__TAURI__ || !activeSessionId || !sessionRegistry.has(activeSessionId)) return "未连接";
+    if (_replayBuffer || _switchAwayFrom === activeSessionId || _respawning.has(activeSessionId) || _closingVoiceTabs.has(activeSessionId)) return "标签页尚未就绪";
     return otherBusy ? `${otherLabel} is active` : null;
   }
 
@@ -3516,13 +3516,13 @@
   }
 
   function _liveStart() {
-    const refusal = _voiceStartRefusal(state.dictation.active || !!_dictationStopPending, "Voice to text");
+    const refusal = _voiceStartRefusal(state.dictation.active || !!_dictationStopPending, "语音转文字");
     if (refusal) return Promise.resolve({ ok: false, error: refusal });
     if (state.liveVoice.active) {
       if (_liveStartPending && state.liveVoice.phase !== "stopping") return _liveStartPending.promise;
-      return Promise.resolve({ ok: false, error: state.liveVoice.phase === "stopping" ? "Live voice is stopping" : "Live voice is already active" });
+      return Promise.resolve({ ok: false, error: state.liveVoice.phase === "stopping" ? "实时语音正在停止" : "实时语音已在运行" });
     }
-    if (_liveStopPending) return Promise.resolve({ ok: false, error: "Live voice is stopping" });
+    if (_liveStopPending) return Promise.resolve({ ok: false, error: "实时语音正在停止" });
     const id = activeSessionId, gen = ++_liveGen, wasPaused = state.liveVoice.paused;
     state.liveVoice = LIVE.apply(state.liveVoice, { type: "start" });
     const op = { history: null, request: null, promise: null, acceptFrames: false };
@@ -3532,14 +3532,14 @@
         // Fetch omp's raw conversation every time: the desktop transcript can
         // be trimmed or miss activity that happened while this tab was away.
         const data = await (op.history = _sendWithResponse({ type: "get_messages" }, QUICK_CMD_TIMEOUT_MS, "live-history-"));
-        if (id !== activeSessionId || gen !== _liveGen || !state.liveVoice.active) return { ok: false, error: "Live voice session ended" };
-        if (!Array.isArray(data?.messages)) throw new Error("Invalid conversation history response");
+        if (id !== activeSessionId || gen !== _liveGen || !state.liveVoice.active) return { ok: false, error: "实时语音会话已结束" };
+        if (!Array.isArray(data?.messages)) throw new Error("对话历史响应无效");
         const instructions = window.OMP_LIVE_CONTEXT.instructions({ messages: data.messages, voice: state.liveVoice.transcripts, project: sessionRegistry.get(id)?.path || "" });
         op.request = _sendWithResponse({ type: "live_start", instructions }, 0);
         await op.request;
         op.acceptFrames = true;
         if (id !== activeSessionId || gen !== _liveGen || !state.liveVoice.active) {
-          return { ok: false, error: id === activeSessionId && state.liveVoice.error || "Live voice session ended" };
+          return { ok: false, error: id === activeSessionId && state.liveVoice.error || "实时语音会话已结束" };
         }
         return { ok: true };
       } catch (e) {
@@ -3568,21 +3568,21 @@
     // prevent the stop overtaking it. A history fetch never opens audio.
     const starting = _liveStartPending;
     const startHandoff = starting?.request?.handedOff;
-    starting?.history?.cancel("Live voice was stopped");
-    starting?.request?.cancel("Live voice was stopped");
-    _liveMutePending?.request.cancel("Live voice was stopped");
+    starting?.history?.cancel("实时语音已停止");
+    starting?.request?.cancel("实时语音已停止");
+    _liveMutePending?.request.cancel("实时语音已停止");
     state.liveVoice = LIVE.apply(state.liveVoice, { type: "stop" });
     const op = { request: null, promise: null };
     _liveStopPending = op;
     op.promise = (async () => {
       try {
         const sent = await (starting ? startHandoff || false : true);
-        if (id !== activeSessionId || gen !== _liveGen) return { ok: false, error: "Live voice session ended" };
+        if (id !== activeSessionId || gen !== _liveGen) return { ok: false, error: "实时语音会话已结束" };
         if (sent) {
           op.request = _sendWithResponse({ type: "live_stop" }, QUICK_CMD_TIMEOUT_MS);
           await op.request;
         }
-        if (id !== activeSessionId || gen !== _liveGen) return { ok: false, error: "Live voice session ended" };
+        if (id !== activeSessionId || gen !== _liveGen) return { ok: false, error: "实时语音会话已结束" };
         _voiceUpdate({ type: "stop_success", paused });
         return { ok: true };
       } catch (e) {
@@ -3598,10 +3598,10 @@
   function _livePause() { return _liveStop(true); }
 
   function _liveMute(muted) {
-    if (typeof muted !== "boolean") return Promise.resolve({ ok: false, error: "Mute requires a boolean" });
-    if (!state.liveVoice.active || state.liveVoice.phase === "stopping") return Promise.resolve({ ok: false, error: "No live voice session is active" });
+    if (typeof muted !== "boolean") return Promise.resolve({ ok: false, error: "静音参数必须是布尔值" });
+    if (!state.liveVoice.active || state.liveVoice.phase === "stopping") return Promise.resolve({ ok: false, error: "当前没有进行中的实时语音会话" });
     if (_liveMutePending) {
-      return _liveMutePending.muted === muted ? _liveMutePending.promise : Promise.resolve({ ok: false, error: "A mute change is already in progress" });
+      return _liveMutePending.muted === muted ? _liveMutePending.promise : Promise.resolve({ ok: false, error: "静音状态正在切换" });
     }
     const id = activeSessionId;
     const gen = _liveGen;
@@ -3611,7 +3611,7 @@
     op.promise = (async () => {
       try {
         const data = await request;
-        if (id !== activeSessionId || gen !== _liveGen || !state.liveVoice.active) return { ok: false, error: "Live voice session ended" };
+        if (id !== activeSessionId || gen !== _liveGen || !state.liveVoice.active) return { ok: false, error: "实时语音会话已结束" };
         _voiceUpdate({ type: "mute_success", muted: data?.muted });
         return { ok: true };
       } catch (e) {
@@ -3623,7 +3623,7 @@
     return op.promise;
   }
 
-  function _cancelDictationRequests(reason = "Voice to text ended") {
+  function _cancelDictationRequests(reason = "语音转文字已结束") {
     ++_dictationGen;
     _dictationStartPending?.request?.cancel(reason);
     _dictationStopPending?.request?.cancel(reason);
@@ -3647,18 +3647,18 @@
     if (next.text && sessionRegistry.has(activeSessionId)) {
       _dictationCompleted = [..._dictationCompleted, { sessionId: activeSessionId, captureId: before.captureId, text: next.text, send }];
     }
-    _dictationStartPending?.request?.cancel(next.error || "Voice to text ended");
+    _dictationStartPending?.request?.cancel(next.error || "语音转文字已结束");
     notify();
   }
 
   function _dictationStart() {
-    const refusal = _voiceStartRefusal(state.liveVoice.active || !!_liveStopPending, "Live conversation");
+    const refusal = _voiceStartRefusal(state.liveVoice.active || !!_liveStopPending, "实时语音");
     if (refusal) return Promise.resolve({ ok: false, error: refusal });
     if (state.dictation.active) {
       if (state.dictation.phase === "starting" && _dictationStartPending) return _dictationStartPending.promise;
-      return Promise.resolve({ ok: false, error: "Voice to text is already active" });
+      return Promise.resolve({ ok: false, error: "语音转文字已在运行" });
     }
-    if (_dictationStopPending) return Promise.resolve({ ok: false, error: "Voice to text is stopping" });
+    if (_dictationStopPending) return Promise.resolve({ ok: false, error: "语音转文字正在停止" });
     const id = activeSessionId, gen = ++_dictationGen, captureId = `capture-${_nextCmdId++}`;
     state.dictation = DICTATION.apply(state.dictation, { type: "start", captureId });
     const request = _sendWithResponse({ type: "dictation_start", captureId }, 0);
@@ -3667,7 +3667,7 @@
     op.promise = (async () => {
       try {
         await request;
-        if (id !== activeSessionId) return { ok: false, error: "Voice to text ended" };
+        if (id !== activeSessionId) return { ok: false, error: "语音转文字已结束" };
         if (gen !== _dictationGen) return { ok: true };
         if (!state.dictation.active) return state.dictation.error ? { ok: false, error: state.dictation.error } : { ok: true };
         return { ok: true };
@@ -3693,20 +3693,20 @@
     // retry that is not the user's (tab switch, Settings).
     _dictationSendCapture = send ? captureId : null;
     const startHandoff = _dictationStartPending?.request.handedOff;
-    _dictationStartPending?.request.cancel("Voice to text was stopped");
+    _dictationStartPending?.request.cancel("语音转文字已停止");
     state.dictation = DICTATION.apply(state.dictation, { type: "stop" });
     const op = { request: null, promise: null };
     _dictationStopPending = op;
     op.promise = (async () => {
       try {
         const sent = startHandoff ? await startHandoff : true;
-        if (id !== activeSessionId || gen !== _dictationGen) return { ok: false, error: "Voice to text ended" };
+        if (id !== activeSessionId || gen !== _dictationGen) return { ok: false, error: "语音转文字已结束" };
         if (!state.dictation.active) return { ok: true };
         const data = sent ? await (op.request = _sendWithResponse({ type: "dictation_stop" }, 120000)) : { text: state.dictation.text };
-        if (id !== activeSessionId || gen !== _dictationGen) return { ok: false, error: "Voice to text ended" };
+        if (id !== activeSessionId || gen !== _dictationGen) return { ok: false, error: "语音转文字已结束" };
         if (state.dictation.active) {
           _finishDictation({ type: "dictation_end", captureId, text: typeof data?.text === "string" ? data.text : state.dictation.text,
-            error: typeof data?.text === "string" ? null : "Invalid voice to text response" });
+            error: typeof data?.text === "string" ? null : "语音转文字响应无效" });
         }
         return { ok: true };
       } catch (e) {
@@ -3907,10 +3907,10 @@
     async goalStart(objective, tokenBudget, images, prompt) {
       const text = String(objective ?? "").trim();
       const imgs = images ?? [];
-      if (!text) return { ok: false, error: "Describe the goal first." };
+      if (!text) return { ok: false, error: "请先描述目标。" };
       const message = String(prompt ?? "").trim() || text;
       const origin = activeSessionId;
-      if (!origin) return { ok: false, error: "Not connected" };
+      if (!origin) return { ok: false, error: "未连接" };
       const wasStreaming = state.isStreaming;
       try {
         const data = await _sendWithResponse(
@@ -3920,7 +3920,7 @@
       } catch (e) {
         // No answer is not a refusal: omp may still create the goal, whose
         // frame then shows it in the strip.
-        if (e?.timedOut) return { ok: false, error: "omp has not answered yet; if the goal starts, it shows here." };
+        if (e?.timedOut) return { ok: false, error: "omp 尚未响应；目标一旦开始，会显示在这里。" };
         return { ok: false, error: String(e?.message ?? e) };
       }
       if (origin !== activeSessionId) return { ok: true };
@@ -4867,7 +4867,7 @@
       // Any registered tab, not just the active one: an open in flight has
       // registered its tab but not activated it yet, and has already chosen
       // its profile — acknowledging the pick would silently drop it.
-      if (sessionRegistry.size > 0) return { ok: false, error: "a tab is open" };
+      if (sessionRegistry.size > 0) return { ok: false, error: "还有标签页开着" };
       if (!profiles.some(p => p.id === id)) return { ok: false, error: `unknown profile '${id}'` };
       _noTabProfileId = id;
       _syncRecentsProfile();
@@ -4883,9 +4883,9 @@
      *  failed respawn) instead of dropping it silently. The respawn itself
      *  is `_respawnSession`. */
     async switchSessionProfile(id, profileId) {
-      if (!window.__TAURI__) return { ok: false, error: "not connected" };
+      if (!window.__TAURI__) return { ok: false, error: "未连接" };
       const entry = sessionRegistry.get(id);
-      if (!entry) return { ok: false, error: "unknown tab" };
+      if (!entry) return { ok: false, error: "未知标签页" };
       if (entry.profile === profileId) return { ok: true }; // already on this profile
       if (!profiles.some(p => p.id === profileId)) {
         const error = `unknown profile '${profileId}'`;
@@ -5036,7 +5036,7 @@
      *  The listener lives exactly as long as the install — it is attached
      *  before the invoke, so no early chunk is missed. */
     async installUpdate(onProgress) {
-      if (!window.__TAURI__) return { ok: false, error: "not connected" };
+      if (!window.__TAURI__) return { ok: false, error: "未连接" };
       const unlisten = await window.__TAURI__.event
         .listen("update://progress", ev => onProgress(ev.payload))
         .catch(err => { console.error("[live] update progress listener failed:", err); return null; });

@@ -84,20 +84,20 @@ const Icon = ({ name, size = 14, color = "currentColor", dotColor = "var(--accen
 
 // Tool name → color + icon
 const TOOL_META = {
-  read:    { color: "var(--cyan)",    icon: "file",   label: "read" },
-  search:  { color: "var(--lilac)",   icon: "search", label: "find" },
-  edit:    { color: "var(--accent)",  icon: "diff",   label: "edit" },
+  read:    { color: "var(--cyan)",    icon: "file",   label: "读取" },
+  search:  { color: "var(--lilac)",   icon: "search", label: "查找" },
+  edit:    { color: "var(--accent)",  icon: "diff",   label: "编辑" },
   bash:    { color: "var(--amber)",   icon: "bash",   label: "bash" },
-  write:   { color: "var(--magenta)", icon: "edit",   label: "write" },
-  todo:    { color: "var(--lime)",    icon: "plan",  label: "todo"  },
+  write:   { color: "var(--magenta)", icon: "edit",   label: "写入" },
+  todo:    { color: "var(--lime)",    icon: "plan",  label: "待办"  },
   eval:    { color: "var(--rose)",    icon: "test",  label: "eval"  },
-  task:    { color: "var(--cyan)",    icon: "agent", label: "task"  },
-  debug:   { color: "var(--amber)",   icon: "bolt",  label: "debug" },
-  ask:     { color: "var(--fg-3)",    icon: "circle",label: "ask"   },
-  job:     { color: "var(--cyan)",    icon: "refresh",label: "job"  }, // chat-view.jsx JobRow
-  retry:   { color: "var(--amber)",   icon: "refresh",label: "retry" }, // chat/retry-row.jsx
-  goal:    { color: "var(--lilac)",   icon: "goal",   label: "goal"  }, // chat/goal-row.jsx, design/goal-strip.jsx
-  approval:{ color: "var(--lime)",    icon: "check",  label: "auto-approved" }, // chat/approval-row.jsx
+  task:    { color: "var(--cyan)",    icon: "agent", label: "任务"  },
+  debug:   { color: "var(--amber)",   icon: "bolt",  label: "调试" },
+  ask:     { color: "var(--fg-3)",    icon: "circle",label: "提问"   },
+  job:     { color: "var(--cyan)",    icon: "refresh",label: "作业"  }, // chat-view.jsx JobRow
+  retry:   { color: "var(--amber)",   icon: "refresh",label: "重试" }, // chat/retry-row.jsx
+  goal:    { color: "var(--lilac)",   icon: "goal",   label: "目标"  }, // chat/goal-row.jsx, design/goal-strip.jsx
+  approval:{ color: "var(--lime)",    icon: "check",  label: "已自动批准" }, // chat/approval-row.jsx
 };
 
 Object.assign(window, { Icon, TOOL_META });

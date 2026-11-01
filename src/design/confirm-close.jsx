@@ -77,7 +77,7 @@ function ConfirmCloseDialog({ confirm, onAnswer }) {
         </div>
         <div className="close-confirm-foot">
           <button className="btn ghost" ref={keepRef} onClick={() => onAnswer(false)}>
-            {confirm.kind === "quit" ? "keep running" : "keep tab"}
+            {confirm.kind === "quit" ? "继续运行" : "保留标签页"}
           </button>
           <button className="btn outlined danger" onClick={() => onAnswer(true)}>{confirm.confirmLabel}</button>
         </div>

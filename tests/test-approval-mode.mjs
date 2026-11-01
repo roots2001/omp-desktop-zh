@@ -45,8 +45,8 @@ check("isMode accepts exactly omp's kebab-case modes", () => {
 });
 
 check("labelOf names the modes and passes unknown strings through", () => {
-  assert.equal(M.labelOf("always-ask"), "always ask");
-  assert.equal(M.labelOf("write"), "write");
+  assert.equal(M.labelOf("always-ask"), "总是询问");
+  assert.equal(M.labelOf("write"), "写入");
   assert.equal(M.labelOf("yolo"), "yolo");
   assert.equal(M.labelOf("auto"), "auto");
 });
@@ -82,21 +82,21 @@ check("effectiveFor: a project without an override takes the default", () => {
 
 check("statusCell: running == effective shows the plain label", () => {
   assert.deepEqual(M.statusCell(view, { path: Q, approvalMode: "write" }),
-    { label: "write", running: "write", target: "write", warn: false, pending: false });
+    { label: "写入", running: "写入", target: "写入", warn: false, pending: false });
   assert.deepEqual(M.statusCell({ default: "always-ask", projects: {} }, { path: Q, approvalMode: "always-ask" }),
-    { label: "always ask", running: "always ask", target: "always ask", warn: false, pending: false });
+    { label: "总是询问", running: "总是询问", target: "总是询问", warn: false, pending: false });
 });
 
 check("statusCell: a change waiting for the turn to end shows running ⇢ target", () => {
   assert.deepEqual(M.statusCell(view, { path: P, approvalMode: "write" }),
-    { label: "write ⇢ yolo", running: "write", target: "yolo", warn: true, pending: true });
+    { label: "写入 ⇢ yolo", running: "写入", target: "yolo", warn: true, pending: true });
 });
 
 check("statusCell: warn follows the target, not the running mode", () => {
   // Running yolo, target write: the amber goes as soon as yolo is dropped.
   const cell = M.statusCell(view, { path: Q, approvalMode: "yolo" });
-  assert.equal(cell.label, "yolo ⇢ write");
-  assert.equal(cell.target, "write");
+  assert.equal(cell.label, "yolo ⇢ 写入");
+  assert.equal(cell.target, "写入");
   assert.equal(cell.warn, false);
   assert.equal(cell.pending, true);
   assert.equal(M.statusCell(view, { path: P, approvalMode: "yolo" }).warn, true);
@@ -105,7 +105,7 @@ check("statusCell: warn follows the target, not the running mode", () => {
 check("statusCell: no running mode yet (spawn in flight) shows the target, not pending", () => {
   assert.deepEqual(M.statusCell(view, { path: P, approvalMode: null }),
     { label: "yolo", running: "yolo", target: "yolo", warn: true, pending: false });
-  assert.deepEqual(M.statusCell(null, null), { label: "write", running: "write", target: "write", warn: false, pending: false });
+  assert.deepEqual(M.statusCell(null, null), { label: "写入", running: "写入", target: "写入", warn: false, pending: false });
 });
 
 // ── restartPlan ───────────────────────────────────────────────────────────

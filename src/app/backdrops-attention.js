@@ -10,10 +10,10 @@
 
   /** The heads, each with its own pattern (see `headScores`). */
   const HEADS = Object.freeze([
-    { id: "prev", label: "previous token" },
-    { id: "bracket", label: "bracket match" },
-    { id: "ident", label: "same identifier" },
-    { id: "broad", label: "broad context" },
+    { id: "prev", label: "前一个 token" },
+    { id: "bracket", label: "括号匹配" },
+    { id: "ident", label: "同一标识符" },
+    { id: "broad", label: "宽上下文" },
   ]);
   const LAYERS = 4;
   /** Softmax temperature per layer: early layers diffuse, later sharper. */

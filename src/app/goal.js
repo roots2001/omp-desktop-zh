@@ -188,10 +188,10 @@
   /** `51 s`, `2 min 5 s`, `1 h 3 min`. */
   function fmtSeconds(seconds) {
     const s = count(seconds);
-    if (s < 60) return `${s} s`;
-    if (s < 3600) return s % 60 ? `${Math.floor(s / 60)} min ${s % 60} s` : `${s / 60} min`;
+    if (s < 60) return `${s} 秒`;
+    if (s < 3600) return s % 60 ? `${Math.floor(s / 60)} 分 ${s % 60} 秒` : `${s / 60} 分`;
     const m = Math.floor((s % 3600) / 60);
-    return m ? `${Math.floor(s / 3600)} h ${m} min` : `${s / 3600} h`;
+    return m ? `${Math.floor(s / 3600)} 小时 ${m} 分` : `${s / 3600} 小时`;
   }
 
   // ── Token budget ────────────────────────────────────────────────────
@@ -239,16 +239,16 @@
     const status = tabGoal?.goal?.status;
     return {
       mode,
-      goalBlocked: planMode ? "Exit plan mode first: omp does not start a goal in plan mode."
-        : open ? "This tab already has a goal. Drop it, or let it complete, to start another." : "",
-      planBlocked: mode || open ? "Plan mode is off while this tab has a goal." : "",
+      goalBlocked: planMode ? "请先退出计划模式：omp 不会在计划模式下启动目标。"
+        : open ? "这个标签页已有目标。放弃它或等它完成，才能开始新的目标。" : "",
+      planBlocked: mode || open ? "标签页有目标时无法使用计划模式。" : "",
       tint: mode || status === "active" || status === "budget-limited",
     };
   }
 
   // ── Strip ───────────────────────────────────────────────────────────
   const TONES = { active: "active", paused: "paused", "budget-limited": "limit", complete: "done" };
-  const CHIPS = { active: "active", paused: "paused", "budget-limited": "budget reached", complete: "complete" };
+  const CHIPS = { active: "进行中", paused: "已暂停", "budget-limited": "预算已用尽", complete: "已完成" };
 
   /** What the strip above the composer shows for a tab's goal, or null.
    *  `busy`: the tab is running (or retrying, or waiting on a background
@@ -267,8 +267,8 @@
       time: fmtSeconds(g.timeUsedSeconds),
     };
     let sub = null;
-    if (g.status === "paused" && g.pausedBy === "stop") sub = "you stopped the turn";
-    else if (g.status === "budget-limited") sub = busy ? "wrapping up" : "budget used up";
+    if (g.status === "paused" && g.pausedBy === "stop") sub = "你中断了这个回合";
+    else if (g.status === "budget-limited") sub = busy ? "正在收尾" : "预算已用尽";
     let waiting = null;
     if (g.status === "active" && !busy) {
       waiting = continuation === true ? "stopped" : continuation === false ? "off" : "unknown";
@@ -289,21 +289,21 @@
     const withTime = chips => (time ? [...chips, time] : chips);
     switch (row.event) {
       case "set":
-        return { tone: "active", title: "goal set", detail: row.objective, chips: [budget ? `budget ${budget}` : "no budget"] };
+        return { tone: "active", title: "目标已设定", detail: row.objective, chips: [budget ? `预算 ${budget}` : "无预算"] };
       case "paused":
-        return { tone: "paused", title: "goal paused", detail: row.cause === "stop" ? "you stopped the turn" : null, chips: withTime([`${used} tokens`]) };
+        return { tone: "paused", title: "目标已暂停", detail: row.cause === "stop" ? "你中断了这个回合" : null, chips: withTime([`${used} token`]) };
       case "resumed":
-        return { tone: "active", title: "goal resumed", detail: row.objective, chips: [`${used} tokens`] };
+        return { tone: "active", title: "目标已恢复", detail: row.objective, chips: [`${used} token`] };
       case "limit":
-        return { tone: "limit", title: "budget reached", detail: "omp asked the agent to wrap up", chips: [`${used} / ${budget ?? "?"} tokens`] };
+        return { tone: "limit", title: "预算已用尽", detail: "omp 要求智能体收尾", chips: [`${used} / ${budget ?? "?"} token`] };
       case "complete":
-        return { tone: "done", title: "goal complete", detail: row.objective, chips: withTime([budget ? `${used} of ${budget} tokens` : `${used} tokens`]) };
+        return { tone: "done", title: "目标完成", detail: row.objective, chips: withTime([budget ? `${used} / ${budget} token` : `${used} token`]) };
       case "dropped":
-        return { tone: "paused", title: "goal dropped", detail: row.objective, chips: withTime([`${used} tokens`]) };
+        return { tone: "paused", title: "目标已放弃", detail: row.objective, chips: withTime([`${used} token`]) };
       case "continue":
-        return { tone: "active", title: "continuing toward the goal", detail: null, chips: [] };
+        return { tone: "active", title: "正朝目标继续", detail: null, chips: [] };
       default:
-        return { tone: "paused", title: "goal", detail: null, chips: [] };
+        return { tone: "paused", title: "目标", detail: null, chips: [] };
     }
   }
 

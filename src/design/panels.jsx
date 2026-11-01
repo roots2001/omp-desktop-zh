@@ -8,8 +8,8 @@ const { Icon, TOOL_META } = window;
 // ── Phase pill ────────────────────────────────────────────────────────
 function PhasePill({ phase }) {
   const map = {
-    running: { color: "var(--cyan)",   icon: "play",  label: "running" },
-    done:    { color: "var(--accent)", icon: "check", label: "done"    },
+    running: { color: "var(--cyan)",   icon: "play",  label: "运行中" },
+    done:    { color: "var(--accent)", icon: "check", label: "完成"    },
   };
   const m = map[phase] ?? map.running;
   return (
@@ -43,7 +43,7 @@ function PlanKanban({ kanban, planMeta, onClose, onAbort }) {
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Icon name="plan" size={16} color="var(--accent)" />
               <span style={{ fontSize: "var(--d-text-lg)", fontWeight: 600 }}>
-                {phase === "done" ? "plan complete" : "executing plan"}
+                {phase === "done" ? "计划已完成" : "正在执行计划"}
               </span>
               <PhasePill phase={phase} />
               <span className="chip muted mono">
@@ -52,12 +52,12 @@ function PlanKanban({ kanban, planMeta, onClose, onAbort }) {
             </div>
             {planMeta?.ask && (
               <div className="plan-ask selectable">
-                <span className="mono" style={{ color: "var(--fg-4)" }}>ask &nbsp;</span>
+                <span className="mono" style={{ color: "var(--fg-4)" }}>提问</span>
                 <span style={{ color: "var(--fg-2)" }}>{planMeta.ask}</span>
               </div>
             )}
           </div>
-          <button className="btn ghost icon" onClick={onClose} title="close (esc)">
+          <button className="btn ghost icon" onClick={onClose} title="关闭（esc）">
             <Icon name="close" size={11} />
           </button>
         </div>
@@ -65,7 +65,7 @@ function PlanKanban({ kanban, planMeta, onClose, onAbort }) {
         {/* Risks */}
         {planMeta?.risks?.length > 0 && (
           <div className="plan-risks">
-            <span className="mono" style={{ color: "var(--amber)" }}>risks</span>
+            <span className="mono" style={{ color: "var(--amber)" }}>风险</span>
             {planMeta.risks.map((r, i) => (
               <span key={i} className="chip" style={{
                 color: `var(--${r.tone})`,
@@ -90,7 +90,7 @@ function PlanKanban({ kanban, planMeta, onClose, onAbort }) {
               ))
             : (
               <div style={{ padding: "32px 24px", color: "var(--fg-4)", fontFamily: "var(--font-mono)", fontSize: "var(--d-text-sm)" }}>
-                waiting for agent to write tasks…
+                正在等待智能体写入任务…
               </div>
             )
           }
@@ -100,20 +100,20 @@ function PlanKanban({ kanban, planMeta, onClose, onAbort }) {
         <div className="kanban-foot mono">
           {phase === "running" && (
             <>
-              <span style={{ color: "var(--fg-4)" }}>agent is executing the plan</span>
+              <span style={{ color: "var(--fg-4)" }}>智能体正在执行计划</span>
               <div style={{ flex: 1 }} />
               <button className="btn danger" onClick={onAbort}>
-                <Icon name="stop" size={10} /> abort
+                <Icon name="stop" size={10} /> 中止
               </button>
             </>
           )}
           {phase === "done" && (
             <>
               <span style={{ color: "var(--accent)" }}>
-                plan complete · {done}/{total} tasks shipped
+                计划完成 · {done}/{total} 已完成任务
               </span>
               <div style={{ flex: 1 }} />
-              <button className="btn primary" onClick={onClose}>close</button>
+              <button className="btn primary" onClick={onClose}>关闭</button>
             </>
           )}
         </div>
@@ -178,15 +178,15 @@ function KanbanCard({ task, idx, mode }) {
       </div>
       {open && task.reason && (
         <div className="kcard-why selectable">
-          <span className="mono" style={{ color: "var(--fg-4)" }}>// why &nbsp;</span>
+          <span className="mono" style={{ color: "var(--fg-4)" }}>// 原因</span>
           <span style={{ color: "var(--fg-3)", fontStyle: "italic" }}>{task.reason}</span>
         </div>
       )}
       {mode === "running" && task.status === "in_progress" && (
         <div className="kcard-live mono">
           <span className="dot live" />
-          <span style={{ color: "var(--cyan)" }}>agent is here</span>
-          <span className="shimmer-text" style={{ marginLeft: "auto" }}>writing patch…</span>
+          <span style={{ color: "var(--cyan)" }}>智能体在此</span>
+          <span className="shimmer-text" style={{ marginLeft: "auto" }}>正在写入补丁…</span>
         </div>
       )}
     </div>

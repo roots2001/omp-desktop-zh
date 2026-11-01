@@ -94,7 +94,7 @@
   /** `terminal_open` failed with `error`: shown like an exited shell. */
   function spawnFailed(s, sid, error) {
     if (!s || !s[sid]) return s;
-    return patch(s, sid, { error: String(error || "unknown error") });
+    return patch(s, sid, { error: String(error || "未知错误") });
   }
 
   /** The panel is shown, its xterm exists, and the tab has never had a shell. */
@@ -167,7 +167,7 @@
     return window.OMP_PATH_SETTING.menu({
       stored: settings?.shell ?? "",
       name: shellLabel,
-      fallback: { name: "default", hint: defaultShell ? shellLabel(defaultShell) : "", path: defaultShell },
+      fallback: { name: "默认", hint: defaultShell ? shellLabel(defaultShell) : "", path: defaultShell },
       installed: settings?.shells ?? [],
     });
   }

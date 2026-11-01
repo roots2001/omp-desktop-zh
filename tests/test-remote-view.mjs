@@ -169,7 +169,7 @@ test("answer for a background tab switches first and answers once", async () => 
   const second = handle({ ...action, reqId: "second" });
   await time.advance(5000); await second;
   assert.deepEqual(calls, ["activateSession", "answerConfirm"]);
-  assert.deepEqual(results.at(-1), ["second", false, "question no longer open"]);
+  assert.deepEqual(results.at(-1), ["second", false, "问题已关闭"]);
 });
 
 test("prompt while streaming goes to steer; actions are serialised", async () => {
@@ -201,7 +201,7 @@ test("failed or ignored activation never acts on another tab and queue survives 
   await handle({ reqId: "1", deviceId: "d", tabId: "missing", kind: "prompt", text: "oops" });
   reject = false;
   await handle({ reqId: "2", deviceId: "d", tabId: "missing", kind: "select" });
-  assert.deepEqual(calls, [["1", false, "tab not available"], ["2", false, "tab not available"]]);
+  assert.deepEqual(calls, [["1", false, "标签页不可用"], ["2", false, "标签页不可用"]]);
 });
 
 function hookHarness({ delayed = false } = {}) {
@@ -453,30 +453,30 @@ test("phone answers are validated per ask kind before reaching omp", async () =>
   const open = (id, method, extra = {}) => ask(id, method, extra);
   const dialog = [{ id: "q1", question: "Pick", options: [{ label: "A" }] }];
   const cases = [
-    [open("c", "confirm"), "yes", "invalid answer"],
+    [open("c", "confirm"), "yes", "回答无效"],
     [open("c", "confirm"), true, null],
-    [open("s", "select", { options: ["A", "B"] }), "C", "invalid answer"],
+    [open("s", "select", { options: ["A", "B"] }), "C", "回答无效"],
     [open("s", "select", { options: ["A", "B"] }), "B", null],
-    [open("i", "input"), 5, "invalid answer"],
+    [open("i", "input"), 5, "回答无效"],
     [open("e", "editor"), "text", null],
-    [open("d", "ask", { questions: dialog }), "A", "invalid answer"],
-    [open("d", "ask", { questions: dialog }), [{ id: "q1", selectedOptions: "A" }], "invalid answer"],
+    [open("d", "ask", { questions: dialog }), "A", "回答无效"],
+    [open("d", "ask", { questions: dialog }), [{ id: "q1", selectedOptions: "A" }], "回答无效"],
     [open("d", "ask", { questions: dialog }), [{ id: "q1", selectedOptions: ["A"] }], null],
     // Strict dialog rules, same as app/ask-dialog.js.
     ...[
-      [[], "invalid answer"],
-      [[{ id: "q1", selectedOptions: ["A"] }, { id: "q2", selectedOptions: [] }], "invalid answer"],
-      [[{ id: "other", selectedOptions: ["A"] }], "invalid answer"],
-      [[{ id: "q1", selectedOptions: ["Z"] }], "invalid answer"],
-      [[{ id: "q1", selectedOptions: [5] }], "invalid answer"],
-      [[{ id: "q1", selectedOptions: ["A", "B"] }], "invalid answer"],
-      [[{ id: "q1", selectedOptions: ["A"], customInput: {} }], "invalid answer"],
-      [[{ id: "q1", selectedOptions: ["A"], customInput: "x" }], "invalid answer"],
+      [[], "回答无效"],
+      [[{ id: "q1", selectedOptions: ["A"] }, { id: "q2", selectedOptions: [] }], "回答无效"],
+      [[{ id: "other", selectedOptions: ["A"] }], "回答无效"],
+      [[{ id: "q1", selectedOptions: ["Z"] }], "回答无效"],
+      [[{ id: "q1", selectedOptions: [5] }], "回答无效"],
+      [[{ id: "q1", selectedOptions: ["A", "B"] }], "回答无效"],
+      [[{ id: "q1", selectedOptions: ["A"], customInput: {} }], "回答无效"],
+      [[{ id: "q1", selectedOptions: ["A"], customInput: "x" }], "回答无效"],
       [[{ id: "q1", selectedOptions: [], customInput: "x" }], null],
       [[{ id: "q1", selectedOptions: ["A"], customInput: "" }], null],
     ].map(([value, expected]) => [open("d", "ask", { questions: [{ id: "q1", question: "Pick", options: [{ label: "A" }, { label: "B" }] }] }), value, expected]),
     [open("m", "ask", { questions: [{ id: "q1", question: "Any", multi: true, options: [{ label: "A" }, { label: "B" }] }] }), [{ id: "q1", selectedOptions: ["A", "B"] }], null],
-    [open("m", "ask", { questions: [{ id: "q1", question: "Any", multi: true, options: [{ label: "A" }, { label: "B" }] }] }), [{ id: "q1", selectedOptions: ["A", "A"] }], "invalid answer"],
+    [open("m", "ask", { questions: [{ id: "q1", question: "Any", multi: true, options: [{ label: "A" }, { label: "B" }] }] }), [{ id: "q1", selectedOptions: ["A", "A"] }], "回答无效"],
   ];
   for (const [item, value, expected] of cases) {
     const card = (await runAnswer(api, item, value)).card;
@@ -503,7 +503,7 @@ test("blank prompt and steer text is refused", async () => {
   await handle({ reqId: "2", deviceId: "d", tabId: "a", kind: "steer" });
   await handle({ reqId: "3", deviceId: "d", tabId: "a", kind: "prompt", text: "go" });
   assert.deepEqual(calls, ["go"]);
-  assert.deepEqual(results, [["1", false, "invalid text"], ["2", false, "invalid text"], ["3", true]]);
+  assert.deepEqual(results, [["1", false, "文本无效"], ["2", false, "文本无效"], ["3", true]]);
 });
 
 // ---- guarded action queue ---------------------------------------------------
@@ -528,7 +528,7 @@ test("revoking the device during the ask wait drops the answer, even once the as
   h.status.devices = [];
   h.time.setTimeout(() => { snap = snapshot({ messages: [ask("q")] }); }, 500);
   await h.time.advance(6000); await pending;
-  assert.deepEqual(h.results, [["r", false, "device revoked"]]);
+  assert.deepEqual(h.results, [["r", false, "设备已被撤销"]]);
   assert.deepEqual(h.calls, []);
 });
 
@@ -537,7 +537,7 @@ test("revoking during the tab switch means the later prompt is not sent", async 
   const h = guarded({ activateSession: async id => { h.status.devices = []; snap = snapshot({ activeSessionId: id }); } }, () => snap);
   await h.handle(prompt("1"));
   assert.deepEqual(h.calls, []);
-  assert.deepEqual(h.results, [["1", false, "device revoked"]]);
+  assert.deepEqual(h.results, [["1", false, "设备已被撤销"]]);
 });
 
 test("a device that is connected no longer, or a stopped server, drops queued actions", async () => {
@@ -550,7 +550,7 @@ test("a device that is connected no longer, or a stopped server, drops queued ac
   await h.handle(prompt("3"));
   assert.deepEqual(h.calls, []);
   assert.deepEqual(h.results.map(r => r.slice(0, 2)), [["1", false], ["2", false], ["3", false]]);
-  assert.deepEqual(h.results.map(r => r[2]), ["device revoked", "device revoked", "remote access disabled"]);
+  assert.deepEqual(h.results.map(r => r[2]), ["设备已被撤销", "设备已被撤销", "远程访问已关闭"]);
 });
 
 test("an action older than the 15 s ack timeout is dropped as expired", async () => {
@@ -561,7 +561,7 @@ test("an action older than the 15 s ack timeout is dropped as expired", async ()
   await h.time.advance(15001);
   release(true); await Promise.all([first, second]);
   assert.deepEqual(h.calls, [["send", "go"]]);
-  assert.deepEqual(h.results, [["1", true], ["2", false, "expired"]]);
+  assert.deepEqual(h.results, [["1", true], ["2", false, "已过期"]]);
 });
 
 test("the queue holds 16 actions; more are refused as busy at once", async () => {
@@ -584,7 +584,7 @@ test("a failed or rejected IPC hand-off is acked as not delivered", async () => 
     await h.handle(prompt("1"));
     await h.handle({ reqId: "2", deviceId: "d", tabId: "a", kind: "abort" });
     await h.handle({ reqId: "3", deviceId: "d", tabId: "a", kind: "answer", askId: "q", value: true });
-    assert.deepEqual(h.results, ["1", "2", "3"].map(id => [id, false, "desktop could not deliver"]));
+    assert.deepEqual(h.results, ["1", "2", "3"].map(id => [id, false, "桌面端未能送达"]));
   }
 });
 
@@ -645,13 +645,13 @@ test("two delayed push toggles both survive: nested push merges inside the queue
   };
   render(); await flush(); await flush();
   const tree = render();
-  find(tree, "Notify on questions").props.onChange(true);
-  find(tree, "Notify on finished turns").props.onChange(true);
+  find(tree, "有提问时通知").props.onChange(true);
+  find(tree, "回合结束时通知").props.onChange(true);
   // Editing the contact and enabling push before the first apply settles must
   // keep the newly committed contact instead of the initial render's contact.
-  const contactField = find(tree, "Push contact");
+  const contactField = find(tree, "推送联系人");
   contactField.props.onCommit("fresh@omp-desktop.app");
-  find(tree, "Enable push notifications").props.onChange(true);
+  find(tree, "启用推送通知").props.onChange(true);
   await flush();
   assert.equal(applies.length, 1, "subsequent applies wait in the queue");
   assert.equal(applies[0].s.push.questions, true);
@@ -671,7 +671,7 @@ test("the only-while-locked switch shows only where lock detection exists and pa
     for (const child of node.children.flat()) { const hit = find(child, label); if (hit) return hit; }
     return null;
   };
-  const LABEL = "Notify only while the desktop is locked";
+  const LABEL = "仅在桌面锁定时通知";
   const rendered = async (lockDetection, applies = []) => {
     const settings = { enabled: true, cert: {}, push: { enabled: true, questions: true, finished: true, contact: "me@example.test", onlyWhenLocked: false } };
     const bridge = {
@@ -696,7 +696,7 @@ test("the only-while-locked switch shows only where lock detection exists and pa
 // ---- settings: Enter confirms an IME candidate, it does not commit the field --
 test("Enter during IME composition does not blur a settings field", () => {
   const { scope, reset } = remoteRows();
-  const field = () => { reset(); return scope._SRR_Field({ value: "", onCommit() {}, label: "Device name" }); };
+  const field = () => { reset(); return scope._SRR_Field({ value: "", onCommit() {}, label: "设备名称" }); };
   const press = (event) => {
     let blurred = 0;
     field().props.onKeyDown({ key: "Enter", keyCode: 13, nativeEvent: {}, ...event, currentTarget: { blur: () => { blurred++; } } });
@@ -745,7 +745,7 @@ test("the Port row rejects non-numeric, zero and out-of-range text and applies a
     return null;
   };
   render(); await flush();
-  const port = find(render(), "Port");
+  const port = find(render(), "端口");
   for (const text of ["abc", "0", "70000", ""]) assert.equal(port.props.onCommit(text), false, text);
   assert.equal(applies.length, 0, "a rejected port is never applied");
   assert.notEqual(port.props.onCommit("8080"), false);
@@ -764,6 +764,6 @@ test("the server row offers no plain HTTP, even for settings that still carry al
   const render = () => { reset(); return window.OMP_SETTINGS_ROWS.remoteServer({ row: {}, ctx: { bridge }, query: "" }); };
   render(); await flush();
   const text = JSON.stringify(render());
-  assert.match(text, /Enable remote access/, "control: the row rendered");
+  assert.match(text, /启用远程访问/, "control: the row rendered");
   assert.doesNotMatch(text, /plain http|allowHttp|unencrypted/i);
 });

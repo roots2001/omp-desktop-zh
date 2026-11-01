@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- 简体中文界面：桌面主界面与手机远程页完成第一轮中文化，并加入精确字符串翻译兜底。
+- 中文分支维护说明 `docs/zh-branch.md`，覆盖上游同步、协议常量、手机页资源和发布检查。
+- 桌面窗口标题、原生文件选择器、Windows 安装器和资源管理器右键菜单、macOS 本地网络/麦克风权限说明、手机后台通知改为中文。
+
+### Changed
+
+- 中文版不连接上游更新源；版本入口改为打开发行页面并手动升级，避免被替换成英文上游构建。
+- README 改为中文版说明，并明确当前尚未正式发布。
+- 发行链接、Cargo 仓库信息和公开文档统一指向 `roots2001/omp-desktop-zh`，并加入防回退检查。
+
+
 ## [0.13.2] - 2026-10-31
 
 ### Added

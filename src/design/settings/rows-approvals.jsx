@@ -34,14 +34,14 @@ function _SRAp_Rules({ row, ctx, query }) {
     ctx.bridge.listApprovalRules().then(rules => { if (live) setCount(Array.isArray(rules) ? rules.length : null); });
     return () => { live = false; };
   }, [ctx.bridge, project?.id]);
-  let lead = "Open a tab to see its session and project rules.";
+  let lead = "打开一个标签页以查看它的会话规则和项目规则。";
   if (project && count !== null) {
     lead = `${count === 0 ? "No" : count} standing rule${count === 1 ? "" : "s"} for this tab's session and project.`;
   }
   return (
     <Row label={row.label} query={query} className="st-linkrow" desc={`${lead} ${row.desc}`}>
       <Button accent onClick={ctx.openApprovals}>
-        Manage rules <Icon name="external" size={11} />
+        管理规则 <Icon name="external" size={11} />
       </Button>
     </Row>
   );

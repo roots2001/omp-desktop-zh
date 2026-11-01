@@ -26,18 +26,18 @@ function _SRR_PairDialog({ pair, active = true, onClose }) {
   const src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(pair.svg)))}`;
   return (
     <div className="bridge-scrim" onClick={onClose} style={{ paddingTop: "12vh" }}>
-      <div className="st-rem-dialog" role="dialog" aria-label="Pair a phone" data-st-esc="" onClick={e => e.stopPropagation()}>
+      <div className="st-rem-dialog" role="dialog" aria-label="配对手机" data-st-esc="" onClick={e => e.stopPropagation()}>
         <div className="st-rem-dialog-head">
-          <span>Pair a phone</span>
-          <button type="button" className="st-ghost" onClick={onClose} title="close"><_SRR_Icon name="close" size={11} /></button>
+          <span>配对手机</span>
+          <button type="button" className="st-ghost" onClick={onClose} title="关闭"><_SRR_Icon name="close" size={11} /></button>
         </div>
         {left > 0 ? (
           <>
-            <img className="st-rem-qr" src={src} alt="Pairing QR code" width={240} height={240} />
+            <img className="st-rem-qr" src={src} alt="配对二维码" width={240} height={240} />
             <div className="st-path">{pair.url}</div>
-            <div className="st-rem-status">Scan with the phone camera · valid {left}s · one use</div>
+            <div className="st-rem-status">用手机相机扫描 · 有效期 {left} 秒 · 一次性</div>
           </>
-        ) : <div className="st-rem-status err">The code expired. Close this dialog and pair again.</div>}
+        ) : <div className="st-rem-status err">二维码已过期。关闭此对话框后重新配对。</div>}
       </div>
     </div>
   );
@@ -79,7 +79,7 @@ function _SRR_Pair({ row, ctx, query }) {
   return (
     <Row label={row.label} desc={row.desc} query={query}>
       <Btn accent onClick={start} disabled={!status?.listening || busy || !!pair}
-        title={status?.listening ? undefined : "Enable remote access first"}>Pair a phone…</Btn>
+        title={status?.listening ? undefined : "请先启用远程访问"}>配对手机…</Btn>
       {pair && <_SRR_PairDialog pair={pair} active={ctx.active !== false} onClose={close} />}
       {error && <div className="st-row-error">{error}</div>}
     </Row>
@@ -91,15 +91,15 @@ function _SRR_Device({ device, onRename, onRevoke }) {
   const [asking, setAsking] = React.useState(false);
   return (
     <div className="st-rem-dev">
-      <_SRR_Field value={device.name} label="Device name" mono={false} width={220} onCommit={text => text.trim() && onRename(device.id, text.trim())} />
-      <span className="st-rem-sub">{device.connected ? "connected" : "offline"}{device.pushSubscribed ? " · push" : ""}</span>
+      <_SRR_Field value={device.name} label="设备名称" mono={false} width={220} onCommit={text => text.trim() && onRename(device.id, text.trim())} />
+      <span className="st-rem-sub">{device.connected ? "已连接" : "离线"}{device.pushSubscribed ? " · 推送" : ""}</span>
       <div className="st-btns" style={{ marginLeft: "auto" }}>
         {asking ? (
           <>
-            <Btn accent onClick={() => { setAsking(false); onRevoke(device.id); }}>Confirm revoke</Btn>
-            <Btn onClick={() => setAsking(false)}>Keep</Btn>
+            <Btn accent onClick={() => { setAsking(false); onRevoke(device.id); }}>确认吊销</Btn>
+            <Btn onClick={() => setAsking(false)}>保留</Btn>
           </>
-        ) : <Btn onClick={() => setAsking(true)}>Revoke</Btn>}
+        ) : <Btn onClick={() => setAsking(true)}>吊销</Btn>}
       </div>
     </div>
   );
@@ -112,7 +112,7 @@ function _SRR_Devices({ row, ctx, query }) {
   return (
     <Row label={row.label} desc={row.desc} query={query} stack>
       <div className="st-rem">
-        {devices.length === 0 && <div className="st-rem-status">No phone paired yet.</div>}
+        {devices.length === 0 && <div className="st-rem-status">还没有配对手机。</div>}
         {devices.map(d => (
           <_SRR_Device key={d.id} device={d}
             onRename={(id, name) => run(() => ctx.bridge.remoteDeviceRename(id, name))}
@@ -136,30 +136,30 @@ function _SRR_Push({ row, ctx, query }) {
   return (
     <Row label={row.label} desc={row.desc} query={query} stack>
       <div className="st-rem">
-        <_SRR_Line label="Enable push">
-          <Toggle value={!!push?.enabled} label="Enable push notifications"
+        <_SRR_Line label="启用推送">
+          <Toggle value={!!push?.enabled} label="启用推送通知"
             onChange={v => apply(base => ({ push: v ? { enabled: true, contact: (base.push?.contact || suggest).trim() } : { enabled: false } }))} />
         </_SRR_Line>
-        <_SRR_Line label="A question is waiting">
-          <Toggle value={!!push?.questions} label="Notify on questions" onChange={v => set({ questions: v })} />
+        <_SRR_Line label="有提问在等待">
+          <Toggle value={!!push?.questions} label="有提问时通知" onChange={v => set({ questions: v })} />
         </_SRR_Line>
-        <_SRR_Line label="A turn finished">
-          <Toggle value={!!push?.finished} label="Notify on finished turns" onChange={v => set({ finished: v })} />
+        <_SRR_Line label="一个回合已结束">
+          <Toggle value={!!push?.finished} label="回合结束时通知" onChange={v => set({ finished: v })} />
         </_SRR_Line>
         {status?.lockDetection && (
-          <_SRR_Line label="Only while the desktop is locked">
-            <Toggle value={!!push?.onlyWhenLocked} label="Notify only while the desktop is locked" onChange={v => set({ onlyWhenLocked: v })} />
+          <_SRR_Line label="仅在桌面锁定时">
+            <Toggle value={!!push?.onlyWhenLocked} label="仅在桌面锁定时通知" onChange={v => set({ onlyWhenLocked: v })} />
           </_SRR_Line>
         )}
-        <_SRR_Line label="Contact (VAPID)">
-          <_SRR_Field value={contact} label="Push contact" placeholder="you@example.com" width={240} disabled={!push}
+        <_SRR_Line label="联系人（VAPID）">
+          <_SRR_Field value={contact} label="推送联系人" placeholder="you@example.com" width={240} disabled={!push}
             onCommit={text => set({ contact: text.trim() })} />
         </_SRR_Line>
         {generated && (
-          <div className="st-rem-warn">Push needs a certificate the phone trusts. A generated certificate is not trusted by default; use your own files.</div>
+          <div className="st-rem-warn">推送需要手机信任的证书。自动生成的证书默认不被信任，请使用自己的证书文件。</div>
         )}
         <div className="st-btns">
-          <Btn onClick={() => run(() => ctx.bridge.remotePushTest())} disabled={!push?.enabled}>Send test notification</Btn>
+          <Btn onClick={() => run(() => ctx.bridge.remotePushTest())} disabled={!push?.enabled}>发送测试通知</Btn>
         </div>
         {status?.pushError && <div className="st-row-error">{status.pushError}</div>}
         {error && <div className="st-row-error">{error}</div>}

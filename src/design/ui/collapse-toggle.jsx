@@ -7,7 +7,7 @@
 const { Icon: _CollapseIcon } = window;
 
 function CollapseToggle({ collapsed, onToggle }) {
-  const label = collapsed ? "Expand" : "Collapse";
+  const label = collapsed ? "展开" : "折叠";
   return (
     <button type="button" className="btn icon ghost collapse-toggle"
       aria-expanded={!collapsed} aria-label={label} title={label}

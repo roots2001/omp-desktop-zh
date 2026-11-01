@@ -1,9 +1,11 @@
 //! In-app update check and install (issue #19), over `tauri-plugin-updater`.
 //!
-//! The feed is `latest.json` on the newest *published*, non-prerelease
-//! GitHub release (endpoint and minisign public key: `plugins.updater` in
-//! `tauri.conf.json`; the release workflow signs and uploads it). The
-//! frontend drives everything through two commands:
+//! This Chinese fork ships without an in-app feed: upstream's endpoint and
+//! signing key are not reused, so an update can never replace the Chinese
+//! build with the English upstream build. `plugins.updater.endpoints` in
+//! `tauri.conf.json` is empty; upgrade through the fork's release page.
+//! The dormant updater remains available to a fork that later configures
+//! its own signed feed. The frontend drives it through two commands:
 //!
 //! - [`check`] asks the feed, parks the resulting [`Update`] in
 //!   [`UpdaterState`] and returns a serialisable [`UpdateInfo`]. The
@@ -39,9 +41,8 @@ use tauri_plugin_updater::{Update, UpdaterExt};
 /// Event carrying [`Progress`] while an update downloads.
 pub const PROGRESS_EVENT: &str = "update://progress";
 
-/// Where a notify-only install sends the user, and what "release notes"
-/// links to. `/tag/v{version}` matches the release workflow's tag format.
-const RELEASES_URL: &str = "https://github.com/apoc/omp-desktop/releases";
+/// The fork's release index, used when no signed feed announces an update.
+const RELEASES_URL: &str = env!("CARGO_PKG_REPOSITORY");
 
 /// Upper bound for the feed request. The check runs in the background on
 /// a timer; a stalled connection must fail rather than pin the command.
@@ -175,7 +176,11 @@ fn self_installable() -> bool {
 }
 
 fn release_url(version: &str) -> String {
-    format!("{RELEASES_URL}/tag/v{version}")
+    if version.is_empty() {
+        RELEASES_URL.to_owned()
+    } else {
+        format!("{RELEASES_URL}/releases/tag/v{version}")
+    }
 }
 
 /// Whether a download that has reached `downloaded` bytes should emit a
@@ -376,10 +381,14 @@ mod tests {
     }
 
     #[test]
-    fn release_url_points_at_the_workflow_tag() {
+    fn release_url_points_at_the_fork_tag_or_index() {
         assert_eq!(
             release_url("0.4.0"),
             "https://github.com/apoc/omp-desktop/releases/tag/v0.4.0"
+        );
+        assert_eq!(
+            release_url(""),
+            RELEASES_URL
         );
     }
 

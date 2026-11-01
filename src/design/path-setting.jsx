@@ -118,8 +118,8 @@ function PathPicker({ name, label, title, rows, disabled, error, save, pick }) {
               <button type="button" className="st-menu-item" role="menuitem"
                 onClick={() => { close(); pick(); }}>
                 <span className="st-menu-mark" />
-                <span className="st-menu-name">other…</span>
-                <span className="st-menu-hint">browse</span>
+                <span className="st-menu-name">其他…</span>
+                <span className="st-menu-hint">浏览</span>
               </button>
             </>
           )}

@@ -25,7 +25,7 @@ function BrowserDock({ ui, stageRef, room }) {
       {!ui.fullView && (
         <_BD_Handle
           edge="left"
-          label="resize browser panel"
+          label="调整浏览器面板宽度"
           drag={drag}
           value={width}
           min={_BD_MIN}

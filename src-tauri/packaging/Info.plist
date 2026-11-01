@@ -42,8 +42,8 @@
     </dict>
   </array>
   <key>NSLocalNetworkUsageDescription</key>
-  <string>OMP Desktop and the agents, tools and widgets it starts connect to services on your local network, such as Kubernetes clusters.</string>
+  <string>OMP Desktop 及其启动的智能体、工具和小部件会连接本地网络中的服务，例如 Kubernetes 集群。</string>
   <key>NSMicrophoneUsageDescription</key>
-  <string>OMP Desktop uses your microphone for live conversations and voice-to-text dictation.</string>
+  <string>OMP Desktop 会使用麦克风进行实时对话和语音转文字。</string>
 </dict>
 </plist>

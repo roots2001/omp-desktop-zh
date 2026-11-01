@@ -46,8 +46,8 @@
       state === "running" ? checks.find((c) => c.state === "running").name
       : state === "queued" ? `${count.queued} queued`
       : state === "failure" ? `${count.failure} failed`
-      : state === "success" ? "All checks passed"
-      : state === "neutral" ? "Checks skipped"
+      : state === "success" ? "所有检查已通过"
+      : state === "neutral" ? "检查已跳过"
       : "";
     const list = checks
       .map((c, i) => [c, i])
@@ -124,7 +124,7 @@
         (t) => t && nonempty(t.id) && nonempty(t.updatedAt),
       )
     ) {
-      throw new Error("Invalid PR automation snapshot.");
+      throw new Error("PR 自动化快照无效。");
     }
   }
 
@@ -158,7 +158,7 @@
 
   function errorMessage(error) {
     if (typeof error === "string" && error) return error;
-    return error?.message || "PR automation failed.";
+    return error?.message || "PR 自动化失败。";
   }
 
   /** getContext supplies the latest committed tab, bridge and gates, including
@@ -280,32 +280,32 @@
       if (!e?.enabled)
         return {
           enabled: false,
-          status: "Auto-fix is off.",
+          status: "自动修复已关闭。",
           error: null,
           ...discovery,
         };
       let status;
-      if (e.error) status = "Paused after an error. Turn off and on to retry.";
+      if (e.error) status = "出错后已暂停。关闭再打开可重试。";
       else if (c.blocked !== false)
-        status = "Paused while another mode or project tab is active.";
-      else if (e.phase === "sending") status = "Sending fix prompt…";
+        status = "其他模式或项目标签页处于活动状态，已暂停。";
+      else if (e.phase === "sending") status = "正在发送修复提示…";
       else if (c.runState !== "idle")
         status =
           e.fixing && c.runState !== "failed"
-            ? "Fix prompt sent; waiting for the agent to be idle."
-            : "Paused while the agent is not idle.";
-      else if (!ready(c)) status = "Paused until the agent is connected.";
-      else if (e.phase === "checking") status = "Checking PR feedback…";
-      else if (e.fixing) status = "Fix prompt sent; awaiting the agent.";
+            ? "修复提示已发送；等待智能体空闲。"
+            : "智能体不空闲，已暂停。";
+      else if (!ready(c)) status = "智能体未连接，已暂停。";
+      else if (e.phase === "checking") status = "正在检查 PR 反馈…";
+      else if (e.fixing) status = "修复提示已发送；等待智能体响应。";
       else if (e.phase === "inactive")
-        status = "Paused while inactive; waiting to check feedback.";
+        status = "未激活，已暂停；等待检查反馈。";
       else if (e.phase === "no-pr")
-        status = "No open pull request for the current branch.";
+        status = "当前分支没有打开的 PR。";
       else if (e.phase === "clean")
-        status = "No failed checks or unresolved review threads.";
+        status = "没有失败的检查，也没有未解决的评审讨论。";
       else if (e.phase === "handled")
-        status = "Feedback already sent; awaiting new feedback.";
-      else status = "Waiting to check PR feedback.";
+        status = "反馈已发送；等待新的反馈。";
+      else status = "等待检查 PR 反馈。";
       return {
         enabled: true,
         status,
@@ -468,7 +468,7 @@
         }
         if (snapshot !== null) validateSnapshot(snapshot);
         if (snapshot && c.branchKey && snapshot.branch !== c.branchKey) {
-          throw new Error("PR snapshot does not match the current branch.");
+          throw new Error("PR 快照与当前分支不匹配。");
         }
         e.snapshot = snapshot;
         e.discoveryError = null;
@@ -534,7 +534,7 @@
             return;
           }
           throw new Error(
-            "The agent did not accept the fix prompt. Turn off and on to retry.",
+            "智能体未接受修复提示。关闭再打开可重试。",
           );
         }
       } catch (error) {

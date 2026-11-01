@@ -110,7 +110,7 @@ check("events are summarized; bookkeeping events are dropped; stream is capped",
     evt("A", { type: "tool_execution_end", toolName: "bash", isError: true }),
     evt("A", { type: "message_end", message: { role: "assistant", content: [{ type: "text", text: " done " }] } }),
   ], s);
-  assert.deepEqual(s.byId.A.stream.map(l => [l.kind, l.text]), [["tool", "src/x.js"], ["error", "tool failed"], ["text", "done"]]);
+  assert.deepEqual(s.byId.A.stream.map(l => [l.kind, l.text]), [["tool", "src/x.js"], ["error", "工具调用失败"], ["text", "done"]]);
   for (let i = 0; i < 250; i++) s = fold([evt("A", { type: "tool_execution_start", toolName: "read", args: String(i) })], s);
   assert.equal(s.byId.A.stream.length, 200);
   assert.equal(s.byId.A.stream.at(-1).text, "249");

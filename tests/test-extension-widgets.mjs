@@ -104,7 +104,7 @@ check("cards: one status card with key/value rows, then a mono text card per wid
     widget("big", Array.from({ length: 51 }, () => "x")));
   const cards = X.cards(ext);
   assert.deepEqual(cards.map(c => [c.id, c.title, c.tweak]), [
-    ["ext-status:", "status", "widget:ext-status"],
+    ["ext-status:", "状态", "widget:ext-status"],
     ["ext:plan-todos", "plan-todos", "widget:ext:plan-todos"],
     ["ext:big", "big", "widget:ext:big"],
   ], "a widget without lines has no card");
@@ -116,7 +116,7 @@ check("cards: one status card with key/value rows, then a mono text card per wid
 });
 check("toggles list the status card and every published widget key", () => {
   assert.deepEqual(X.toggles(run(status("s", "v"), widget("w", []))), [
-    { tweak: "widget:ext-status", label: "extension: status lines" },
+    { tweak: "widget:ext-status", label: "扩展：状态行" },
     { tweak: "widget:ext:w", label: "extension: w" },
   ]);
   assert.deepEqual(X.toggles(run(widget("w", ["x"]))).map(t => t.tweak), ["widget:ext:w"]);

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
-  <title>OMP Desktop</title>
+  <title>OMP Desktop 中文版</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
@@ -79,6 +79,9 @@
        OMP_SLASH.LOCAL_COMMANDS for the initial/reset command list, so this
        must load before live.js too (see script order below). -->
   <script src="app/slash-commands.js"></script>
+
+  <!-- Desktop UI localization. Must load before app/constants.js and every UI script. Trusted release copy only; no user data is translated. -->
+  <script src="zh-i18n.js"></script>
 
   <!-- Chat "stick to bottom" pin state machine. Dependency-free IIFE;
        design/chat/chat-view.jsx destructures window.OMP_SCROLL_PIN at

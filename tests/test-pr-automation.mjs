@@ -404,8 +404,8 @@ await checkAsync("the CI line names the step in progress, then the outcome", asy
   // Finished: a failure outranks passes, skipped checks don't count as failed.
   const failed = ciSummary([ci("a", "success"), ci("b", "failure"), ci("c", "failure"), ci("d", "neutral")]);
   assert.deepEqual([failed.state, failed.label, failed.done], ["failure", "2 failed", 4]);
-  assert.deepEqual([ciSummary([ci("a", "success"), ci("b", "neutral")]).state, ciSummary([ci("a", "success")]).label], ["success", "All checks passed"]);
-  assert.equal(ciSummary([ci("a", "neutral")]).label, "Checks skipped");
+  assert.deepEqual([ciSummary([ci("a", "success"), ci("b", "neutral")]).state, ciSummary([ci("a", "success")]).label], ["success", "所有检查已通过"]);
+  assert.equal(ciSummary([ci("a", "neutral")]).label, "检查已跳过");
   assert.equal(ciSummary([]).state, "none");
 });
 
@@ -440,7 +440,7 @@ await checkAsync(
 await checkAsync("a check with an unknown state fails the snapshot closed", async () => {
   const h = harness({ getSnapshot: () => snapshot({ checks: [ci("build", "exploded")] }) });
   await h.time.advance(0);
-  assert.match(h.view().discoveryError, /Invalid/);
+  assert.match(h.view().discoveryError, /无效/);
   assert.equal(h.view().snapshot, null);
 });
 
@@ -627,7 +627,7 @@ for (const [label, leave, back] of [
       });
       h.toggle();
       await h.time.advance(0);
-      assert.match(h.view().status, /Sending fix prompt/);
+      assert.match(h.view().status, /正在发送修复提示/);
       h.update(leave);
       pending.resolve(false);
       await h.time.advance(0);
@@ -637,7 +637,7 @@ for (const [label, leave, back] of [
       await h.time.advance(0);
       assert.equal(h.sends.length, 2);
       assert.deepEqual(payload(h.sends[1].text).checkIds, ["CI"]);
-      assert.match(h.view().status, /awaiting the agent/);
+      assert.match(h.view().status, /等待智能体响应/);
     },
   );
 }
@@ -670,7 +670,7 @@ for (const enabled of [false, true]) {
       assert.equal(view.error, null);
       assert.equal(view.discoveryError, null);
       assert.equal(view.loading, true);
-      assert.doesNotMatch(view.status, /error/);
+      assert.doesNotMatch(view.status, /出错/);
       await h.time.advance(2999);
       assert.equal(h.reads.length, reads);
       await h.time.advance(1);
@@ -687,7 +687,7 @@ for (const enabled of [false, true]) {
       assert.equal(view.discoveryError, null);
       assert.equal(view.loading, false);
       assert.equal(view.enabled, enabled);
-      if (enabled) assert.match(view.status, /No failed checks/);
+      if (enabled) assert.match(view.status, /没有失败的检查/);
       // A successful read resets the backoff.
       failures = 1;
       h.refresh();
@@ -716,7 +716,7 @@ for (const enabled of [false, true]) {
       assert.equal(h.view().loading, false);
       if (enabled) {
         assert.equal(h.view().error, "PR head not updated yet");
-        assert.match(h.view().status, /Paused after an error/);
+        assert.match(h.view().status, /出错后已暂停/);
       } else assert.equal(h.view().error, null);
       await h.time.advance(600000);
       assert.equal(h.reads.length, 6);
@@ -736,12 +736,12 @@ await checkAsync(
     await h.time.advance(0);
     assert.equal(h.sends.length, 1);
     assert.equal(h.view().error, null);
-    assert.doesNotMatch(h.view().status, /error/);
+    assert.doesNotMatch(h.view().status, /出错/);
     await h.time.advance(3000);
     assert.equal(h.sends.length, 2);
     assert.deepEqual(payload(h.sends[1].text).checkIds, ["CI"]);
     assert.equal(h.view().error, null);
-    assert.match(h.view().status, /awaiting the agent/);
+    assert.match(h.view().status, /等待智能体响应/);
   },
 );
 
@@ -837,7 +837,7 @@ await checkAsync(
     h.update({ blocked: true });
     h.toggle();
     assert.equal(h.view().enabled, true);
-    assert.match(h.view().status, /Paused/);
+    assert.match(h.view().status, /已暂停/);
     await h.time.advance(60000);
     assert.ok(h.reads.length > 0);
     assert.equal(h.sends.length, 0);
@@ -854,13 +854,13 @@ await checkAsync(
       await h.time.advance(60000);
       assert.ok(h.reads.length > before);
       assert.equal(h.sends.length, 0);
-      assert.match(h.view().status, /Paused/);
+      assert.match(h.view().status, /已暂停/);
     }
     h.update({ runState: "idle" });
     await h.time.advance(0);
     assert.equal(h.reads.at(-1), "a");
     assert.equal(h.sends.length, 1);
-    assert.match(h.view().status, /prompt sent/i);
+    assert.match(h.view().status, /提示已发送/);
   },
 );
 
@@ -872,12 +872,12 @@ await checkAsync("clean and no-PR statuses follow real snapshots", async () => {
   assert.equal(h.view().snapshot, null);
   result = snapshot();
   await h.time.advance(30000);
-  assert.match(h.view().status, /No failed checks/);
+  assert.match(h.view().status, /没有失败的检查/);
   assert.equal(h.view().snapshot.number, 42);
   result = null;
   await h.time.advance(30000);
   assert.equal(h.view().snapshot, null);
-  assert.match(h.view().status, /No open pull request/);
+  assert.match(h.view().status, /没有打开的 PR/);
 });
 
 await checkAsync(
@@ -896,7 +896,7 @@ await checkAsync(
     ]);
     await h.time.advance(90000);
     assert.equal(h.sends.length, 1);
-    assert.match(h.view().status, /already sent/);
+    assert.match(h.view().status, /反馈已发送/);
     result = snapshot({
       failedChecks: [check("check-1"), check("check-2"), check("check-2")],
       threads: [thread("thread-1"), thread("thread-2")],
@@ -951,7 +951,7 @@ await checkAsync(
     result = { ...result, head: "new-head" };
     await h.time.advance(60000);
     assert.equal(h.sends.length, 1);
-    assert.match(h.view().status, /already sent/);
+    assert.match(h.view().status, /反馈已发送/);
   },
 );
 
@@ -994,7 +994,7 @@ await checkAsync(
     h.toggle();
     await h.time.advance(0);
     assert.equal(h.view().error, "GitHub unavailable");
-    assert.match(h.view().status, /error/);
+    assert.match(h.view().status, /出错/);
     await h.time.advance(120000);
     assert.equal(h.reads.length, 1);
     h.toggle();
@@ -1003,7 +1003,7 @@ await checkAsync(
     await h.time.advance(0);
     assert.equal(h.reads.length, 2);
     assert.equal(h.view().error, null);
-    assert.match(h.view().status, /No failed checks/);
+    assert.match(h.view().status, /没有失败的检查/);
   },
 );
 
@@ -1047,7 +1047,7 @@ await checkAsync(
     assert.deepEqual(h.sends, []);
     h.update({ runState: "idle" });
     await h.time.advance(0);
-    assert.match(h.view().status, /No failed checks/);
+    assert.match(h.view().status, /没有失败的检查/);
   },
 );
 
@@ -1059,7 +1059,7 @@ await checkAsync(
     });
     h.toggle();
     await h.time.advance(0);
-    assert.match(h.view().error, /Invalid/);
+    assert.match(h.view().error, /无效/);
     assert.equal(h.sends.length, 0);
     await h.time.advance(120000);
     assert.equal(h.reads.length, 1);
@@ -1152,7 +1152,7 @@ await checkAsync(
     h.update({ tabId: "b", projectKey: "/other" });
     assert.equal(h.view().enabled, false);
     h.update({ tabId: "a", projectKey: "/repo" });
-    assert.match(h.view().status, /inactive/);
+    assert.match(h.view().status, /未激活/);
     pending.resolve(snapshot({ failedChecks: [check("stale")] }));
     await h.time.advance(0);
     assert.deepEqual(h.reads, ["a", "a"]);
@@ -1206,12 +1206,12 @@ await checkAsync(
       pending.resolve(snapshot({ failedChecks: [check("stale")] }));
       await h.time.advance(60000);
       assert.equal(h.sends.length, 0);
-      assert.match(h.view().status, /Paused/);
+      assert.match(h.view().status, /已暂停/);
       const readsBeforeIdle = h.reads.length;
       h.update({ runState: "idle", blocked: false });
       await h.time.advance(0);
       assert.equal(h.reads.length, readsBeforeIdle + 1);
-      assert.match(h.view().status, /No failed checks/);
+      assert.match(h.view().status, /没有失败的检查/);
     }
   },
 );
@@ -1228,7 +1228,7 @@ await checkAsync(
     pending.resolve(snapshot({ failedChecks: [check("stale")] }));
     await h.time.advance(60000);
     assert.equal(h.sends.length, 0);
-    assert.match(h.view().status, /Paused/);
+    assert.match(h.view().status, /已暂停/);
   },
 );
 
@@ -1242,7 +1242,7 @@ await checkAsync(
     });
     h.toggle();
     await h.time.advance(0);
-    assert.match(h.view().status, /Sending fix prompt/);
+    assert.match(h.view().status, /正在发送修复提示/);
     h.update({ runState: "running" });
     pending.resolve(false);
     await h.time.advance(0);
@@ -1269,7 +1269,7 @@ await checkAsync(
     h.update({ tabId: "a", projectKey: "/repo" });
     await h.time.advance(60000);
     assert.equal(h.sends.length, 1);
-    assert.match(h.view().status, /already sent/);
+    assert.match(h.view().status, /反馈已发送/);
   },
 );
 
@@ -1307,7 +1307,7 @@ await checkAsync(
     });
     h.toggle();
     await h.time.advance(0);
-    assert.match(h.view().status, /Sending fix prompt/);
+    assert.match(h.view().status, /正在发送修复提示/);
     const reads = h.reads.length;
     h.refresh();
     // The bridge rechecks this after its own GitHub read.
@@ -1315,7 +1315,7 @@ await checkAsync(
     pending.resolve(true);
     await h.time.advance(0);
     assert.equal(h.view().error, null);
-    assert.match(h.view().status, /awaiting/);
+    assert.match(h.view().status, /等待/);
     assert.equal(h.sends.length, 1);
     assert.equal(h.reads.length, reads + 1);
   },

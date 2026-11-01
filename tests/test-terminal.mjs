@@ -286,9 +286,9 @@ check("shellMenu: an empty setting checks default and names the default shell", 
   const m = menu("");
   assert.equal(m.label, "cmd");
   assert.deepEqual(m.rows.map((r) => [r.name, r.hint, r.value]), [
-    ["default", "cmd", ""], ["cmd", "", SHELLS[0].path], ["pwsh", "", SHELLS[1].path],
+    ["默认", "cmd", ""], ["cmd", "", SHELLS[0].path], ["pwsh", "", SHELLS[1].path],
   ]);
-  assert.deepEqual(checkedOf(m), ["default"]);
+  assert.deepEqual(checkedOf(m), ["默认"]);
 });
 
 check("shellMenu: an installed shell is checked by its path, not as default", () => {
@@ -309,7 +309,7 @@ check("shellMenu: a Windows path in another case or with / checks the listed row
 check("shellMenu: a unix path differing only in case is another program", () => {
   const m = T.shellMenu({ shell: "/usr/bin/Bash", defaultShell: "/bin/zsh", shells: [{ name: "bash", path: "/usr/bin/bash" }] });
   assert.deepEqual(m.rows.map((r) => [r.name, r.hint, r.checked]), [
-    ["default", "zsh", false], ["bash", "", false], ["Bash", "other", true],
+    ["默认", "zsh", false], ["bash", "", false], ["Bash", "其他", true],
   ]);
 });
 
@@ -317,14 +317,14 @@ check("shellMenu: a stored shell outside the list gets its own checked row, mark
   const custom = "D:\\tools\\nu\\nu.exe";
   const m = menu(custom);
   assert.equal(m.label, "nu");
-  assert.deepEqual(m.rows.at(-1), { name: "nu", hint: "other", path: custom, value: custom, checked: true });
+  assert.deepEqual(m.rows.at(-1), { name: "nu", hint: "其他", path: custom, value: custom, checked: true });
   assert.deepEqual(checkedOf(m), ["nu"]);
 });
 
 check("shellMenu: settings not loaded yet still give one checked default row", () => {
   const m = T.shellMenu(null);
-  assert.equal(m.label, "default", "names the row, like the browser's `automatic`");
-  assert.deepEqual(m.rows, [{ name: "default", hint: "", path: "", value: "", checked: true }]);
+  assert.equal(m.label, "默认", "names the row, like the browser's automatic entry");
+  assert.deepEqual(m.rows, [{ name: "默认", hint: "", path: "", value: "", checked: true }]);
 });
 
 check("clampHeight stays within [120, 70% of column]", () => {

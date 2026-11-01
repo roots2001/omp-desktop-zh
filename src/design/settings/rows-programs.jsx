@@ -38,7 +38,7 @@ function _SRP_Shell({ row, ctx, query }) {
   return (
     <Row label={row.label} query={query} desc={`${row.desc}${fallback}`}
       resettable={!!settings?.shell} onReset={() => save("")}>
-      <PathPicker name="shell" label={label} rows={rows} disabled={!settings} error={error}
+      <PathPicker name="命令行" label={label} rows={rows} disabled={!settings} error={error}
         title={settings ? (settings.shell || `default: ${settings.defaultShell}`) : undefined}
         save={save} pick={pick} />
     </Row>
@@ -60,7 +60,7 @@ function _SRP_TerminalHeight({ row, ctx, query, modified, onReset }) {
 function _SRP_chromiumTitle(settings) {
   if (!settings) return undefined;
   if (settings.path) return settings.path;
-  return settings.automatic ? `automatic: ${settings.automatic}` : "automatic: no Chromium-based browser found";
+  return settings.automatic ? `自动：${settings.automatic}` : "自动：未找到基于 Chromium 的浏览器";
 }
 
 function _SRP_Chromium({ row, ctx, query }) {

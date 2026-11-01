@@ -14,6 +14,7 @@ pub fn lookup(path: &str) -> Option<Asset> {
             "text/html; charset=utf-8",
             include_bytes!("../../../src/remote/index.html"),
         ),
+        "/zh-i18n.js" => (JS, include_bytes!("../../../src/zh-i18n.js")),
         "/remote.js" => (JS, include_bytes!("../../../src/remote/remote.js")),
         "/client.js" => (JS, include_bytes!("../../../src/remote/client.js")),
         "/scanner.js" => (JS, include_bytes!("../../../src/remote/scanner.js")),

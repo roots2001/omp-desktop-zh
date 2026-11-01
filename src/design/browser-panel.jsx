@@ -10,9 +10,9 @@
 const { BrowserToolbar: _BP_Toolbar, OMP_BROWSER: _BP } = window;
 
 const _BP_STATUS = {
-  starting: "starting browser…",
-  stopped: "browser stopped — reload to restart",
-  error: "browser unavailable",
+  starting: "正在启动浏览器…",
+  stopped: "浏览器已停止——重新加载即可重启",
+  error: "浏览器不可用",
 };
 
 // Place a page-px point as % of the view.
@@ -67,14 +67,14 @@ function BrowserPopover({ pick, page, failed, onSave, onCancel }) {
       </div>
       {failed && (
         <div className="browser-popover-note">
-          Screenshot failed — annotation will be sent without image
+          截图失败——批注将不带图片发送
         </div>
       )}
       <textarea
         autoFocus
         rows={3}
         value={text}
-        placeholder="comment — Enter saves, Shift+Enter new line, Esc cancels"
+        placeholder="批注——Enter 保存，Shift+Enter 换行，Esc 取消"
         onChange={(e) => setText(e.target.value)}
         onKeyDown={onKeyDown}
       />
@@ -92,12 +92,12 @@ function BrowserPanel({ ui }) {
   const retry = state.status === "stopped" || state.status === "error";
   const marked = page ? chips.filter((c) => c.pick.url === state.url) : [];
   return (
-    <section className="browser-panel" aria-label="browser">
+    <section className="browser-panel" aria-label="浏览器">
       <_BP_Toolbar ui={ui} />
       <div className="browser-body">
         {state.loading && <div className="browser-loading" />}
         <div className={`browser-view${ui.annotate ? " annotating" : ""}`} ref={ui.viewRef}>
-          <textarea className="browser-sink" ref={ui.sinkRef} aria-label="page keyboard input" tabIndex={0}
+          <textarea className="browser-sink" ref={ui.sinkRef} aria-label="页面键盘输入" tabIndex={0}
             autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} />
           <canvas className="browser-canvas" ref={ui.canvasRef} />
           {marked.map((c) => (
@@ -116,7 +116,7 @@ function BrowserPanel({ ui }) {
             <div className={`browser-status ${state.status}${state.error ? " failed" : ""}${strip ? " strip" : ""}`}
               role={state.error ? "alert" : "status"}>
               <span>{message}</span>
-              {retry && <button className="btn" onClick={ui.restart}>reload</button>}
+              {retry && <button className="btn" onClick={ui.restart}>重新加载</button>}
             </div>
           )}
         </div>

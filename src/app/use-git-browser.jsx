@@ -20,7 +20,7 @@ const {
   discardDeletes: _UGB_discardDeletes,
 } = window.OMP_GIT_BROWSER;
 
-const _UGB_NO_PROJECT = "this tab has no project folder";
+const _UGB_NO_PROJECT = "这个标签页没有项目文件夹";
 
 /** `{ value, error }` of a bridge result (`{ok, value | error}`, or null
  *  for a tab without a project folder). */

@@ -78,17 +78,17 @@ function PrAutomationMenu({
       }
     >
       <button role="menuitem" onClick={() => onOpen("")}>
-        Open on GitHub
+        在 GitHub 上打开
       </button>
       <button role="menuitem" onClick={onCopy}>
-        Copy link
+        复制链接
       </button>
       <div className="pr-changes-separator" role="separator" />
       <button role="menuitem" onClick={() => onOpen("/files")}>
-        View changes
+        查看改动
       </button>
       <button role="menuitem" onClick={() => onOpen("#discussion_bucket")}>
-        Open review comments
+        打开审查意见
       </button>
       <div className="pr-changes-separator" role="separator" />
       <button
@@ -102,17 +102,16 @@ function PrAutomationMenu({
         <span className="pr-changes-checkbox" aria-hidden="true">
           {automation.enabled && <window.Icon name="check" size={10} />}
         </span>
-        Auto-fix
+        自动修复
       </button>
       <p id={descriptionId} className="pr-changes-menu-note">
-        Fix CI and review feedback. May commit, push and resolve addressed
-        threads; tool approvals still apply.
+        修复 CI 和审查意见。可以提交、推送并关闭已处理的讨论串；工具审批仍然生效。
       </p>
       <p className="pr-changes-menu-status" role="status">
         {automation.status}
       </p>
       <p className="pr-changes-menu-note">
-        This tab only. Stop also turns Auto-fix off.
+        仅本标签页。停止时也会关闭自动修复。
       </p>
       {error && (
         <p className="pr-changes-error" role="alert">
