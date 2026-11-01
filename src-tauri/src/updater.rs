@@ -384,7 +384,7 @@ mod tests {
     fn release_url_points_at_the_fork_tag_or_index() {
         assert_eq!(
             release_url("0.4.0"),
-            "https://github.com/apoc/omp-desktop/releases/tag/v0.4.0"
+            "https://github.com/roots2001/omp-desktop-zh/releases/tag/v0.4.0"
         );
         assert_eq!(
             release_url(""),

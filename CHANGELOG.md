@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - 中文版不连接上游更新源；版本入口改为打开发行页面并手动升级，避免被替换成英文上游构建。
 - README 改为中文版说明，并明确当前尚未正式发布。
 - 发行链接、Cargo 仓库信息和公开文档统一指向 `roots2001/omp-desktop-zh`，并加入防回退检查。
+- 修复 Rust 更新页链接测试仍指向旧上游发行页的问题。
 
 
 ## [0.13.2] - 2026-10-31
